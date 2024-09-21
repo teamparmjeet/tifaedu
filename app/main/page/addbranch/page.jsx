@@ -4,6 +4,7 @@ import axios from "axios";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
+import { CirclePlus } from "lucide-react";
 
 export default function Page() {
   // State to store form data
@@ -25,11 +26,11 @@ export default function Page() {
     defaultdata: "branch",
   });
 
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); 
+  const [success, setSuccess] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
- 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -54,7 +55,7 @@ export default function Page() {
     }
   };
 
- 
+
   const handleCourseChange = (index, value) => {
     const updatedCourses = [...formData.courses];
     updatedCourses[index] = value;
@@ -69,7 +70,7 @@ export default function Page() {
     setFormData({ ...formData, courses: updatedCourses });
   };
 
- 
+
   useEffect(() => {
     const isFormFilled =
       formData.branch_name &&
@@ -84,7 +85,7 @@ export default function Page() {
     setIsFormValid(isFormFilled);
   }, [formData]);
 
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -92,7 +93,7 @@ export default function Page() {
     setSuccess("");
 
     try {
-     
+
       const response = await axios.post("/api/branch/create", formData);
       if (response.status === 200) {
         setSuccess("Branch successfully created!");
@@ -124,83 +125,83 @@ export default function Page() {
 
   return (
     <div className="container lg:w-[90%] mx-auto py-5">
-         <Toaster />
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
-        <div className="bg-[#6cb049] text-white p-4 flex justify-between w-full">
-          <h1 className="text-3xl font-bold">Add A New Branch</h1>
+      <Toaster />
+      <div className="bg-white shadow-lg   overflow-hidden border border-gray-200">
+        <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
+          <h1 className="text-lg font-bold">Add New Branch</h1>
         </div>
 
-      
+
         {error && <div className="text-red-500">{error}</div>}
         {success && <div className="text-green-500">{success}</div>}
 
         <form onSubmit={handleSubmit} className="px-5 py-3 space-y-3">
           {/* Branch Name */}
-          <div>
-            <label htmlFor="branch_name" className="block text-gray-700">
-              Branch Name
-            </label>
-            <input
-              type="text"
-              name="branch_name"
-              value={formData.branch_name}
-              onChange={handleChange}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            />
-          </div>
+          <div className="grid grid-cols-12 gap-4">
+            <div className="col-span-6">
+              <label htmlFor="branch_name" className="block text-[12px] text-gray-700">
+                Branch Name
+              </label>
+              <input
+                type="text"
+                name="branch_name"
+                placeholder="Enter Branch Name"
+                value={formData.branch_name}
+                onChange={handleChange}
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              />
+            </div>
+            <div className="col-span-6">
+              <label className="block text-[12px] text-gray-700">Street</label>
+              <input
+                type="text"
+                name="location.street"
+                value={formData.location.street}
+                placeholder="Street"
+                onChange={handleChange}
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200   placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              />
+            </div>
 
-          {/* Location: Street */}
-          <div>
-            <label className="block text-gray-700">Street</label>
-            <input
-              type="text"
-              name="location.street"
-              value={formData.location.street}
-              onChange={handleChange}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            />
-          </div>
 
-          {/* Location: City */}
-          <div>
-            <label className="block text-gray-700">City</label>
-            <input
-              type="text"
-              name="location.city"
-              value={formData.location.city}
-              onChange={handleChange}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            />
-          </div>
+            <div className="col-span-6">
+              <label className="block text-[12px] text-gray-700">City</label>
+              <input
+                type="text"
+                name="location.city"
+                value={formData.location.city}
+                onChange={handleChange}
+                placeholder="City"
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200   placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              />
+            </div>
 
-          {/* Location: State */}
-          <div>
-            <label className="block text-gray-700">State</label>
-            <input
-              type="text"
-              name="location.state"
-              value={formData.location.state}
-              onChange={handleChange}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            />
-          </div>
+            <div className="col-span-6">
+              <label className="block text-[12px] text-gray-700">State</label>
+              <input
+                type="text"
+                name="location.state"
+                value={formData.location.state}
+                onChange={handleChange}
+                placeholder="State"
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              />
+            </div>
 
-          {/* Location: Zip Code */}
-          <div>
-            <label className="block text-gray-700">Zip Code</label>
-            <input
-              type="number"
-              name="location.zipCode"
-              value={formData.location.zipCode}
-              onChange={handleChange}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            />
-          </div>
+            <div className="col-span-6">
+              <label className="block text-[12px] text-gray-700">Zip Code</label>
+              <input
+                type="number"
+                name="location.zipCode"
+                value={formData.location.zipCode}
+                onChange={handleChange}
+                placeholder="Zip Code"
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200   placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              />
+            </div>
 
-          <div className="grid grid-cols-2 gap-x-4">
-            {/* Contact Info: Phone Number */}
-            <div>
-              <label className="block text-gray-700">Phone Number</label>
+            <div className="col-span-6">
+              <label className="block text-[12px] text-gray-700">Phone Number</label>
               <PhoneInput
                 country={"in"}
                 value={formData.contactInfo.phoneNumber}
@@ -210,35 +211,36 @@ export default function Page() {
                     contactInfo: { ...formData.contactInfo, phoneNumber: phone },
                   })
                 }
-                className="w-full"
+                className="w-full rounded-0"
               />
             </div>
 
-            {/* Contact Info: Email */}
-            <div>
-              <label className="block text-gray-700">Email</label>
+            <div className="col-span-12">
+              <label className="block  text-[12px] text-gray-700">Email</label>
               <input
                 type="email"
                 name="contactInfo.email"
                 value={formData.contactInfo.email}
                 onChange={handleChange}
-                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                placeholder="Enter Mail ID"
+                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
               />
             </div>
+
           </div>
 
-          {/* Courses */}
           <div>
-            <label className="block text-gray-700">Courses</label>
+            <label className="block  text-[12px] text-gray-700">Courses</label>
             {formData.courses.map((course, index) => (
-             <div key={index} className="flex items-center gap-2">
-             <input
-               type="text"
-               value={course}
-               onChange={(e) => handleCourseChange(index, e.target.value)}
-               className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-             />
-            {formData.courses.length > 1 && (
+              <div key={index} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={course}
+                  placeholder="Course Name"
+                  onChange={(e) => handleCourseChange(index, e.target.value)}
+                  className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200   placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                />
+                {formData.courses.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeCourse(index)}
@@ -247,15 +249,12 @@ export default function Page() {
                     &#x2715;
                   </button>
                 )}
-           </div>
+              </div>
             ))}
-            <button
-              type="button"
-              onClick={addCourse}
-              className="mt-2 text-[#6cb049] underline"
-            >
-              Add More Courses
+            <button type="button" onClick={addCourse} className="bg-[#29234b] mt-3 rounded-md flex items-center text-white text-sm px-4 py-2 ">
+              <CirclePlus size={16} className='me-1' /> Add Course
             </button>
+
           </div>
 
           {/* Submit button */}
@@ -263,11 +262,10 @@ export default function Page() {
             <button
               type="submit"
               disabled={!isFormValid || loading}
-              className={`${
-                !isFormValid || loading ? "bg-gray-400" : "bg-[#6cb049]"
-              } text-white w-full font-bold py-2 px-4 rounded-md`}
+              className={`${!isFormValid || loading ? "bg-gray-400" : "bg-[#6cb049]"
+                } text-white w-full font-bold py-2 px-4 rounded-md`}
             >
-              {loading ? "Submitting..." : "Submit"}
+              {loading ? "Submitting..." : "Add Branch"}
             </button>
           </div>
         </form>

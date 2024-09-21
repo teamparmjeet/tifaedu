@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 export default function Signin() {
@@ -15,6 +15,7 @@ export default function Signin() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -124,7 +125,7 @@ export default function Signin() {
             <div className="relative">
               <Input
                 placeholder="Enter Password"
-                type="password"
+                type={showPassword ? "text" : "password"} // Toggle password visibility
                 id="password"
                 name="password"
                 icon={<Lock size={15} />}
@@ -132,7 +133,14 @@ export default function Signin() {
                 onChange={handleChange}
                 disabled={loading}
                 required
+                className="pr-10"
               />
+              <div
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)} // Toggle the visibility
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </div>
             </div>
             <button
               type="submit"

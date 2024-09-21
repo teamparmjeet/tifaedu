@@ -113,9 +113,9 @@ export default function Page() {
           <Toaster />
       <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
         <div className="bg-[#6cb049] text-white p-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Your Account</h1>
+          <h1 className="text-lg font-bold">Your Account</h1>
           <button
-            className="bg-white text-[#6cb049] font-semibold px-4 py-2 rounded shadow hover:bg-gray-100"
+            className="bg-white text-[#6cb049] text-sm px-4 py-2 rounded shadow hover:bg-gray-100"
             onClick={() => signOut()}
           >
             Sign Out
