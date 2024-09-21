@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image'
 import { LogOut, Settings, User } from 'lucide-react'
+import Link from 'next/link';
 export default function Profilepic() {
     const [open, setOpen] = useState(false);
     const { data: session } = useSession();
@@ -42,12 +43,12 @@ export default function Profilepic() {
                         </div>
 
                         <div className='border-t mt-3 pt-3'>
-                           
+                            <Link href="/main/page/profile" onClick={() => { setOpen(!open);   }} >
                             <div className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
                                 <User className='w-5 h-5 text-gray-600' />
                                 <span className='text-gray-700 font-medium'>Profile</span>
                             </div>
-                           
+                            </Link>
                             <div className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
                                 <Settings className='w-5 h-5 text-gray-600' />
                                 <span className='text-gray-700 font-medium'>Settings</span>

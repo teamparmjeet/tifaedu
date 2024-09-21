@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { LaptopMinimal, Settings, Bell, Menu, X, Search } from "lucide-react"
 import Btn1 from '@/components/Button/Btn1'
-import Profilepic from '@/components/Profile/Profilepic'
+import Profilepic from './Profile/Profilepic'
 import Smallbtn from '@/components/Button/Smallbtn'
 import Image from 'next/image'
 import { Menulist } from '@/constants/Menu'
