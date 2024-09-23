@@ -59,73 +59,93 @@ export const GET = async (request, context) => {
 }
 
 const handleCallStage = (query, action) => {
-    const allowedCallStages = ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'auto-closed'];
+    const allowedCallStages = ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'call-no-lifting', 'auto-closed'];
 
-    if (allowedCallStages.includes(action)) {
-        if (query.callStage === 'new' && action === 'RNR1') {
-            query.callStage = 'RNR1';
-        } else if (query.callStage === 'RNR1' && action === 'RNR2') {
-            query.callStage = 'RNR2';
-        } else if (query.callStage === 'RNR2' && action === 'RNR3') {
-            query.callStage = 'RNR3';
-        } else if (query.callStage === 'RNR3' && action === 'auto-closed') {
-            query.callStage = 'auto-closed'; // After RNR3, auto-closure
-            query.status = 'spam';
-        } else if (action === 'call-back') {
-            query.callStage = 'call-back';
-        } else if (action === 'busy') {
-            query.callStage = 'busy';
-        } else {
-            throw new Error('Invalid call stage transition');
-        }
-    } else {
+    if (!allowedCallStages.includes(action)) {
         throw new Error('Invalid call stage action');
+    }
+
+    switch (query.callStage) {
+        case 'new':
+            if (action === 'RNR1') query.callStage = 'RNR1';
+            break;
+        case 'RNR1':
+            if (action === 'RNR2') query.callStage = 'RNR2';
+            break;
+        case 'RNR2':
+            if (action === 'RNR3') query.callStage = 'RNR3';
+            break;
+        case 'RNR3':
+            if (action === 'auto-closed') {
+                query.callStage = 'auto-closed';
+                query.status = 'spam'; // Auto-close leads to spam status
+            }
+            break;
+        default:
+            if (action === 'call-back') {
+                query.callStage = 'call-back';
+            } else if (action === 'busy') {
+                query.callStage = 'busy';
+            } else if (action === 'call-no-lifting') {
+                query.callStage = 'call-no-lifting';
+            } else {
+                throw new Error('Invalid call stage transition');
+            }
     }
 };
 
 const handleConnectionStatus = (query, action) => {
     const allowedConnectionStages = ['not-connected1', 'not-connected2', 'not-connected3', 'connected', 'transferred'];
 
-    if (allowedConnectionStages.includes(action)) {
-        if (query.connectionStatus === 'not-connected1' && action === 'not-connected2') {
-            query.connectionStatus = 'not-connected2';
-        } else if (query.connectionStatus === 'not-connected2' && action === 'not-connected3') {
-            query.connectionStatus = 'not-connected3';
-        } else if (query.connectionStatus === 'not-connected3' && action === 'transferred') {
-            query.connectionStatus = 'transferred'; // After 3 attempts, auto-transfer
-            // Here, you should implement the logic to transfer the query to another branch
-        } else if (action === 'connected') {
-            query.connectionStatus = 'connected';
-        } else {
-            throw new Error('Invalid connection status transition');
-        }
-    } else {
+    if (!allowedConnectionStages.includes(action)) {
         throw new Error('Invalid connection status action');
+    }
+
+    switch (query.connectionStatus) {
+        case 'not-connected1':
+            if (action === 'not-connected2') query.connectionStatus = 'not-connected2';
+            break;
+        case 'not-connected2':
+            if (action === 'not-connected3') query.connectionStatus = 'not-connected3';
+            break;
+        case 'not-connected3':
+            if (action === 'transferred') {
+                query.connectionStatus = 'transferred'; // Auto-transfer after 3 attempts
+                // Implement logic for transferring the query
+            }
+            break;
+        default:
+            if (action === 'connected') {
+                query.connectionStatus = 'connected';
+            } else {
+                throw new Error('Invalid connection status transition');
+            }
     }
 };
 
 const handleLeadStatus = (query, action) => {
-    const allowedLeadStatuses = ['wrong-lead', 'not-interested', 'interested', 'NPR1', 'NPR2', 'ready-to-join', 'enrolled', 'branch-visited', 'not-visited'];
+    const allowedLeadStatuses = [
+        'wrong-lead', 'not-interested', 'interested', 'NPR1', 'NPR2', 
+        'ready-to-join', 'enrolled', 'branch-visited', 'not-visited'
+    ];
 
-    if (allowedLeadStatuses.includes(action)) {
-        if (action === 'wrong-lead') {
-            query.leadStatus = 'wrong-lead';
-        } else if (action === 'not-interested') {
-            query.leadStatus = 'not-interested';
-        } else if (action === 'NPR1' || action === 'NPR2') {
-            query.leadStatus = action;
-        } else if (action === 'ready-to-join') {
-            query.leadStatus = 'ready-to-join';
-        } else if (action === 'enrolled') {
-            query.leadStatus = 'enrolled';
-        } else if (action === 'branch-visited') {
-            query.leadStatus = 'branch-visited';
-        } else if (action === 'not-visited') {
-            query.leadStatus = 'not-visited';
-        } else {
-            throw new Error('Invalid lead status transition');
-        }
-    } else {
+    if (!allowedLeadStatuses.includes(action)) {
         throw new Error('Invalid lead status action');
+    }
+
+    switch (action) {
+        case 'wrong-lead':
+        case 'not-interested':
+        case 'interested':
+        case 'NPR1':
+        case 'NPR2':
+        case 'ready-to-join':
+        case 'enrolled':
+        case 'branch-visited':
+        case 'not-visited':
+            query.leadStatus = action;
+            break;
+        default:
+            throw new Error('Invalid lead status transition');
     }
 };
