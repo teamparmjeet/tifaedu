@@ -5,16 +5,9 @@ export async function POST(req, res) {
     await dbConnect();
 
     try {
-        const { studentName, studentContact, courseInterest, branch, assignedTo, notes } = await req.json();
+        const query = await req.json();
 
-        const newQuery = new QueryModel({
-            studentName,
-            studentContact,
-            courseInterest,
-            branch,
-            assignedTo,  // This could be optional if you want to assign later
-            notes,       // Optional notes field
-        });
+        const newQuery = new QueryModel(query);
 
         await newQuery.save();
         return Response.json({

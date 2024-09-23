@@ -68,18 +68,20 @@ export default function Sidebar({ onToggleSidebar }) {
                   Dashboard
                 </li>
               </Link>
-             
-                <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                >
-                  <LayoutList size={18} />
-                  All Queries
-                </li>
-            
+
+              <Link href="/main/page/allquery">
+              <li
+                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                  }`}
+              >
+                <LayoutList size={18} />
+                All Queries
+              </li>
+              </Link>
 
 
-            
+
+              <Link href="/main/page/addquery">
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -87,24 +89,25 @@ export default function Sidebar({ onToggleSidebar }) {
                   <CopyPlus size={18} />
                   Add Query
                 </li>
-             
-             
-                <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                >
-                  <ListTodo size={18} />
-                  Assigned Query
-                </li>
-                
-                <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                    }`}
-                >
-                  <Rocket size={18} />
-                  Important Queries
-                </li>
-             
+              </Link>
+
+
+              <li
+                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                  }`}
+              >
+                <ListTodo size={18} />
+                Assigned Query
+              </li>
+
+              <li
+                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                  }`}
+              >
+                <Rocket size={18} />
+                Important Queries
+              </li>
+
               <Link href="/main/page/staff">
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/staff") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
@@ -127,20 +130,20 @@ export default function Sidebar({ onToggleSidebar }) {
                       }`}
                     onClick={() => handleClick(item.id)}
                   >
-                   
+
                     <item.icon size={18} />{item.title}
                   </div>
                   {openSubmenu === item.id && item.submenu && (
                     <ul className="shadow-lg mt-2 transition-all duration-300 ease-in-out">
                       {item.submenu.map((submenuItem, index) => (
-                        <Link  key={index} href={submenuItem.href}>
-                        <li
-                         
-                          className={`${isActiveLink(`${submenuItem.href}`) ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"} cursor-pointer text-sm border-b  text-gray-700  px-4 py-2 duration-150 flex items-center gap-x-2`}
+                        <Link key={index} href={submenuItem.href}>
+                          <li
+
+                            className={`${isActiveLink(`${submenuItem.href}`) ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"} cursor-pointer text-sm border-b  text-gray-700  px-4 py-2 duration-150 flex items-center gap-x-2`}
                           >
-                          <submenuItem.icon size={15} /> {submenuItem.name}
-                        </li>
-                          </Link>
+                            <submenuItem.icon size={15} /> {submenuItem.name}
+                          </li>
+                        </Link>
                       ))}
                     </ul>
                   )}
@@ -150,7 +153,7 @@ export default function Sidebar({ onToggleSidebar }) {
 
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
-               
+
                 <div className="cursor-pointer hover:bg-[#f56565] text-sm rounded-md text-[#f56565] hover:text-white  px-4 py-3 duration-150 flex items-center gap-x-2">
                   <Trash2 size={18} />
                   Trash

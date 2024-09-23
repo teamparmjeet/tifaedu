@@ -6,16 +6,21 @@ const querySchema = new Schema({
         required: true,
     },
     studentContact: {
-        type: String,
-        required: true,
+        phoneNumber: { type: String, required: true },
+        address: { type: String, required: true }
     },
     courseInterest: {
         type: String,
         required: true,
     },
+    // assignedTo: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Admin',
+    // },
     assignedTo: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Admin',
+        type: String,
+        default:"Not-Assigned",
+        required: true,
     },
     branch: {
         type: String,
@@ -24,32 +29,22 @@ const querySchema = new Schema({
     // Call handling stages
     callStage: {
         type: String,
-        enum: ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'call-no-lifting', 'auto-closed'],
+        enum: ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'auto-closed'],
+        required: true,
         default: 'new',
     },
     // Connection status stage
     connectionStatus: {
         type: String,
-        enum: ['not-connected1', 'not-connected2', 'not-connected3', 'connected', 'transferred']
+        enum: ['not-connected1', 'not-connected2', 'not-connected3', 'connected', 'transferred'],
+        required: true,
+        default: 'not-connected1',
     },
     // Lead qualification stage
     leadStatus: {
         type: String,
-        enum: [
-            'wrong-lead',               // Lead not useful (wrong number or job seeker)
-            'not-interested',            // Lead not interested in the course
-            'interested',                // Lead is interested in the course
-            'NPR1',                      // No Proper Response 1st follow-up
-            'NPR2',                      // No Proper Response 2nd follow-up
-            'ready-to-join',             // Lead is ready to join the course
-            'enrolled',                  // Lead has enrolled in the course
-            'branch-visited',            // Visited the branch and interested
-            'not-visited',               // Did not visit the branch
-            'visited-not-interested',    // Visited the branch but not interested
-            'follow-up1',                // First follow-up after branch visit
-            'follow-up2',                // Second follow-up after branch visit
-            'lead-closed'                // Lead closed after follow-ups or disinterest
-        ],
+        enum: ['wrong-lead', 'not-interested', 'interested', 'NPR1', 'NPR2', 'ready-to-join', 'enrolled', 'branch-visited', 'not-visited'],
+        required: true,
         default: 'interested',
     },
     history: [
@@ -63,8 +58,9 @@ const querySchema = new Schema({
     notes: {
         type: String,
     },
+    defaultdata: { type: String, required: true, default: "query" }
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Query || mongoose.model('Query', querySchema);
+    mongoose.models.Queries1 || mongoose.model('Queries1', querySchema);
 export default QueryModel;

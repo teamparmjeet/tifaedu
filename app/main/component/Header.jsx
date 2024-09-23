@@ -117,7 +117,11 @@ export default function Header() {
                                         </ul>
                                     </div>
                                 )}
-                                <div className='sm:block hidden'><Btn1 title="New Query" /></div>
+                                <div className='sm:block hidden'>
+                                    <Link href="/main/page/addquery">
+                                    <Btn1 title="New Query" />
+                                    </Link>
+                                    </div>
                                 <div><Profilepic /></div>
                             </div>
                         </div>
