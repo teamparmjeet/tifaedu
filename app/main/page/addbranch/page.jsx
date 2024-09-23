@@ -138,7 +138,7 @@ export default function Page() {
         <form onSubmit={handleSubmit} className="px-5 py-3 space-y-3">
           {/* Branch Name */}
           <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label htmlFor="branch_name" className="block text-[12px] text-gray-700">
                 Branch Name
               </label>
@@ -151,7 +151,7 @@ export default function Page() {
                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
               />
             </div>
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label className="block text-[12px] text-gray-700">Street</label>
               <input
                 type="text"
@@ -164,7 +164,7 @@ export default function Page() {
             </div>
 
 
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label className="block text-[12px] text-gray-700">City</label>
               <input
                 type="text"
@@ -176,7 +176,7 @@ export default function Page() {
               />
             </div>
 
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label className="block text-[12px] text-gray-700">State</label>
               <input
                 type="text"
@@ -188,7 +188,7 @@ export default function Page() {
               />
             </div>
 
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label className="block text-[12px] text-gray-700">Zip Code</label>
               <input
                 type="number"
@@ -200,7 +200,7 @@ export default function Page() {
               />
             </div>
 
-            <div className="col-span-6">
+            <div className="sm:col-span-6 col-span-12">
               <label className="block text-[12px] text-gray-700">Phone Number</label>
               <PhoneInput
                 country={"in"}

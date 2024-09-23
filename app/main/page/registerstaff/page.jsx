@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Input from '@/components/input/Input';
 import toast, { Toaster } from 'react-hot-toast';
-import { User, Mail, Lock, MapPin,Shield } from "lucide-react";
+import { User, Mail, Lock, MapPin, Shield } from "lucide-react";
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -75,29 +75,33 @@ export default function Page() {
         <>
             <div className="container lg:w-[90%] mx-auto py-5">
                 <Toaster />
-                <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
-                    <div className="bg-[#6cb049] text-white p-4 flex justify-between w-full">
-                        <h1 className="text-3xl font-bold">Register Staff</h1>
+                <div className="bg-white shadow-lg   overflow-hidden border border-gray-200">
+                    <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
+                        <h1 className="text-lg font-bold">Register Staff</h1>
                     </div>
                     <form className="px-5 py-3 space-y-3" onSubmit={handleSubmit}>
-                        <div className='relative'>
-                            <Input
-                                placeholder="Enter Name"
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                icon={<User size={15} />}
-                                required
-                            />
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className='relative sm:col-span-6 col-span-12'>
+                                <Input
+                                    placeholder="Enter Name"
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    icon={<User size={15} />}
+                                    required
+                                />
+                            </div>
                         </div>
+
+
 
                         <PhoneInput
                             country={"in"}
                             value={formData.mobile}
                             onChange={handlePhoneChange}
-                            className="w-full"
+                            className="w-full rounded-none"
                             required
                         />
 
@@ -140,10 +144,10 @@ export default function Page() {
                                 required
                             >
                                 <option value="" disabled>Select Roll</option>
-                               
-                                    <option value="0">Staff</option>
-                                    <option value="1">Branch Admin</option>
-                             
+
+                                <option value="0">Staff</option>
+                                <option value="1">Branch Admin</option>
+
                             </select>
                         </div>
 
