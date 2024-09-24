@@ -4,10 +4,11 @@ import axios from "axios";
 import Loader from "@/components/Loader/Loader";
 import { FaMapMarkerAlt, FaBook, FaUser, FaUsers, FaEdit } from "react-icons/fa";
 import toast, { Toaster } from "react-hot-toast";
-
+import { useRouter } from "next/navigation";
 export default function Page({ params }) {
   const { id } = params;
   const [branch, setBranch] = useState(null);
+  const [branchid, setBranchid] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -15,11 +16,13 @@ export default function Page({ params }) {
     courses: [], // Initialize with an empty array for courses
   });
 
+  const router = useRouter();
   useEffect(() => {
     const fetchBranchData = async () => {
       try {
         const response = await axios.get(`/api/branch/find-single/${id}`);
         setBranch(response.data.branch);
+        setBranchid(response.data.branch._id)
         setBranchData(response.data.branch);
       } catch (error) {
         console.error("Error fetching branch data:", error);
@@ -76,6 +79,22 @@ export default function Page({ params }) {
     setIsEditing(false);
     setBranchData(branch);
   };
+
+  const handledelete = async () => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this branch?");
+    
+    if (isConfirmed) {
+      try {
+        await axios.delete(`/api/branch/delete/${branchid}`);
+        router.push("/main/page/branch");
+        toast.success("Branch deleted successfully!");
+      } catch (error) {
+        console.error('Error deleting branch:', error);
+        toast.error("Failed to delete the branch.");
+      }
+    }
+  };
+  
 
   // Handle adding/removing courses
   const addCourse = () => {
@@ -228,18 +247,30 @@ export default function Page({ params }) {
                     className="block w-full px-2 py-3 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                   />
                 </div>
-                <button
-                  onClick={handleSaveChanges}
-                  className="mr-4 py-2 px-4 bg-[#6cb049] text-white rounded"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={handleCancelEdit}
-                  className="py-2 px-4 bg-gray-500 text-white rounded"
-                >
-                  Cancel
-                </button>
+                <div className=" flex flex-col gap-2 md:flex-row justify-between">
+                  <div>
+                    <button
+                      onClick={handleSaveChanges}
+                      className="mr-4 py-2 px-4 bg-[#6cb049] text-white rounded"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="py-2 px-4 bg-gray-500 text-white rounded"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  <div className=" flex justify-end">
+                    <button
+                      onClick={handledelete}
+                      className="py-2 px-4 bg-red-600 text-white rounded"
+                    >
+                      Delete This Branch
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <>

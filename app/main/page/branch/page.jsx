@@ -75,17 +75,26 @@ export default function Branch() {
     };
 
     // Handle bulk delete
-    const handleBulkDelete = async () => {
-        try {
-            // Assuming you have a delete API for deleting multiple branches by their IDs
-            await axios.post('/api/branch/delete', { branchIds: selectedBranches });
-            setBranches(branches.filter(branch => !selectedBranches.includes(branch._id)));
-            setSelectedBranches([]);
-            alert('Branches deleted successfully');
-        } catch (error) {
-            console.error('Error deleting branches:', error);
-        }
-    };
+    // const handleBulkDelete = async () => {
+    //     try {
+    //         // Make a DELETE request to the API with the selected branches' IDs in the request body
+    //         await axios.delete('/api/branch/delete', {
+    //             data: { ids: selectedBranches } // Pass the ids in the 'data' field for DELETE request
+    //         });
+
+    //         // Filter out the deleted branches from the state
+    //         setBranches(branches.filter(branch => !selectedBranches.includes(branch._id)));
+
+    //         // Clear the selected branches after deletion
+    //         setSelectedBranches([]);
+
+    //         alert('Branches deleted successfully');
+    //     } catch (error) {
+    //         console.error('Error deleting branches:', error);
+    //         alert('Error occurred while deleting branches');
+    //     }
+    // };
+
 
     return (
         <div className='container lg:w-[95%] mx-auto py-5'>
@@ -142,14 +151,14 @@ export default function Branch() {
                                         <CirclePlus size={16} className='me-1' /> Add Branch
                                     </button>
                                 </Link>
-
+                                {/* 
                                 <button
                                     className="text-red-500 rounded-md border border-red-500 px-3 py-2"
                                     onClick={handleBulkDelete}
                                     disabled={selectedBranches.length === 0}
                                 >
                                     <Trash2 size={16} />
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </div>
@@ -183,13 +192,13 @@ export default function Branch() {
                         </button>
                     </Link>
 
-                    <button
+                    {/* <button
                         className="text-red-500 rounded-md border border-red-500 px-3 py-2"
                         onClick={handleBulkDelete}
                         disabled={selectedBranches.length === 0}
                     >
                         <Trash2 size={16} />
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
@@ -198,19 +207,7 @@ export default function Branch() {
                 <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
                     <thead className="bg-[#29234b] text-white uppercase">
                         <tr>
-                            <th scope="col" className="px-4 font-medium capitalize py-2">
-                                <input
-                                    type="checkbox"
-                                    onChange={(e) =>
-                                        setSelectedBranches(
-                                            e.target.checked
-                                                ? branches.map(branch => branch._id)
-                                                : []
-                                        )
-                                    }
-                                    checked={selectedBranches.length === branches.length}
-                                />
-                            </th>
+
                             <th scope="col" className="px-4 font-medium capitalize py-2">Branch Name</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Location</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Courses Offered</th>
@@ -233,13 +230,6 @@ export default function Branch() {
                                     key={branch._id}
                                     className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
                                 >
-                                    <td className="px-4 py-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedBranches.includes(branch._id)}
-                                            onChange={() => handleSelectBranch(branch._id)}
-                                        />
-                                    </td>
                                     <td
                                         className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
                                         onClick={() => handleRowClick(branch._id)}

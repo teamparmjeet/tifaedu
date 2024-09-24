@@ -15,6 +15,7 @@ export default function Page() {
             address: "",
         },
         courseInterest: "",
+        deadline:"",
         branch: "",
         notes: ""
     });
@@ -24,6 +25,7 @@ export default function Page() {
     const [success, setSuccess] = useState("");
     const [isFormValid, setIsFormValid] = useState(false);
 
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const fetchBranchData = async () => {
@@ -67,6 +69,7 @@ export default function Page() {
             formData.studentContact.phoneNumber &&
             formData.studentContact.address &&
             formData.courseInterest &&
+            formData.deadline &&
             formData.branch &&
             formData.notes;
 
@@ -94,7 +97,7 @@ export default function Page() {
                         address:"",
                     },
                     courseInterest: "",
-                    assignedTo: "",
+                    deadline:"",
                     branch: "",
                     notes: ""
                 });
@@ -175,6 +178,22 @@ export default function Page() {
                                 placeholder="Enter Address"
                                 value={formData.studentContact.address}
                                 onChange={handleChange}
+                                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                            />
+                        </div> 
+
+
+                         <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="deadline" className="block text-[12px] text-gray-700">
+                                DeadLine
+                            </label>
+                            <input
+                                type="date"
+                                name="deadline"
+                                placeholder="Enter Address"
+                                value={formData.deadline}
+                                onChange={handleChange}
+                                min={today}
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
                         </div>  

@@ -13,13 +13,13 @@ const querySchema = new Schema({
         type: String,
         required: true,
     },
-    // assignedTo: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Admin',
-    // },
+    deadline: {
+        type: Date,
+        required: true
+    },
     assignedTo: {
         type: String,
-        default:"Not-Assigned",
+        default: "Not-Assigned",
         required: true,
     },
     branch: {
@@ -62,5 +62,5 @@ const querySchema = new Schema({
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries1 || mongoose.model('Queries1', querySchema);
+    mongoose.models.Queries2 || mongoose.model('Queries2', querySchema);
 export default QueryModel;

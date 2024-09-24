@@ -34,7 +34,7 @@ export default function AllQuery() {
 
   const router = useRouter();
   const handleRowClick = (id) => {
-    // router.push(`/main/page/allquery/${id}`);
+    router.push(`/main/page/allquery/${id}`);
   };
   const toggleFilterPopup = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -74,16 +74,29 @@ export default function AllQuery() {
     }
   };
 
-  // Handle bulk delete
+
+
   const handleBulkDelete = async () => {
-    try {
-      // Assuming you have a delete API for deleting multiple queries by their IDs
-      await axios.post('/api/querie/delete', { querieIds: selectedqueries });
-      setqueries(queries.filter(querie => !selectedqueries.includes(querie._id)));
-      setSelectedqueries([]);
-      alert('queries deleted successfully');
-    } catch (error) {
-      console.error('Error deleting queries:', error);
+    const isConfirmed = window.confirm("Are you sure you want to delete this Queries?");
+    if (isConfirmed) {
+
+      try {
+        // Make a DELETE request to the API with the selected branches' IDs in the request body
+        await axios.delete('/api/queries/delete', {
+          data: { ids: selectedqueries } // Pass the ids in the 'data' field for DELETE request
+        });
+
+        // Filter out the deleted branches from the state
+        setqueries(queries.filter(querie => !selectedqueries.includes(querie._id)));
+
+        // Clear the selected branches after deletion
+        setSelectedqueries([]);
+
+        alert('queries deleted successfully');
+      } catch (error) {
+        console.error('Error deleting queries:', error);
+        alert(error);
+      }
     }
   };
 
@@ -214,6 +227,7 @@ export default function AllQuery() {
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Address</th>
 
             </tr>
@@ -252,6 +266,10 @@ export default function AllQuery() {
                   <td className="px-4 py-2 text-[12px]">
                     {querie.studentContact.phoneNumber}
                   </td>
+                  <td className="px-4 py-2 text-[12px]">
+                    {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
+                  </td>
+
                   <td className="px-4 py-2 text-[12px]">
                     {querie.studentContact.address}
                   </td>

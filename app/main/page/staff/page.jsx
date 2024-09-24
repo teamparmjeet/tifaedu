@@ -17,7 +17,7 @@ export default function User() {
     const [filteruser, setfilteruser] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    
+
     useEffect(() => {
         const fetchuserData = async () => {
             try {
@@ -79,18 +79,6 @@ export default function User() {
         }
     };
 
-    // Handle bulk delete
-    const handleBulkDelete = async () => {
-        try {
-            // Assuming you have a delete API for deleting multiple userer by their IDs
-            await axios.post('/api/user/delete', { userIds: selecteduserer });
-            setUserer(userer.filter(user => !selecteduserer.includes(user._id)));
-            setSelecteduserer([]);
-            alert('userer deleted successfully');
-        } catch (error) {
-            console.error('Error deleting userer:', error);
-        }
-    };
 
     return (
         <div className='container lg:w-[95%] mx-auto py-5'>
@@ -132,7 +120,16 @@ export default function User() {
                                         <option key={index} value={branch}>{branch}</option>
                                     ))}
                                 </select>
-
+                                <select
+                                    className="border px-3 py-2 focus:outline-none text-sm"
+                                    value={filterStatus}
+                                    onChange={(e) => setFilterStatus(e.target.value)}
+                                >
+                                    <option value="">All User</option>
+                                    <option value="0">User</option>
+                                    <option value="1">Branch Admin</option>
+                                    <option value="2">Tifa Admin</option>
+                                </select>
 
                                 <select
                                     className="border px-3 py-2 focus:outline-none text-sm"
@@ -149,13 +146,7 @@ export default function User() {
                                     </button>
                                 </Link>
 
-                                <button
-                                    className="text-red-500 rounded-md border border-red-500 px-3 py-2"
-                                    onClick={handleBulkDelete}
-                                    disabled={selecteduserer.length === 0}
-                                >
-                                    <Trash2 size={16} />
-                                </button>
+                             
                             </div>
                         </div>
                     </div>
@@ -176,13 +167,15 @@ export default function User() {
 
                     <select
                         className="border px-3 py-2 focus:outline-none text-sm"
-                        value={sortOrder}
+                        value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                     >
                         <option value="">All User</option>
                         <option value="0">User</option>
                         <option value="1">Branch Admin</option>
+                        <option value="2">Tifa Admin</option>
                     </select>
+
 
                     <select
                         className="border px-3 py-2 focus:outline-none text-sm"
@@ -199,13 +192,7 @@ export default function User() {
                         </button>
                     </Link>
 
-                    <button
-                        className="text-red-500 rounded-md border border-red-500 px-3 py-2"
-                        onClick={handleBulkDelete}
-                        disabled={selecteduserer.length === 0}
-                    >
-                        <Trash2 size={16} />
-                    </button>
+                   
                 </div>
             </div>
 
@@ -214,19 +201,7 @@ export default function User() {
                 <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
                     <thead className="bg-[#29234b] text-white uppercase">
                         <tr>
-                            <th scope="col" className="px-4 font-medium capitalize py-2">
-                                <input
-                                    type="checkbox"
-                                    onChange={(e) =>
-                                        setSelecteduserer(
-                                            e.target.checked
-                                                ? userer.map(user => user._id)
-                                                : []
-                                        )
-                                    }
-                                    checked={selecteduserer.length === userer.length}
-                                />
-                            </th>
+                          
                             <th scope="col" className="px-4 font-medium capitalize py-2">User Name</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Email</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Mobile</th>
@@ -249,13 +224,7 @@ export default function User() {
                                     key={user._id}
                                     className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
                                 >
-                                    <td className="px-4 py-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={selecteduserer.includes(user._id)}
-                                            onChange={() => handleSelectuser(user._id)}
-                                        />
-                                    </td>
+                                   
                                     <td
                                         className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
                                         onClick={() => handleRowClick(user._id)}

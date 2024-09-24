@@ -71,7 +71,7 @@ export default function Sidebar({ onToggleSidebar }) {
 
               <Link href="/main/page/allquery">
               <li
-                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/allquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                   }`}
               >
                 <LayoutList size={18} />
@@ -83,7 +83,7 @@ export default function Sidebar({ onToggleSidebar }) {
 
               <Link href="/main/page/addquery">
                 <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/addquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
                 >
                   <CopyPlus size={18} />
