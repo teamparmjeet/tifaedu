@@ -62,7 +62,11 @@ const querySchema = new Schema({
             },
         },
     ],
-    
+    autoclosed: {
+        type: String,
+        enum: ["open", "close"],
+        default: "open"
+    },
     notes: {
         type: String,
     },
@@ -70,5 +74,5 @@ const querySchema = new Schema({
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries6 || mongoose.model('Queries6', querySchema);
+    mongoose.models.Queries7 || mongoose.model('Queries7', querySchema);
 export default QueryModel;

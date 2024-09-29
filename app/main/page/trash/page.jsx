@@ -20,7 +20,7 @@ export default function AllQuery() {
   useEffect(() => {
     const fetchquerieData = async () => {
       try {
-        const response = await axios.get('/api/queries/fetchallbytype/open');
+        const response = await axios.get('/api/queries/fetchallbytype/close');
         setqueries(response.data.fetch);
       } catch (error) {
         console.error('Error fetching querie data:', error);

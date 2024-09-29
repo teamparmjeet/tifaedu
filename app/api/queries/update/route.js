@@ -29,6 +29,11 @@ export const PATCH = async (request) => {
             }
         });
 
+        if (data.callStage === "auto-closed") {
+            data.autoclosed = "close"; // Automatically set autoclosed to "close"
+        }
+
+
         // Update the document
         await QueryModel.updateOne(
             { _id: data.id },

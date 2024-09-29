@@ -70,13 +70,13 @@ export default function Sidebar({ onToggleSidebar }) {
               </Link>
 
               <Link href="/main/page/allquery">
-              <li
-                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/allquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-              >
-                <LayoutList size={18} />
-                All Queries
-              </li>
+                <li
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/allquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  <LayoutList size={18} />
+                  All Queries
+                </li>
               </Link>
 
 
@@ -153,11 +153,13 @@ export default function Sidebar({ onToggleSidebar }) {
 
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
-
-                <div className="cursor-pointer hover:bg-[#f56565] text-sm rounded-md text-[#f56565] hover:text-white  px-4 py-3 duration-150 flex items-center gap-x-2">
-                  <Trash2 size={18} />
-                  Trash
-                </div>
+                <Link href="/main/page/trash">
+                  <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/trash") ? "bg-red-600 text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}>
+                    <Trash2 size={18} />
+                    Trash
+                  </div>
+                </Link>
               </div>
             </div>
           </div>

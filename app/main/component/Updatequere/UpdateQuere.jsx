@@ -75,8 +75,8 @@ export default function UpdateQuere({ isOpen, onClose, initialData = {},refreshD
               id="callStage"
               value={callStage}
               onChange={(e) => setCallStage(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
-            >
+              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              >
               {filteredCallStageOptions.map(option => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -89,8 +89,8 @@ export default function UpdateQuere({ isOpen, onClose, initialData = {},refreshD
               id="connectionStatus"
               value={connectionStatus}
               onChange={(e) => setConnectionStatus(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
-            >
+              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+              >
               {filteredConnectionStatusOptions.map(option => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -103,7 +103,7 @@ export default function UpdateQuere({ isOpen, onClose, initialData = {},refreshD
               id="leadStatus"
               value={leadStatus}
               onChange={(e) => setLeadStatus(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
+               className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
             >
               {filteredLeadStatusOptions.map(option => (
                 <option key={option} value={option}>{option}</option>
