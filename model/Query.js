@@ -51,10 +51,18 @@ const querySchema = new Schema({
         {
             action: String,
             stage: String,
-            actionBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+            actionBy: String,
             actionDate: { type: Date, default: Date.now },
+            changes: {
+                type: Map,
+                of: {
+                    oldValue: Schema.Types.Mixed,
+                    newValue: Schema.Types.Mixed,
+                },
+            },
         },
     ],
+    
     notes: {
         type: String,
     },
@@ -62,5 +70,5 @@ const querySchema = new Schema({
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries2 || mongoose.model('Queries2', querySchema);
+    mongoose.models.Queries6 || mongoose.model('Queries6', querySchema);
 export default QueryModel;
