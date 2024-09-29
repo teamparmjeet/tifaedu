@@ -12,7 +12,7 @@ export default function Page({ params }) {
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
   
-    const fetchBranchData = async () => {
+    const fetchBranchData = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get(`/api/queries/find-single-byid/${id}`);
@@ -23,11 +23,12 @@ export default function Page({ params }) {
         } finally {
             setLoading(false);
         }
-    };
-
+    }, [id]);
+    
     useEffect(() => {
         fetchBranchData();
-    }, [id]);
+    }, [fetchBranchData]);
+    
 
     if (loading) {
         return (
@@ -117,7 +118,7 @@ export default function Page({ params }) {
                                 </div>
                                 <div className="ml-4 flex-grow">
                                     <p className="text-lg font-bold text-gray-800 hover:text-[#6cb049] transition-colors">
-                                        {item.actionBy} updated {query.studentName}'s query
+                                        {item.actionBy} updated {query.studentName}&apos;s query
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
                                         Created on{" "}
