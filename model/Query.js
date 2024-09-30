@@ -14,7 +14,7 @@ const querySchema = new Schema({
         required: true,
     },
     deadline: {
-        type: Date,
+        type: String,
         required: true
     },
     assignedTo: {
@@ -74,5 +74,5 @@ const querySchema = new Schema({
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries7 || mongoose.model('Queries7', querySchema);
+    mongoose.models.Queries8 || mongoose.model('Queries8', querySchema);
 export default QueryModel;

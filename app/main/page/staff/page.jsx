@@ -34,8 +34,8 @@ export default function User() {
     }, []);
 
     const router = useRouter();
-    const handleRowClick = (id) => {
-        // router.push(`/main/page/user/${id}`);
+    const handleRowClick = (email) => {
+        router.push(`/main/page/user/${email}`);
     };
     const toggleFilterPopup = () => {
         setIsFilterOpen(!isFilterOpen);
@@ -227,7 +227,7 @@ export default function User() {
                                    
                                     <td
                                         className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
-                                        onClick={() => handleRowClick(user._id)}
+                                        onClick={() => handleRowClick(user.email)}
                                     >
                                         {user.name}
 

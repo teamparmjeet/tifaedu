@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, X, Home, CopyPlus, ListTodo, Rocket, Gauge, User2Icon, UserPlus2, LayoutDashboard, MapPinHouse, MapPinPlus, Users, LayoutList, Group, Trash2, List, Users2 } from "lucide-react";
+import { Menu, X, CopyPlus, ListTodo, Rocket, Gauge,  LayoutDashboard, Users, LayoutList, Trash2,  FileLineChart } from "lucide-react";
 import { Menulist } from "@/constants/Menu";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
@@ -80,6 +80,16 @@ export default function Sidebar({ onToggleSidebar }) {
               </Link>
 
 
+              <Link href="/main/page/importquery">
+                <li
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/importquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  <FileLineChart size={18} />
+                  Import Query
+                </li>
+              </Link>
+
 
               <Link href="/main/page/addquery">
                 <li
@@ -154,7 +164,7 @@ export default function Sidebar({ onToggleSidebar }) {
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
                 <Link href="/main/page/trash">
-                  <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/trash") ? "bg-red-600 text-white" : "hover:bg-gray-100 text-gray-700"
+                  <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 bg-red-500 text-white rounded-md ${isActiveLink("/main/page/trash") ? "bg-red-600 " : "hover:bg-red-600 text-gray-700"
                     }`}>
                     <Trash2 size={18} />
                     Trash
