@@ -1,146 +1,194 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-export default function UpdateQuere({ isOpen, onClose, initialData = {},refreshData }) {
-  const [callStage, setCallStage] = useState(initialData.callStage || 'new');
-  const [connectionStatus, setConnectionStatus] = useState(initialData.connectionStatus || 'not-connected1');
-  const [leadStatus, setLeadStatus] = useState(initialData.leadStatus || 'interested');
-  const [actionBy, setActionBy] = useState(initialData.actionBy || '');
+export default function UpdateQuere({ isOpen, onClose, initialData = {}, refreshData }) {
+  const [currentStage, setCurrentStage] = useState('Stage 1');
+  const [callHandlingStatus, setCallHandlingStatus] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState('');
+  const [leadQualification, setLeadQualification] = useState('');
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
 
-  const callStageOptions = ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'auto-closed'];
-  const connectionStatusOptions = ['not-connected1', 'not-connected2', 'not-connected3', 'connected', 'transferred'];
-  const leadStatusOptions = ['wrong-lead', 'not-interested', 'interested', 'NPR1', 'NPR2', 'ready-to-join', 'enrolled', 'branch-visited', 'not-visited'];
-
-  const getFilteredOptions = (options, selected) => {
-    const index = options.indexOf(selected);
-    if (index === -1) return options;
-    const filteredOptions = [selected];
-    if (index + 1 < options.length) {
-      filteredOptions.push(options[index + 1]);
-    }
-    return filteredOptions;
+  // Handling stage progress
+  const handleStageChange = (stage) => {
+    setCurrentStage(stage);
   };
 
-  const filteredCallStageOptions = getFilteredOptions(callStageOptions, callStage);
-  const filteredConnectionStatusOptions = getFilteredOptions(connectionStatusOptions, connectionStatus);
-  const filteredLeadStatusOptions = getFilteredOptions(leadStatusOptions, leadStatus);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Function to update the query
+  const handleUpdateQuery = async () => {
     setLoading(true);
-    setError(null);
-
-    const dataToUpdate = {
-      id: initialData._id,
-      callStage,
-      connectionStatus,
-      leadStatus,
-      actionBy:"Tifa Main Branch",
-    };
-
-    console.log('Data to update:', dataToUpdate); // Log the data being sent
-
+    setMessage('');
     try {
-      const response = await axios.patch('/api/queries/update', dataToUpdate);
-      console.log('Response from server:', response.data);
-      if (response.data.success) {
-        refreshData();
-        onClose(); // Close the modal only if the update was successful
-      } else {
-        setError(response.data.message || 'Failed to update query.');
-      }
-    } catch (err) {
-      console.error('Error while updating:', err);
-      setError('An error occurred while updating the information. Please try again.');
+      // Determine the autoclosed value based on callHandlingStatus
+      const autoclosedValue = callHandlingStatus === 'RNR3' ? 'close' : 'open';
+
+      const response = await axios.patch('/api/queries/update', {
+        id: initialData._id,
+        callStage: callHandlingStatus,
+        connectionStatus,
+        leadStatus: leadQualification,
+        notes,
+        autoclosed: autoclosedValue, // Include the autoclosed field in the request
+        actionBy: 'Admin ID', // replace with the actual admin ID
+      });
+      setMessage(response.data.message);
+      refreshData(); // Call refreshData to update the displayed data
+      onClose(); // Close the modal after successful update
+    } catch (error) {
+      setMessage('Error updating query: ' + error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!isOpen) return null;
+  // Rendering Call Handling options
+  const renderCallHandling = () => (
+    <>
+      <h3 className="text-lg font-semibold mb-4">Stage 1: Call Handling</h3>
+      <select
+        value={callHandlingStatus}
+        onChange={(e) => setCallHandlingStatus(e.target.value)}
+        className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+      >
+        <option value="">Select Status</option>
+        <option value="Not Lifting the Call">Not Lifting the Call (Busy, Call Back)</option>
+        <option value="RNR1">RNR1</option>
+        <option value="RNR2">RNR2</option>
+        <option value="RNR3">RNR3 (Auto-Closure)</option>
+      </select>
 
-  return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg max-w-md w-full">
-        <h2 className="text-lg font-bold mb-4">Update Information</h2>
+      {callHandlingStatus === 'RNR3' && (
+        <p className="text-red-500 mb-4">This query will be auto-closed and moved to spam.</p>
+      )}
+      
+      {callHandlingStatus && (
+        <button
+          onClick={() => handleStageChange('Stage 2')}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+        >
+          Next: Connection Status
+        </button>
+      )}
+    </>
+  );
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+  // Rendering Connection Status options
+  const renderConnectionStatus = () => (
+    <>
+      <h3 className="text-lg font-semibold mb-4">Stage 2: Connection Status</h3>
+      <select
+        value={connectionStatus}
+        onChange={(e) => setConnectionStatus(e.target.value)}
+        className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+      >
+        <option value="">Select Connection Status</option>
+        <option value="Not Connected 1">Not Connected 1</option>
+        <option value="Not Connected 2">Not Connected 2</option>
+        <option value="Not Connected 3">Not Connected 3 (Auto-Transfer)</option>
+        <option value="Connection Established">Connection Established</option>
+      </select>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="callStage">Call Stage:</label>
-            <select
-              id="callStage"
-              value={callStage}
-              onChange={(e) => setCallStage(e.target.value)}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-              >
-              {filteredCallStageOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
+      {connectionStatus === 'Not Connected 3' && (
+        <p className="text-red-500 mb-4">This query will be transferred to another branch.</p>
+      )}
+      
+      {connectionStatus === 'Connection Established' && (
+        <button
+          onClick={() => handleStageChange('Stage 3')}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+        >
+          Next: Lead Qualification
+        </button>
+      )}
+    </>
+  );
+
+  // Rendering Lead Qualification options
+  const renderLeadQualification = () => (
+    <>
+      <h3 className="text-lg font-semibold mb-4">Stage 3: Lead Qualification</h3>
+      <select
+        value={leadQualification}
+        onChange={(e) => setLeadQualification(e.target.value)}
+        className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+      >
+        <option value="">Select Lead Status</option>
+        <option value="Wrong Number/Job Seeker">Wrong Number/Job Seeker (Trash)</option>
+        <option value="Not Interested in Course">Not Interested in Course (Trash)</option>
+        <option value="Interested in Course">Interested in Course</option>
+      </select>
+
+      {leadQualification === 'Interested in Course' && (
+        <>
+          <p className="mb-2 font-semibold">Select the course type:</p>
+          <select
+            className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+          >
+            <option value="Offline">Offline Course</option>
+            <option value="Online">Online Course</option>
+          </select>
+
+          <p className="mb-2 font-semibold">Select follow-up type if applicable:</p>
+          <select
+            className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+          >
+            <option value="Visited & Interested">Visited & Interested (Enrolled)</option>
+            <option value="Visited but Not Interested">Visited but Not Interested (Closed after two follow-ups)</option>
+            <option value="Branch Not Visited">Branch Not Visited (Closed after two follow-ups)</option>
+          </select>
+        </>
+      )}
+    </>
+  );
+
+  return isOpen ? (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+        <button
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-800 mb-4"
+        >
+          &times; Close
+        </button>
+
+        {currentStage === 'Stage 1' && renderCallHandling()}
+        {currentStage === 'Stage 2' && renderConnectionStatus()}
+        {currentStage === 'Stage 3' && renderLeadQualification()}
+
+        {/* Notes Input */}
+        <div className="mb-4">
+          <label className="block mb-2 font-semibold">Notes:</label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+            rows="3"
+            placeholder="Add any notes here..."
+          ></textarea>
+        </div>
+
+        <button
+          onClick={handleUpdateQuery}
+          disabled={loading}
+          className={`mt-4 px-4 py-2 ${loading ? 'bg-gray-500' : 'bg-green-600'} text-white rounded-md hover:bg-green-700 transition duration-200`}
+        >
+          {loading ? 'Updating...' : 'Update Query'}
+        </button>
+
+        {message && (
+          <div className={`mt-4 text-center ${message.includes('Error') ? 'text-red-500' : 'text-green-500'}`}>
+            {message}
           </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="connectionStatus">Connection Status:</label>
-            <select
-              id="connectionStatus"
-              value={connectionStatus}
-              onChange={(e) => setConnectionStatus(e.target.value)}
-              className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-              >
-              {filteredConnectionStatusOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="leadStatus">Lead Status:</label>
-            <select
-              id="leadStatus"
-              value={leadStatus}
-              onChange={(e) => setLeadStatus(e.target.value)}
-               className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-            >
-              {filteredLeadStatusOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="actionBy">Action By:</label>
-            <input
-              type="text"
-              id="actionBy"
-              value={actionBy}
-              onChange={(e) => setActionBy(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300"
-              required
-            />
-          </div> */}
-
-          <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={`bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              disabled={loading}
-            >
-              {loading ? 'Updating...' : 'Update'}
-            </button>
-          </div>
-        </form>
+        )}
+        
+        <button
+          onClick={refreshData}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+        >
+          Refresh Data
+        </button>
       </div>
     </div>
-  );
+  ) : null;
 }

@@ -29,7 +29,7 @@ const querySchema = new Schema({
     // Call handling stages
     callStage: {
         type: String,
-        enum: ['new', 'RNR1', 'RNR2', 'RNR3', 'busy', 'call-back', 'auto-closed'],
+        enum: ['new', 'busy', 'call-back', 'RNR1', 'RNR2', 'RNR3', 'auto-closed'],
         required: true,
         default: 'new',
     },
@@ -70,9 +70,13 @@ const querySchema = new Schema({
     notes: {
         type: String,
     },
-    defaultdata: { type: String, required: true, default: "query" }
+    defaultdata: { 
+        type: String, 
+        required: true, 
+        default: "query" 
+    }
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries8 || mongoose.model('Queries8', querySchema);
+    mongoose.models.Queries9 || mongoose.model('Queries9', querySchema);
 export default QueryModel;
