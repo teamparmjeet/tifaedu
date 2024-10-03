@@ -72,12 +72,12 @@ export default function UpdateQuery({ isOpen, onClose, initialData = {}, refresh
         className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
       >
         <option value="">Select Status</option>
-        <option value="Not Lifting the Call">Not Lifting the Call (Busy, Call Back)</option>
-        <option value="RNR1">RNR1</option>
-        <option value="RNR2">RNR2</option>
-        <option value="RNR3">RNR3 (Auto-Closure)</option>
+        <option value="Not Lifting the Call" disabled={initialData.callStage !== ''}>Not Lifting the Call (Busy, Call Back)</option>
+        <option value="RNR1" disabled={initialData.callStage !== ''}>RNR1</option>
+        <option value="RNR2" disabled={initialData.callStage !== 'RNR1'}>RNR2</option>
+        <option value="RNR3" disabled={initialData.callStage !== 'RNR2'}>RNR3 (Auto-Closure)</option>
       </select>
-
+  
       {callHandlingStatus === 'RNR3' && (
         <p className="text-red-500 mb-4">This query will be auto-closed and moved to spam.</p>
       )}
@@ -92,6 +92,7 @@ export default function UpdateQuery({ isOpen, onClose, initialData = {}, refresh
       )}
     </>
   );
+  
 
   // Rendering Connection Status options
   const renderConnectionStatus = () => (
