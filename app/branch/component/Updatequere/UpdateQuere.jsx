@@ -72,7 +72,7 @@ export default function UpdateQuery({ isOpen, onClose, initialData = {}, refresh
       setLoading(false);
     }
   };
-    
+  
 
   // Rendering Call Handling options
   const renderCallHandling = () => (

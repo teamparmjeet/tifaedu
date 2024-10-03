@@ -11,7 +11,7 @@ const roboto = Roboto({
 });
 
 export default function BranchLayout({ children }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -23,22 +23,26 @@ export default function BranchLayout({ children }) {
   };
 
   if (!isMounted) {
-   
     return null;
   }
 
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <Header />
-        <div className="flex">
-          <Sidebar onToggleSidebar={handleSidebarToggle} />
-          <div
-            className={`transition-all duration-300 ${
-              isSidebarOpen ? "ml-64 w-[calc(100%-16rem)]" : "ml-0 w-full"
-            }`}
-          >
-            {children}
+        <div className="h-screen flex flex-col">
+         
+          <Header />
+
+          <div className="flex flex-1 overflow-hidden">
+           
+            <Sidebar onToggleSidebar={handleSidebarToggle} />
+
+         
+            <div
+              className={`flex-1 transition-all duration-300 overflow-auto ${isSidebarOpen ? "lg:ml-64" : "ml-0"}`}
+            >
+              {children}
+            </div>
           </div>
         </div>
       </body>

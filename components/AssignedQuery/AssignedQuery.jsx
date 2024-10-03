@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useSession} from 'next-auth/react';
 
 export default function AssignedQuery({ initialData ,refreshData}) {
     const [assignedTo, setAssignedTo] = useState(initialData.assignedTo);
@@ -12,6 +13,7 @@ export default function AssignedQuery({ initialData ,refreshData}) {
     const [success, setSuccess] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const { data: session } = useSession();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -44,10 +46,12 @@ export default function AssignedQuery({ initialData ,refreshData}) {
         setSuccess('');
 
         try {
+            const userBranch = assignedUserDetails.branch;
             const response = await axios.patch('/api/queries/update', {
                 id: initialData._id,
                 assignedTo,
-                actionBy: 'Tifa Admin'
+                branch: userBranch,
+                actionBy: session?.user?.name
             });
 
             if (response.status === 200) {
