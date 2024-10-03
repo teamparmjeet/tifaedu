@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function UpdateQuere({ isOpen, onClose, initialData = {}, refreshData }) {
+export default function UpdateQuery({ isOpen, onClose, initialData = {}, refreshData }) {
   const [currentStage, setCurrentStage] = useState('Stage 1');
   const [callHandlingStatus, setCallHandlingStatus] = useState('');
   const [connectionStatus, setConnectionStatus] = useState('');
   const [leadQualification, setLeadQualification] = useState('');
   const [notes, setNotes] = useState('');
+  const [selectedBranch, setSelectedBranch] = useState(''); // For branch selection
+  const [branchData, setBranchData] = useState([]); // Store fetched branch data
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Function to fetch branch data
+  const fetchBranchData = async () => {
+    try {
+      const response = await axios.get('/api/branch/fetchall/branch');
+      setBranchData(response.data.fetch); // Assuming response.data contains the branch array
+    } catch (error) {
+      console.error('Error fetching branch data:', error);
+    }
+  };
+
+  // Fetch branch data when "Not Connected 3" is selected
+  useEffect(() => {
+    if (connectionStatus === 'Not Connected 3') {
+      fetchBranchData(); // Fetch branch data when the user selects Not Connected 3
+    }
+  }, [connectionStatus]);
 
   // Handling stage progress
   const handleStageChange = (stage) => {
@@ -29,8 +48,9 @@ export default function UpdateQuere({ isOpen, onClose, initialData = {}, refresh
         connectionStatus,
         leadStatus: leadQualification,
         notes,
-        autoclosed: autoclosedValue, // Include the autoclosed field in the request
-        actionBy: 'Admin ID', // replace with the actual admin ID
+        branch: selectedBranch, // Include the selected branch if transferred
+        autoclosed: autoclosedValue,
+        actionBy: 'Tifa Admin', // replace with the actual admin ID
       });
       setMessage(response.data.message);
       refreshData(); // Call refreshData to update the displayed data
@@ -90,9 +110,26 @@ export default function UpdateQuere({ isOpen, onClose, initialData = {}, refresh
       </select>
 
       {connectionStatus === 'Not Connected 3' && (
-        <p className="text-red-500 mb-4">This query will be transferred to another branch.</p>
+        <>
+          <p className="text-red-500 mb-4">This query will be transferred to another branch.</p>
+          
+          {/* Branch selection */}
+          <select
+            value={selectedBranch}
+            onChange={(e) => setSelectedBranch(e.target.value)}
+            className="block w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500"
+          >
+            <option value="">Select Branch</option>
+            <option value="Tifa Education">Main Branch</option>
+            {branchData.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.branch_name}
+              </option>
+            ))}
+          </select>
+        </>
       )}
-      
+
       {connectionStatus === 'Connection Established' && (
         <button
           onClick={() => handleStageChange('Stage 3')}

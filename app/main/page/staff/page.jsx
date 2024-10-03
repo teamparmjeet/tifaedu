@@ -7,12 +7,11 @@ import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lu
 import Link from 'next/link';
 
 export default function User() {
-    const [userer, setUserer] = useState([]);
+    const [user, setuser] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [usererPerPage] = useState(8);
+    const [userPerPage] = useState(8);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selecteduserer, setSelecteduserer] = useState([]);
     const [sortOrder, setSortOrder] = useState("newest");
     const [filteruser, setfilteruser] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
@@ -22,7 +21,7 @@ export default function User() {
         const fetchuserData = async () => {
             try {
                 const response = await axios.get('/api/admin/fetchall/admin');
-                setUserer(response.data.fetch);
+                setuser(response.data.fetch);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             } finally {
@@ -41,57 +40,52 @@ export default function User() {
         setIsFilterOpen(!isFilterOpen);
     };
 
-    // Sort userer based on selected order
-    const sortuserer = (userer) => {
-        return userer.sort((a, b) => {
+    // Sort user based on selected order
+    const sortuser = (user) => {
+        return user.sort((a, b) => {
             return sortOrder === "newest"
                 ? new Date(b.createdAt) - new Date(a.createdAt)
                 : new Date(a.createdAt) - new Date(b.createdAt);
         });
     };
 
-    // Filter userer based on course, search term, and status
-    const filtereduser = sortuserer(
-        userer.filter(user =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    const filtereduser = sortuser(
+        user.filter(user =>
+            (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                String(user.mobile).includes(searchTerm)) && // Ensure mobile is treated as a string
             (filteruser === "" || user.branch.includes(filteruser)) &&
-            (filterStatus === "" || user.usertype.includes(filterStatus)) // Added filter for status field
+            (filterStatus === "" || user.usertype.includes(filterStatus))
         )
     );
 
 
 
 
+
     // Pagination logic
-    const indexOfLastuser = currentPage * usererPerPage;
-    const indexOfFirstuser = indexOfLastuser - usererPerPage;
-    const currentuserer = filtereduser.slice(indexOfFirstuser, indexOfLastuser);
-    const totalPages = Math.ceil(filtereduser.length / usererPerPage);
+    const indexOfLastuser = currentPage * userPerPage;
+    const indexOfFirstuser = indexOfLastuser - userPerPage;
+    const currentuser = filtereduser.slice(indexOfFirstuser, indexOfLastuser);
+    const totalPages = Math.ceil(filtereduser.length / userPerPage);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     // Handle multi-select for bulk actions
-    const handleSelectuser = (id) => {
-        if (selecteduserer.includes(id)) {
-            setSelecteduserer(selecteduserer.filter(userId => userId !== id));
-        } else {
-            setSelecteduserer([...selecteduserer, id]);
-        }
-    };
+
 
 
     return (
         <div className='container lg:w-[95%] mx-auto py-5'>
             {/* Search, Sort, Filter, and Bulk Actions */}
             <div className="flex justify-between items-center mb-4">
-                <div className="relative">
+                <div className="relative w-1/3">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                         <Search size={14} />
                     </span>
                     <input
                         type="text"
-                        placeholder="Search user"
-                        className="border px-3 py-2 pl-10 text-sm focus:outline-none    "
+                        placeholder="Search By  Name or Phone Number"
+                        className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -116,7 +110,7 @@ export default function User() {
                                     onChange={(e) => setfilteruser(e.target.value)}
                                 >
                                     <option value="">All Branch</option>
-                                    {Array.from(new Set(userer.flatMap(user => user.branch))).map((branch, index) => (
+                                    {Array.from(new Set(user.flatMap(user => user.branch))).map((branch, index) => (
                                         <option key={index} value={branch}>{branch}</option>
                                     ))}
                                 </select>
@@ -146,7 +140,7 @@ export default function User() {
                                     </button>
                                 </Link>
 
-                             
+
                             </div>
                         </div>
                     </div>
@@ -160,7 +154,7 @@ export default function User() {
                         onChange={(e) => setfilteruser(e.target.value)}
                     >
                         <option value="">All Branch</option>
-                        {Array.from(new Set(userer.flatMap(user => user.branch))).map((branch, index) => (
+                        {Array.from(new Set(user.flatMap(user => user.branch))).map((branch, index) => (
                             <option key={index} value={branch}>{branch}</option>
                         ))}
                     </select>
@@ -173,7 +167,7 @@ export default function User() {
                         <option value="">All User</option>
                         <option value="0">User</option>
                         <option value="1">Branch Admin</option>
-                        <option value="2">Tifa Admin</option>
+
                     </select>
 
 
@@ -192,7 +186,7 @@ export default function User() {
                         </button>
                     </Link>
 
-                   
+
                 </div>
             </div>
 
@@ -201,7 +195,7 @@ export default function User() {
                 <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
                     <thead className="bg-[#29234b] text-white uppercase">
                         <tr>
-                          
+
                             <th scope="col" className="px-4 font-medium capitalize py-2">User Name</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Email</th>
                             <th scope="col" className="px-4 font-medium capitalize py-2">Mobile</th>
@@ -218,44 +212,49 @@ export default function User() {
                                     </div>
                                 </td>
                             </tr>
-                        ) : currentuserer.length > 0 ? (
-                            currentuserer.map((user, index) => (
-                                <tr
-                                    key={user._id}
-                                    className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
-                                >
-                                   
-                                    <td
-                                        className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
-                                        onClick={() => handleRowClick(user.email)}
+                        ) : currentuser.length > 0 ? (
+                            currentuser
+                                .filter(user => user.usertype !== "2") // Filter out users with usertype "2"
+                                .map((user, index) => (
+                                    <tr
+                                        key={user._id}
+                                        className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
                                     >
-                                        {user.name}
-
-                                    </td>
-                                    <td className="px-4 py-2 text-[12px]">
-                                        {user.email}
-                                    </td>
-                                    <td className="px-4 py-2 truncate text-[12px]">
-                                        {user.mobile}
-
-                                    </td>
-                                    <td className="px-4 py-2 text-[12px]">
-                                        {user.branch}
-
-                                    </td>
-                                    <td className="px-4 py-2 text-[12px]">
-                                        {user.usertype}
-
-                                    </td>
-                                </tr>
-                            ))
+                                        <td
+                                            className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
+                                            onClick={() => handleRowClick(user.email)}
+                                        >
+                                            {user.name}
+                                        </td>
+                                        <td className="px-4 py-2 text-[12px]">
+                                            {user.email}
+                                        </td>
+                                        <td className="px-4 py-2 truncate text-[12px]">
+                                            {user.mobile}
+                                        </td>
+                                        <td className="px-4 py-2 text-[12px]">
+                                            {user.branch}
+                                        </td>
+                                        <td className={`px-4 py-2 text-[12px] rounded-lg transition-all duration-300 ease-in-out shadow-md 
+                    ${user.usertype === "0" ? 'bg-yellow-500 ' :
+                                                user.usertype === "1" ? 'bg-[#6cb049] ' :
+                                                    'bg-gray-100 '}`}>
+                                            {user.usertype === "0" && <span className="text-white font-semibold font-sans">Staff</span>}
+                                            {user.usertype === "1" && <span className="text-white font-semibold font-sans">Branch Admin</span>}
+                                            {user.usertype !== "0" && user.usertype !== "1" && (
+                                                <span className="text-gray-500 font-semibold">Unknown User Type</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
                         ) : (
                             <tr>
                                 <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                                    No userer available
+                                    No users available
                                 </td>
                             </tr>
                         )}
+
                     </tbody>
                 </table>
 

@@ -151,6 +151,7 @@ export default function Page({ params }) {
                   <input
                     type="text"
                     name="branch_name"
+                    disabled
                     value={branchData.branch_name || ""}
                     onChange={handleInputChange}
                     className="block w-full px-2 py-3 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"

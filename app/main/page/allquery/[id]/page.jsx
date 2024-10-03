@@ -1,17 +1,18 @@
 "use client";
-import React, { useEffect, useState ,useCallback} from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Loader from "@/components/Loader/Loader";
 import { Phone, MapPin, Calendar, CheckCircle } from "lucide-react";
 import UpdateQuere from "@/app/main/component/Updatequere/UpdateQuere";
-
+import AssignedQuery from "@/components/AssignedQuery/AssignedQuery";
+import QueryHistory from "@/components/QueryHistory/QueryHistory";
 export default function Page({ params }) {
     const { id } = params;
     const [query, setQuery] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
-  
+
     const fetchBranchData = useCallback(async () => {
         try {
             setLoading(true);
@@ -24,11 +25,11 @@ export default function Page({ params }) {
             setLoading(false);
         }
     }, [id]);
-    
+
     useEffect(() => {
         fetchBranchData();
     }, [fetchBranchData]);
-    
+
 
     if (loading) {
         return (
@@ -56,7 +57,7 @@ export default function Page({ params }) {
             {/* Left Sidebar */}
             <div className="col-span-1 bg-white shadow-lg rounded-lg p-6 ">
                 <div className="sticky top-5">
-                  
+
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">{query.studentName}</h1>
                     <div className="flex flex-col  text-sm text-gray-700">
                         <p className="flex items-center gap-x-2 p-2 rounded-lg hover:bg-gray-100 transition duration-200">
@@ -73,7 +74,7 @@ export default function Page({ params }) {
                         </p>
                     </div>
                     <p className="mt-4 text-sm">
-                        <span className="font-semibold">Assigned To:</span> {query.assignedTo}
+                        <span className="font-semibold"></span><AssignedQuery refreshData={fetchBranchData} initialData={query} />
                     </p>
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
@@ -96,7 +97,7 @@ export default function Page({ params }) {
                         <p className="text-sm text-gray-700">Additional information can go here.</p>
                     </div>
 
-                    <button onClick={() => setIsModalOpen(true)}  className=" mt-4 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
+                    <button onClick={() => setIsModalOpen(true)} className=" mt-4 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
                 </div>
             </div>
 
@@ -131,18 +132,12 @@ export default function Page({ params }) {
                                         <span className="font-medium text-gray-600 mr-2">Updated At:</span>
                                         <span className="text-gray-800">{new Date(item.actionDate).toLocaleString()}</span>
                                     </p>
-
+                                    <QueryHistory item={item} />
                                     {/* Check if there are changes and render them */}
-                                    {item.changes && Object.keys(item.changes).length > 0 && (
+                                    {/* {item.changes && Object.keys(item.changes).length > 0 && (
                                         <div className="mt-3 overflow-x-auto rounded-lg border border-gray-300 shadow-sm">
                                             <table className="min-w-full text-xs bg-gray-50 rounded-lg">
-                                                {/* <thead>
-                                                    <tr className="bg-gray-200 text-gray-700">
-                                                        <th className="px-4 py-2 text-left rounded-tl-lg rounded-tr-lg">Field</th>
-                                                        <th className="px-4 py-2 text-left">Old Value</th>
-                                                        <th className="px-4 py-2 text-left rounded-tl-lg rounded-tr-lg">New Value</th>
-                                                    </tr>
-                                                </thead> */}
+
                                                 <tbody>
                                                     {Object.entries(item.changes).map(([key, { oldValue, newValue }]) => (
                                                         newValue && (
@@ -158,7 +153,7 @@ export default function Page({ params }) {
                                                 </tbody>
                                             </table>
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
                             </div>
                         ))

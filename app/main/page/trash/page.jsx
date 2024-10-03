@@ -52,10 +52,12 @@ export default function AllQuery() {
   // Filter queries based on course and search term
   const filteredqueries = sortqueries(
     queries.filter(querie =>
-      querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        querie.studentContact.phoneNumber.includes(searchTerm)) &&
       (filterCourse === "" || querie.branch.includes(filterCourse))
     )
   );
+
 
   // Pagination logic
   const indexOfLastquerie = currentPage * queriesPerPage;
@@ -104,14 +106,14 @@ export default function AllQuery() {
     <div className='container lg:w-[95%] mx-auto py-5'>
       {/* Search, Sort, Filter, and Bulk Actions */}
       <div className="flex justify-between items-center mb-4">
-        <div className="relative">
+        <div className="relative w-1/3">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Search size={14} />
           </span>
           <input
             type="text"
-            placeholder="Search querie"
-            className="border px-3 py-2 pl-10 text-sm focus:outline-none    "
+            placeholder="Search By Student Name and Phone Number"
+            className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -149,7 +151,11 @@ export default function AllQuery() {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-
+                <Link href={'/main/page/importquery'}>
+                  <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
+                    <CirclePlus size={16} className='me-1' /> Import Query
+                  </button>
+                </Link>
                 <Link href={'/main/page/addquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
                     <CirclePlus size={16} className='me-1' /> Add Query
@@ -189,6 +195,12 @@ export default function AllQuery() {
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
           </select>
+
+          <Link href={'/main/page/importquery'}>
+            <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
+              <CirclePlus size={16} className='me-1' /> Import Query
+            </button>
+          </Link>
 
           <Link href={'/main/page/addquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">

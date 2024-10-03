@@ -16,11 +16,11 @@ export default function Profilepic() {
     return (
         <>
             <div onClick={openbox} className='cursor-pointer border rounded-full h-10 w-10 flex justify-center items-center overflow-hidden'>
-            
-                    <div className='bg-[#6cb049] text-white flex font-bold items-center justify-center h-10 w-10 rounded-full'>
-                        {getFirstLetter(session?.user?.name || 'T')} 
-                    </div>
-              
+
+                <div className='bg-[#6cb049] text-white flex font-bold items-center justify-center h-10 w-10 rounded-full'>
+                    {getFirstLetter(session?.user?.name || 'T')}
+                </div>
+
             </div>
 
             {open && (
@@ -38,25 +38,28 @@ export default function Profilepic() {
                             </div>
                             <div>
                                 <div className='text-lg font-semibold'>{session?.user?.name || 'Guest User'}</div>
-                                <div className='text-sm text-gray-500'>{session?.user.email}</div>
+                                <div className='text-sm text-gray-500'>
+                                    {session?.user.email?.length > 20 ? `${session.user.email.slice(0, 20)}...` : session.user.email}
+                                </div>
+
                             </div>
                         </div>
 
                         <div className='border-t mt-3 pt-3'>
-                            <Link href="/main/page/profile" onClick={() => { setOpen(!open);   }} >
-                            <div className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
-                                <User className='w-5 h-5 text-gray-600' />
-                                <span className='text-gray-700 font-medium'>Profile</span>
-                            </div>
+                            <Link href="/main/page/profile" onClick={() => { setOpen(!open); }} >
+                                <div className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
+                                    <User className='w-5 h-5 text-gray-600' />
+                                    <span className='text-gray-700 font-medium'>Profile</span>
+                                </div>
                             </Link>
                             <div className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
                                 <Settings className='w-5 h-5 text-gray-600' />
                                 <span className='text-gray-700 font-medium'>Settings</span>
                             </div>
                             <div onClick={() => {
-                                                        signOut();
-                                                        setOpen(!open); 
-                                                    }} className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
+                                signOut();
+                                setOpen(!open);
+                            }} className='flex items-center gap-2 p-2 hover:bg-gray-100 rounded-md cursor-pointer'>
                                 <LogOut className='w-5 h-5 text-gray-600' />
                                 <span className='text-gray-700 font-medium'>Logout</span>
                             </div>
