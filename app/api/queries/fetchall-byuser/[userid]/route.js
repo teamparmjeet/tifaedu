@@ -3,7 +3,7 @@ import QueryModel from "@/model/Query";
 
 export const GET = async (request, context) => {
     await dbConnect();
-    const branchname = context.params.branchname;
+    const userid = context.params.userid;
     
     // Parse the query parameters from the request URL
     const url = new URL(request.url);
@@ -12,7 +12,7 @@ export const GET = async (request, context) => {
     try {
         // Fetch data dynamically based on the `autoclosed` status
         const fetch = await QueryModel.find({ 
-            branch: branchname, 
+            userid: userid, 
             autoclosed: autoclosedStatus || "open" // Default to "open" if not provided
         });
 

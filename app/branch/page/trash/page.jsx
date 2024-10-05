@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { useSession} from 'next-auth/react';
+
 import axios from 'axios';
 import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
@@ -8,6 +10,8 @@ import Link from 'next/link';
 
 export default function AllQuery() {
   const [queries, setqueries] = useState([]);
+  const [adminData, setAdminData] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
@@ -16,25 +20,50 @@ export default function AllQuery() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [filterCourse, setFilterCourse] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchquerieData = async () => {
+    const fetchAdminData = async () => {
       try {
-        const response = await axios.get('/api/queries/fetchallbytype/close');
-        setqueries(response.data.fetch);
-      } catch (error) {
-        console.error('Error fetching querie data:', error);
+        const response = await axios.get(
+          `/api/admin/find-admin-byemail/${session?.user?.email}`
+        );
+        setAdminData(response.data.branch);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchquerieData();
-  }, []);
+    if (session?.user?.email) fetchAdminData();
+  }, [session]);
 
+  useEffect(() => {
+    // Fetch queries data once the adminData is available
+    const fetchQueryData = async () => {
+      if (adminData) {
+        try {
+          setLoading(true);
+          const autoclosedStatus = 'close'; // or 'close', based on your logic
+          const response = await axios.get(`/api/queries/fetchall-bybranch/${adminData}?autoclosed=${autoclosedStatus}`);
+          setqueries(response.data.fetch);
+          
+        } catch (error) {
+          console.error('Error fetching query data:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchQueryData();
+  }, [adminData]);
   const router = useRouter();
   const handleRowClick = (id) => {
-    router.push(`/main/page/allquery/${id}`);
+    router.push(`/branch/page/allquery/${id}`);
   };
   const toggleFilterPopup = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -105,6 +134,7 @@ export default function AllQuery() {
   return (
     <div className='container lg:w-[95%] mx-auto py-5'>
       {/* Search, Sort, Filter, and Bulk Actions */}
+     
       <div className="flex justify-between items-center mb-4">
         <div className="relative w-1/3">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -151,12 +181,12 @@ export default function AllQuery() {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <Link href={'/main/page/importquery'}>
+                <Link href={'/branch/page/importquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
                     <CirclePlus size={16} className='me-1' /> Import Query
                   </button>
                 </Link>
-                <Link href={'/main/page/addquery'}>
+                <Link href={'/branch/page/addquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
                     <CirclePlus size={16} className='me-1' /> Add Query
                   </button>
@@ -196,13 +226,13 @@ export default function AllQuery() {
             <option value="oldest">Oldest</option>
           </select>
 
-          <Link href={'/main/page/importquery'}>
+          <Link href={'/branch/page/importquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Import Query
             </button>
           </Link>
 
-          <Link href={'/main/page/addquery'}>
+          <Link href={'/branch/page/addquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Add Query
             </button>

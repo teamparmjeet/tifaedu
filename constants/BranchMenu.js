@@ -41,8 +41,6 @@ export const Menulist = [
         title: "Branchs",
         icon: MapPinHouse,
         submenu: [
-            { name: "All Branch", icon: MapPinHouse,href:"/branch/page/branch" },
-            { name: "New Branch", icon: MapPinPlus,href:"/branch/page/addbranch" },
             { name: "Register Staff", icon: ShieldCheck,href:"/branch/page/registerstaff" },
             { name: "Staff", icon: Users,href:"/branch/page/staff" },
             { name: "Branch Reports", icon: Download,href:"/branch/page/branchreport" },

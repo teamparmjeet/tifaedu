@@ -1,6 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
 const querySchema = new Schema({
+    userid:{
+        type: String,
+        required: true,
+        default:"null"
+    },
     studentName: {
         type: String,
         required: true,
@@ -78,5 +83,5 @@ const querySchema = new Schema({
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries9 || mongoose.model('Queries9', querySchema);
+    mongoose.models.Queries10 || mongoose.model('Queries10', querySchema);
 export default QueryModel;

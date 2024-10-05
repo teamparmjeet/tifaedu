@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
+import { useSession} from 'next-auth/react';
+
 import axios from 'axios';
 import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
@@ -8,6 +10,8 @@ import Link from 'next/link';
 
 export default function AllQuery() {
   const [queries, setqueries] = useState([]);
+  const [adminData, setAdminData] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
@@ -16,43 +20,49 @@ export default function AllQuery() {
   const [sortOrder, setSortOrder] = useState("newest");
   const [filterCourse, setFilterCourse] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [user, setuser] = useState([]);
+  const { data: session } = useSession();
 
-
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchuserData = async () => {
+    const fetchAdminData = async () => {
       try {
-        const response = await axios.get('/api/admin/fetchall/admin');
-        setuser(response.data.fetch);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+        const response = await axios.get(
+          `/api/admin/find-admin-byemail/${session?.user?.email}`
+        );
+        setAdminData(response.data._id);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchuserData();
-  }, []);
+    if (session?.user?.email) fetchAdminData();
+  }, [session]);
 
   useEffect(() => {
-    const fetchquerieData = async () => {
-      try {
-        const response = await axios.get('/api/queries/fetchallbytype/open');
-        setqueries(response.data.fetch);
-      } catch (error) {
-        console.error('Error fetching querie data:', error);
-      } finally {
-        setLoading(false);
+    // Fetch queries data once the adminData is available
+    const fetchQueryData = async () => {
+      if (adminData) {
+        try {
+          setLoading(true);
+          const autoclosedStatus = 'open'; // or 'close', based on your logic
+          const response = await axios.get(`/api/queries/fetchall-byuser/${adminData}?autoclosed=${autoclosedStatus}`);
+          setqueries(response.data.fetch);
+        } catch (error) {
+          console.error('Error fetching query data:', error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
-    fetchquerieData();
-  }, []);
-
+    fetchQueryData();
+  }, [adminData]);
   const router = useRouter();
   const handleRowClick = (id) => {
-    router.push(`/main/page/allquery/${id}`);
+    router.push(`/staff/page/allquery/${id}`);
   };
   const toggleFilterPopup = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -122,9 +132,8 @@ export default function AllQuery() {
 
   return (
     <div className='container lg:w-[95%] mx-auto py-5'>
-
-
       {/* Search, Sort, Filter, and Bulk Actions */}
+     
       <div className="flex justify-between items-center mb-4">
         <div className="relative w-1/3">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -171,12 +180,12 @@ export default function AllQuery() {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <Link href={'/main/page/importquery'}>
+                <Link href={'/staff/page/importquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
                     <CirclePlus size={16} className='me-1' /> Import Query
                   </button>
                 </Link>
-                <Link href={'/main/page/addquery'}>
+                <Link href={'/staff/page/addquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
                     <CirclePlus size={16} className='me-1' /> Add Query
                   </button>
@@ -216,13 +225,13 @@ export default function AllQuery() {
             <option value="oldest">Oldest</option>
           </select>
 
-          <Link href={'/main/page/importquery'}>
+          <Link href={'/staff/page/importquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Import Query
             </button>
           </Link>
 
-          <Link href={'/main/page/addquery'}>
+          <Link href={'/staff/page/addquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Add Query
             </button>
@@ -256,71 +265,61 @@ export default function AllQuery() {
                   checked={selectedqueries.length === queries.length}
                 />
               </th>
-              <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Address</th>
+
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="7" className="px-6 py-4"> {/* Updated colspan to 7 */}
+                <td colSpan="6" className="px-6 py-4">
                   <div className="flex justify-center items-center h-[300px]">
                     <Loader />
                   </div>
                 </td>
               </tr>
             ) : currentqueries.length > 0 ? (
-              currentqueries.map((querie, index) => {
-                // Find the user that matches the querie.userid
-                const matchedUser = user.find((u) => u._id === querie.userid);
-
-                return (
-                  <tr
-                    key={querie._id}
-                    className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
+              currentqueries.map((querie, index) => (
+                <tr
+                  key={querie._id}
+                  className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
+                >
+                  <td className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedqueries.includes(querie._id)}
+                      onChange={() => handleSelectquerie(querie._id)}
+                    />
+                  </td>
+                  <td
+                    className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
+                    onClick={() => handleRowClick(querie._id)}
                   >
-                    
-                    <td className="px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedqueries.includes(querie._id)}
-                        onChange={() => handleSelectquerie(querie._id)}
-                      />
-                    </td>
-                      {/* Display the matched user's name */}
-                      <td className="px-4 py-2 text-[12px] font-semibold">
-                      {matchedUser ? matchedUser.name : 'No user found'}
-                    </td>
-                    <td
-                      className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
-                      onClick={() => handleRowClick(querie._id)}
-                    >
-                      {querie.studentName}
-                    </td>
-                    <td className="px-4 py-2 text-[12px]">
-                      {querie.branch}
-                    </td>
-                    <td className="px-4 py-2 text-[12px]">
-                      {querie.studentContact.phoneNumber}
-                    </td>
-                    <td className="px-4 py-2 text-[12px]">
-                      {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
-                    </td>
-                    <td className="px-4 py-2 text-[12px]">
-                      {querie.studentContact.address}
-                    </td>
+                    {querie.studentName}
+                  </td>
+                  <td className="px-4 py-2 text-[12px]">
+                    {querie.branch}
+                  </td>
+                  <td className="px-4 py-2 text-[12px]">
+                    {querie.studentContact.phoneNumber}
+                  </td>
+                  <td className="px-4 py-2 text-[12px]">
+                    {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
+                  </td>
 
-                  
-                  </tr>
-                );
-              })
+                  <td className="px-4 py-2 text-[12px]">
+                    {querie.studentContact.address}
+                  </td>
+
+                </tr>
+              ))
             ) : (
               <tr>
-                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                   No queries available
                 </td>
               </tr>

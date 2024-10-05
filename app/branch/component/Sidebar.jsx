@@ -164,7 +164,7 @@ export default function Sidebar({ onToggleSidebar }) {
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
                 <Link href="/branch/page/trash">
-                  <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 bg-red-500 text-white rounded-md ${isActiveLink("/branch/page/trash") ? "bg-red-600 " : "hover:bg-red-600 text-gray-700"
+                <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2  rounded-md ${isActiveLink("/branch/page/trash") ? "bg-red-600 text-white " : "hover:bg-red-600 hover:text-white"
                     }`}>
                     <Trash2 size={18} />
                     Trash

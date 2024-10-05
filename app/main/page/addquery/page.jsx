@@ -4,11 +4,14 @@ import axios from "axios";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
+import { useSession } from 'next-auth/react';
 
 export default function Page() {
     const [branches, setBranches] = useState([]);
-
+    const [adminData, setAdminData] = useState(null);
+    const { data: session } = useSession();
     const [formData, setFormData] = useState({
+        userid: "",
         studentName: "",
         studentContact: {
             phoneNumber: "",
@@ -26,6 +29,39 @@ export default function Page() {
     const [isFormValid, setIsFormValid] = useState(false);
 
     const today = new Date().toISOString().split('T')[0];
+
+
+
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            try {
+                setLoading(true);  // Start loading
+                const response = await axios.get(
+                    `/api/admin/find-admin-byemail/${session?.user?.email}`
+                );
+                const adminBranch = response.data;
+                setAdminData(adminBranch);
+
+                // Update the formData with the fetched admin branch
+                setFormData((prevFormData) => ({
+                    ...prevFormData,
+                 
+                    userid: adminBranch._id,
+                }));
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);  // Stop loading
+            }
+        };
+
+        if (session?.user?.email) fetchAdminData();
+    }, [session]);
+
+
+
+
 
     useEffect(() => {
         const fetchBranchData = async () => {
@@ -65,6 +101,7 @@ export default function Page() {
 
     useEffect(() => {
         const isFormFilled =
+        
             formData.studentName &&
             formData.studentContact.phoneNumber &&
             formData.studentContact.address &&
@@ -91,6 +128,7 @@ export default function Page() {
                 toast.success("Query successfully Added!")
                 window.location.reload();
                 setFormData({
+                    userid: adminData._id,
                     studentName: "",
                     studentContact: {
                         phoneNumber: "",
