@@ -104,11 +104,11 @@ export default function Page({ params }) {
 
             {/* Right Section */}
             <div className="col-span-3 bg-white shadow-md rounded-lg p-5">
-                <h2 className="text-lg font-bold text-[#29234b] mb-3">Latest Activities</h2>
+            
 
                 {/* History Timeline */}
                 <div className="space-y-6">
-                    {sortedHistory.length > 0 ? (
+                    {/* {sortedHistory.length > 0 ? (
                         sortedHistory.map((item, index) => (
                             <div
                                 key={index}
@@ -131,15 +131,15 @@ export default function Page({ params }) {
                                     <p className="text-xs text-gray-500 mt-1">
                                         <span className="font-medium text-gray-600 mr-2">Updated At:</span>
                                         <span className="text-gray-800">{new Date(item.actionDate).toLocaleString()}</span>
-                                    </p>
-                                    <QueryHistory item={item} />
+                                    </p> */}
+                                    <QueryHistory initialData={query} />
                                     
-                                </div>
+                                {/* </div>
                             </div>
                         ))
                     ) : (
                         <p className="text-sm text-gray-500 text-center">No activities recorded yet.</p>
-                    )}
+                    )} */}
                 </div>
 
             </div>

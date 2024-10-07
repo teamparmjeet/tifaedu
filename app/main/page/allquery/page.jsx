@@ -292,7 +292,7 @@ export default function AllQuery() {
                       />
                     </td>
                       {/* Display the matched user's name */}
-                      <td className="px-4 py-2 text-[12px] font-semibold">
+                      <td  onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
                       {matchedUser ? matchedUser.name : 'No user found'}
                     </td>
                     <td
@@ -301,16 +301,16 @@ export default function AllQuery() {
                     >
                       {querie.studentName}
                     </td>
-                    <td className="px-4 py-2 text-[12px]">
+                    <td  onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
                       {querie.branch}
                     </td>
-                    <td className="px-4 py-2 text-[12px]">
+                    <td  onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
                       {querie.studentContact.phoneNumber}
                     </td>
-                    <td className="px-4 py-2 text-[12px]">
+                    <td  onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
                       {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
                     </td>
-                    <td className="px-4 py-2 text-[12px]">
+                    <td  onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
                       {querie.studentContact.address}
                     </td>
 

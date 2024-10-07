@@ -1,10 +1,10 @@
 import mongoose, { Schema } from "mongoose";
 
 const querySchema = new Schema({
-    userid:{
+    userid: {
         type: String,
         required: true,
-        default:"null"
+        default: "null"
     },
     studentName: {
         type: String,
@@ -31,57 +31,26 @@ const querySchema = new Schema({
         type: String,
         required: true,
     },
-    // Call handling stages
-    callStage: {
-        type: String,
-        enum: ['new', 'busy', 'call-back', 'RNR1', 'RNR2', 'RNR3', 'auto-closed'],
-        required: true,
-        default: 'new',
-    },
-    // Connection status stage
-    connectionStatus: {
-        type: String,
-        enum: ['not-connected1', 'not-connected2', 'not-connected3', 'connected', 'transferred'],
-        required: true,
-        default: 'not-connected1',
-    },
-    // Lead qualification stage
-    leadStatus: {
-        type: String,
-        enum: ['wrong-lead', 'not-interested', 'interested', 'NPR1', 'NPR2', 'ready-to-join', 'enrolled', 'branch-visited', 'not-visited'],
-        required: true,
-        default: 'interested',
-    },
-    history: [
-        {
-            action: String,
-            stage: String,
-            actionBy: String,
-            actionDate: { type: Date, default: Date.now },
-            changes: {
-                type: Map,
-                of: {
-                    oldValue: Schema.Types.Mixed,
-                    newValue: Schema.Types.Mixed,
-                },
-            },
-        },
-    ],
+
     autoclosed: {
         type: String,
         enum: ["open", "close"],
         default: "open"
     },
+    addmission:{
+        type:Boolean,
+        default:false
+    },
     notes: {
         type: String,
     },
-    defaultdata: { 
-        type: String, 
-        required: true, 
-        default: "query" 
+    defaultdata: {
+        type: String,
+        required: true,
+        default: "query"
     }
 }, { timestamps: true });
 
 const QueryModel =
-    mongoose.models.Queries10 || mongoose.model('Queries10', querySchema);
+    mongoose.models.Queries12 || mongoose.model('Queries12', querySchema);
 export default QueryModel;
