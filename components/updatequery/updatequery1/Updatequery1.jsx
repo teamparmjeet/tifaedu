@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-export default function UpdateQuery2({ query, audit }) {
+export default function UpdateQuery1({ query, audit }) {
   const queryid = query._id;
   const userid = query.userid;
   const [selectedOption, setSelectedOption] = useState('');

@@ -18,7 +18,7 @@ export const PATCH = async (request) => {
             );
         }
 
-        // Check if the audit exists in the database
+        // Fetch the existing audit document
         const audit = await QueryUpdateModel.findOne({ queryId: data.queryId });
 
         if (!audit) {
@@ -31,10 +31,11 @@ export const PATCH = async (request) => {
             );
         }
 
-        // Find changed fields
+        // Find changes between the existing document and the incoming data
         const changes = {};
         for (const key in data) {
-            if (audit[key] !== undefined && audit[key] !== data[key]) {
+            // Handle nested objects or arrays if needed
+            if (JSON.stringify(audit[key]) !== JSON.stringify(data[key])) {
                 changes[key] = {
                     oldValue: audit[key],
                     newValue: data[key],
@@ -42,23 +43,32 @@ export const PATCH = async (request) => {
             }
         }
 
-        // If there are changes, add them to the history
-        if (Object.keys(changes).length > 0) {
-            audit.history.push({
-                action: "update",
-                stage: audit.stage.toString(),
-                actionBy: data.actionby || "system", // Assuming actionby is sent from client or set default
-                actionDate: new Date(),
-                changes: changes,
-            });
+        // If no changes are found, return a message stating no updates were necessary
+        if (Object.keys(changes).length === 0) {
+            return new Response(
+                JSON.stringify({
+                    message: "No changes detected.",
+                    success: false,
+                }),
+                { status: 400 }
+            );
         }
 
-        // Update the audit document with the new data and history
+        // Add the change history with detailed information
+        const historyEntry = {
+            action: "update",
+            stage: audit.stage?.toString() || "unknown",
+            actionBy: data.actionby || "system", // Default to "system" if no actionby is provided
+            actionDate: new Date(),
+            changes: changes,
+        };
+
+        // Push the new history entry to the existing history
         await QueryUpdateModel.updateOne(
             { queryId: data.queryId },
             {
-                $set: data, // Update the fields in the data object
-                $push: { history: audit.history[audit.history.length - 1] }, // Push the latest history entry only once
+                $set: data, // Update the fields with the new data
+                $push: { history: historyEntry }, // Push the latest history entry
             }
         );
 
@@ -72,10 +82,10 @@ export const PATCH = async (request) => {
         );
 
     } catch (error) {
-        console.error("Error on updating audit:", error);
+        console.error("Error updating audit:", error);
         return new Response(
             JSON.stringify({
-                message: "Error on updating audit!",
+                message: "Error updating audit!",
                 success: false,
             }),
             { status: 500 }
