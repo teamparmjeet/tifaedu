@@ -15,7 +15,7 @@ export default function UpdateQuery2({ query, audit }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Prepare data to send to the backend
+    // Prepare data to send to the backend for the audit update
     const data = {
       queryId: queryid,
       actionby: userid,
@@ -26,7 +26,6 @@ export default function UpdateQuery2({ query, audit }) {
 
     // Handle status counts
     const statusCountsUpdate = {
-    
       interested_but_not_proper_response: audit?.statusCounts?.interested_but_not_proper_response || 0,
     };
 
@@ -35,21 +34,37 @@ export default function UpdateQuery2({ query, audit }) {
       statusCountsUpdate.interested_but_not_proper_response += 1;
     }
 
-    // Check if any count reaches 3 for auto-close
-    if (statusCountsUpdate.interested_but_not_proper_response >= 3) {
-      data.autoClose = true;
+    // Update the count for 'interested_but_not_proper_response' if the selected option is 'response'
+    if (selectedOption === 'response' && message === 'interested_but_not_proper_response') {
+      statusCountsUpdate.interested_but_not_proper_response += 1;
     }
+
 
     // Add the updated status counts to the data object
     data.statusCounts = statusCountsUpdate;
 
     try {
-      const response = await axios.patch('/api/audit/update', data);
-      if (response.status === 200) {
-        console.log('Query updated successfully:', response.data);
+      // API call for audit update
+      const auditResponse = await axios.patch('/api/audit/update', data);
+      if (auditResponse.status === 200) {
+        console.log('Audit updated successfully:', auditResponse.data);
         window.location.reload();
       } else {
-        console.error('Error updating query:', response.statusText);
+        console.error('Error updating audit:', auditResponse.statusText);
+      }
+
+      // If admission is selected, make a separate API call to update queries
+      if (selectedOption === 'admission') {
+        const queryUpdateData = {
+          id: queryid,
+          addmission: true, // Set admission to true
+        };
+        const queryResponse = await axios.patch('/api/queries/update', queryUpdateData);
+        if (queryResponse.status === 200) {
+          console.log('Query updated with admission successfully:', queryResponse.data);
+        } else {
+          console.error('Error updating query for admission:', queryResponse.statusText);
+        }
       }
     } catch (error) {
       console.error('Network error:', error);
@@ -74,7 +89,6 @@ export default function UpdateQuery2({ query, audit }) {
           <option value="admission">Enroll</option>
           <option value="interested_but_not_proper_response">Not Proper Response</option>
           <option value="response">Response</option>
-
         </select>
       </div>
 

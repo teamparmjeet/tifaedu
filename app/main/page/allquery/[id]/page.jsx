@@ -57,7 +57,7 @@ export default function Page({ params }) {
             {/* Left Sidebar */}
             <div className="col-span-1 bg-white shadow-lg rounded-lg p-6 ">
                 <div className="sticky top-5">
-
+                <button onClick={() => setIsModalOpen(true)} className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">{query.studentName}</h1>
                     <div className="flex flex-col  text-sm text-gray-700">
                         <p className="flex items-center gap-x-2 p-2 rounded-lg hover:bg-gray-100 transition duration-200">
@@ -80,31 +80,32 @@ export default function Page({ params }) {
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
                         <p className="text-sm text-gray-700">{query.courseInterest}</p>
                     </div>
+
+
                     <div className="mt-4">
-                        <h2 className="text-lg font-semibold text-[#29234b] mb-2">Stage</h2>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Call Stage:</span> {query.callStage}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Connection Status:</span> {query.connectionStatus}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Lead Status:</span> {query.leadStatus}
-                        </p>
+                        <h2 className="text-lg font-semibold text-[#29234b]">Enrolled Status</h2>
+                        <p className="text-sm text-gray-700">{query.addmission ? "Enrolled" : "Not Enrolled"}</p>
                     </div>
+
+                    <div className="mt-4">
+                        <h2 className="text-lg font-semibold text-[#29234b]">Query Status</h2>
+                        <p className="text-sm text-gray-700">{query.autoclosed ? "Open" : "Close"}</p>
+                    </div>
+
+
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">More Info</h2>
                         <p className="text-sm text-gray-700">Additional information can go here.</p>
                     </div>
 
-                    <button onClick={() => setIsModalOpen(true)} className=" mt-4 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
+                  
                 </div>
             </div>
 
 
             {/* Right Section */}
             <div className="col-span-3 bg-white shadow-md rounded-lg p-5">
-            
+
 
                 {/* History Timeline */}
                 <div className="space-y-6">
@@ -132,9 +133,9 @@ export default function Page({ params }) {
                                         <span className="font-medium text-gray-600 mr-2">Updated At:</span>
                                         <span className="text-gray-800">{new Date(item.actionDate).toLocaleString()}</span>
                                     </p> */}
-                                    <QueryHistory initialData={query} />
-                                    
-                                {/* </div>
+                    <QueryHistory initialData={query} />
+
+                    {/* </div>
                             </div>
                         ))
                     ) : (
