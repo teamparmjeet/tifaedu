@@ -350,7 +350,7 @@ export default function AllQuery() {
                     </td>
                     {/* Display the matched user's name */}
                     <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
-                      {matchedUser ? matchedUser.name : 'No user found'}
+                      {matchedUser ? matchedUser.name : 'Tifa Admin'}
                     </td>
                     <td
                       className="px-4 py-2 font-semibold  text-sm whitespace-nowrap"

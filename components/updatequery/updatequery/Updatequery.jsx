@@ -20,22 +20,23 @@ export default function UpdateQuery({ query, audit }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     // Prepare data to send to the backend
     const data = {
       queryId: queryid,
       actionby: userid,
       connectionStatus: selectedOption,
       message: message || subOption,
-      // Set the appropriate sub status based on the selectedOption
       connectedsubStatus: selectedOption === 'connected' ? subOption : undefined,
       no_connectedsubStatus: selectedOption === 'no_connected' ? subOption : undefined,
       not_liftingsubStatus: selectedOption === 'not_lifting' ? subOption : undefined,
-      wrongNo: selectedOption === 'wrong_no' ? true : false,
+      autoClose: selectedOption === 'wrong_no' ? true : false, // Set autoClose if wrong_no is selected
     };
+  
     if (selectedOption === 'connected' && subOption === 'interested') {
       data.stage = 1; // Set stage to 1 when connected and interested
     }
+  
     // Safely access and increment status counts
     const statusCountsUpdate = {
       busy: audit?.statusCounts?.busy || 0,
@@ -43,18 +44,18 @@ export default function UpdateQuery({ query, audit }) {
       switch_off: audit?.statusCounts?.switch_off || 0,
       network_error: audit?.statusCounts?.network_error || 0,
     };
-
+  
     // Increment the count based on selectedOption and subOption
     if (selectedOption === 'not_lifting' && subOption === 'busy') {
-      statusCountsUpdate.busy += 1; // Only increment the busy count
+      statusCountsUpdate.busy += 1;
     } else if (selectedOption === 'not_lifting' && subOption === 'call_back') {
-      statusCountsUpdate.call_back += 1; // Only increment the call_back count
+      statusCountsUpdate.call_back += 1;
     } else if (selectedOption === 'no_connected' && subOption === 'switch_off') {
-      statusCountsUpdate.switch_off += 1; // Only increment the switch_off count
+      statusCountsUpdate.switch_off += 1;
     } else if (selectedOption === 'no_connected' && subOption === 'network_error') {
-      statusCountsUpdate.network_error += 1; // Only increment the network_error count
+      statusCountsUpdate.network_error += 1;
     }
-
+  
     // Check if any count reaches 3, if so, set autoClose to true
     if (
       statusCountsUpdate.busy >= 3 ||
@@ -62,9 +63,9 @@ export default function UpdateQuery({ query, audit }) {
       statusCountsUpdate.switch_off >= 3 ||
       statusCountsUpdate.network_error >= 3
     ) {
-      data.autoClose = true;
+      data.autoClose = true; // Set autoClose to true in the data object
     }
-
+  
     // Add the updated statusCounts to the data object
     data.statusCounts = {
       busy: statusCountsUpdate.busy,
@@ -72,12 +73,35 @@ export default function UpdateQuery({ query, audit }) {
       switch_off: statusCountsUpdate.switch_off,
       network_error: statusCountsUpdate.network_error,
     };
-
+  
     try {
+      // First API call to /api/audit/update
       const response = await axios.patch('/api/audit/update', data);
-
+  
       if (response.status === 200) {
         console.log('Query updated successfully:', response.data);
+  
+        // Check if wrong_no was selected or any count reaches 3, then call the second API
+        if (
+          selectedOption === 'wrong_no' ||
+          statusCountsUpdate.busy >= 3 ||
+          statusCountsUpdate.call_back >= 3 ||
+          statusCountsUpdate.switch_off >= 3 ||
+          statusCountsUpdate.network_error >= 3
+        ) {
+          const newApiResponse = await axios.patch('/api/queries/update', {
+            id: queryid,
+            autoclosed: 'close', // Send autoClose: "close" if wrong_no or count reaches 3
+          });
+  
+          if (newApiResponse.status === 200) {
+            console.log('Query auto-closed successfully:', newApiResponse.data);
+          } else {
+            console.error('Error in auto-closing query:', newApiResponse.statusText);
+          }
+        }
+  
+        // Optionally reload the page
         window.location.reload();
       } else {
         console.error('Error updating query:', response.statusText);
@@ -86,7 +110,7 @@ export default function UpdateQuery({ query, audit }) {
       console.error('Network error:', error);
     }
   };
-
+  
   return (
     <form onSubmit={handleSubmit} className="mx-auto bg-white shadow-xl rounded-lg">
       <h3 className="text-xl font-semibold mb-2 text-indigo-700">Select a Status</h3>

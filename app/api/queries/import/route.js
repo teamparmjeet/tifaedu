@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import QueryModel from "@/model/Query";
+import QueryUpdateModel from "@/model/AuditLog"; // Import the audit log model
 
 export async function POST(req, res) {
   await dbConnect();
@@ -14,13 +15,22 @@ export async function POST(req, res) {
       }), { status: 400 });
     }
 
-    // Insert multiple documents at once using insertMany
+    // Insert multiple queries using insertMany
     const result = await QueryModel.insertMany(queries);
 
+    // Create audit log entries for each query
+    const auditLogs = result.map(query => ({
+      queryId: query._id, // Add the newly created query's ID to the audit log
+    }));
+
+    // Insert audit log entries using insertMany
+    await QueryUpdateModel.insertMany(auditLogs);
+
     return new Response(JSON.stringify({
-      message: `${result.length} Queries Added Successfully`,
+      message: `${result.length} Queries and Audit Logs Added Successfully`,
       success: true,
     }), { status: 200 });
+    
   } catch (error) {
     return new Response(JSON.stringify({
       success: false,

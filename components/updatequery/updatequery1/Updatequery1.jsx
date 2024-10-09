@@ -24,25 +24,6 @@ export default function UpdateQuery1({ query, audit }) {
       stage: selectedOption === 'online' ? 2 : selectedOption === 'ofline' ? 3 : undefined,
     };
 
-    // Handle status counts
-    const statusCountsUpdate = {
-      busy: audit?.statusCounts?.busy || 0,
-      interested_but_not_proper_response: audit?.statusCounts?.interested_but_not_proper_response || 0,
-    };
-
-    // Update the count for 'interested_but_not_proper_response' if the selected option is 'response'
-    if (selectedOption === 'response' && message === 'interested_but_not_proper_response') {
-      statusCountsUpdate.interested_but_not_proper_response += 1;
-    }
-
-    // Check if any count reaches 3 for auto-close
-    if (statusCountsUpdate.interested_but_not_proper_response >= 3) {
-      data.autoClose = true;
-    }
-
-    // Add the updated status counts to the data object
-    data.statusCounts = statusCountsUpdate;
-
     try {
       const response = await axios.patch('/api/audit/update', data);
       if (response.status === 200) {

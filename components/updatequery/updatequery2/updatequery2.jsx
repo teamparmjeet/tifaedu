@@ -30,14 +30,10 @@ export default function UpdateQuery2({ query, audit }) {
     };
 
     // Update the count for 'interested_but_not_proper_response' if the selected option is 'response'
-    if (selectedOption === 'response' && message === 'interested_but_not_proper_response') {
+    if (selectedOption === 'interested_but_not_proper_response') {
       statusCountsUpdate.interested_but_not_proper_response += 1;
     }
 
-    // Update the count for 'interested_but_not_proper_response' if the selected option is 'response'
-    if (selectedOption === 'response' && message === 'interested_but_not_proper_response') {
-      statusCountsUpdate.interested_but_not_proper_response += 1;
-    }
 
 
     // Add the updated status counts to the data object
@@ -58,6 +54,17 @@ export default function UpdateQuery2({ query, audit }) {
         const queryUpdateData = {
           id: queryid,
           addmission: true, // Set admission to true
+        };
+        const queryResponse = await axios.patch('/api/queries/update', queryUpdateData);
+        if (queryResponse.status === 200) {
+          console.log('Query updated with admission successfully:', queryResponse.data);
+        } else {
+          console.error('Error updating query for admission:', queryResponse.statusText);
+        }
+      } else if (statusCountsUpdate.interested_but_not_proper_response >= 3) {
+        const queryUpdateData = {
+          id: queryid,
+          autoclosed: 'close'
         };
         const queryResponse = await axios.patch('/api/queries/update', queryUpdateData);
         if (queryResponse.status === 200) {
