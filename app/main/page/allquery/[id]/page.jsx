@@ -109,38 +109,9 @@ export default function Page({ params }) {
 
                 {/* History Timeline */}
                 <div className="space-y-6">
-                    {/* {sortedHistory.length > 0 ? (
-                        sortedHistory.map((item, index) => (
-                            <div
-                                key={index}
-                                className="flex items-start p-6 bg-gradient-to-r from-gray-100 to-white shadow-lg rounded-lg border border-gray-300"
-                            >
-                                <div className="flex-shrink-0">
-                                    <CheckCircle color="#6cb049" size={24} />
-                                </div>
-                                <div className="ml-4 flex-grow">
-                                    <p className="text-lg font-bold text-gray-800 hover:text-[#6cb049] transition-colors">
-                                        {item.actionBy} updated {query.studentName}&apos;s query
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Created on{" "}
-                                        {`${String(new Date(query.createdAt).getDate()).padStart(2, "0")}-${String(
-                                            new Date(query.createdAt).getMonth() + 1
-                                        ).padStart(2, "0")}-${String(new Date(query.createdAt).getFullYear()).slice(-2)}`}
-                                    </p>
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        <span className="font-medium text-gray-600 mr-2">Updated At:</span>
-                                        <span className="text-gray-800">{new Date(item.actionDate).toLocaleString()}</span>
-                                    </p> */}
+                  
                     <QueryHistory initialData={query} />
 
-                    {/* </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-sm text-gray-500 text-center">No activities recorded yet.</p>
-                    )} */}
                 </div>
 
             </div>

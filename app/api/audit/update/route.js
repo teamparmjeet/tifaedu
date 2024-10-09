@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import QueryUpdateModel from "@/model/AuditLog";
+import QueryModel from "@/model/Query"; // Import the QueryModel to update deadline
 
 export const PATCH = async (request) => {
     await dbConnect();
@@ -31,10 +32,13 @@ export const PATCH = async (request) => {
             );
         }
 
+        // Calculate tomorrow's date for the deadline
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
         // Find changes between the existing document and the incoming data
         const changes = {};
         for (const key in data) {
-            // Handle nested objects or arrays if needed
             if (JSON.stringify(audit[key]) !== JSON.stringify(data[key])) {
                 changes[key] = {
                     oldValue: audit[key],
@@ -72,9 +76,17 @@ export const PATCH = async (request) => {
             }
         );
 
+        // Now update the deadline in the related QueryModel document
+        await QueryModel.updateOne(
+            { _id: data.queryId }, // Find the related QueryModel document
+            {
+                $set: { deadline: tomorrow.toISOString() }, // Update the deadline to tomorrow's date
+            }
+        );
+
         return new Response(
             JSON.stringify({
-                message: "Audit updated successfully!",
+                message: "Audit updated successfully and deadline set to tomorrow!",
                 success: true,
                 auditid: data.queryId,
             }),
@@ -82,10 +94,10 @@ export const PATCH = async (request) => {
         );
 
     } catch (error) {
-        console.error("Error updating audit:", error);
+        console.error("Error updating audit or deadline:", error);
         return new Response(
             JSON.stringify({
-                message: "Error updating audit!",
+                message: "Error updating audit or deadline!",
                 success: false,
             }),
             { status: 500 }

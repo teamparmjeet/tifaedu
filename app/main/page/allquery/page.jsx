@@ -249,7 +249,7 @@ export default function AllQuery() {
             value={deadlineFilter} // Binding the deadline filter state
             onChange={(e) => setDeadlineFilter(e.target.value)} // Update the deadline filter state
           >
-             <option value="" disabled>Deadline</option>
+            <option value="" disabled>Deadline</option>
             <option value="">All </option>
             <option value="today">Today</option>
             <option value="tomorrow">Tomorrow</option>
@@ -331,48 +331,55 @@ export default function AllQuery() {
 
                 return (
                   <tr
-                    key={querie._id}
-                    className={`border-b cursor-pointer transition-colors duration-200 
-                      ${new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' : 
-                        new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-orange-400 text-white' : 
-                        new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-yellow-400 text-black' : 
-                        ''}`
-                    }
-                    
+                  key={querie._id}
+                  className={`border-b cursor-pointer transition-colors duration-200  relative
+                    ${querie.addmission ? 'bg-[#6cb049] text-white' :
+                      new Date(querie.deadline) < new Date() ? 'bg-red-700 text-white animate-blink' :
+                        new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
+                          new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-orange-400 text-white' :
+                            new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-yellow-400 text-black' :
+                              ''
+                    }`}
+                >
+                  <td className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedqueries.includes(querie._id)}
+                      onChange={() => handleSelectquerie(querie._id)}
+                    />
+                  </td>
+                
+                  {/* Display the matched user's name */}
+                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
+                    {matchedUser ? matchedUser.name : 'Tifa Admin'}
+                  </td>
+                  
+                  <td
+                    className="px-4 py-2 font-semibold text-sm whitespace-nowrap"
+                    onClick={() => handleRowClick(querie._id)}
                   >
-
-                    <td className="px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedqueries.includes(querie._id)}
-                        onChange={() => handleSelectquerie(querie._id)}
-                      />
-                    </td>
-                    {/* Display the matched user's name */}
-                    <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
-                      {matchedUser ? matchedUser.name : 'Tifa Admin'}
-                    </td>
-                    <td
-                      className="px-4 py-2 font-semibold  text-sm whitespace-nowrap"
-                      onClick={() => handleRowClick(querie._id)}
-                    >
-                      {querie.studentName}
-                    </td>
-                    <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                      {querie.branch}
-                    </td>
-                    <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                      {querie.studentContact.phoneNumber}
-                    </td>
-                    <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                      {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
-                    </td>
-                    <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                      {querie.studentContact.address}
-                    </td>
-
-
-                  </tr>
+                    {querie.studentName}
+                  </td>
+                  
+                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                    {querie.branch}
+                  </td>
+                  
+                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                    {querie.studentContact.phoneNumber}
+                  </td>
+                  
+                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                    {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
+                  </td>
+                  
+                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                    {querie.studentContact.address}
+                  </td>
+                  
+                 
+                </tr>
+                
                 );
               })
             ) : (

@@ -36,3 +36,21 @@
     width:100%!important;
     outline: none;
 }
+
+
+@keyframes blink {
+  0% {
+    background-color: red; 
+  }
+  50% {
+    background-color: #ad0000; 
+  }
+  100% {
+    background-color: red; 
+
+  }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
