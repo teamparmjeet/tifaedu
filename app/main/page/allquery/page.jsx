@@ -85,7 +85,7 @@ export default function AllQuery() {
         dayAfterTomorrow.setDate(currentDate.getDate() + 2);
         return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
       case "past":
-        return querieDeadline < currentDate;
+        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
       default:
         return true; // 'All' will display all queries
     }
@@ -288,6 +288,33 @@ export default function AllQuery() {
         </div>
 
       </div>
+      <div className="flex flex-wrap gap-4 mt-2 text-sm py-1">
+        {/* Legend Item */}
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full animate-blink"></span>
+          <span className="text-gray-600">Past Due</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-red-500"></span>
+          <span className="text-gray-600">Due Today</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
+          <span className="text-gray-600">Due Tomorrow</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
+          <span className="text-gray-600">Due Day After Tomorrow</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
+          <span className="text-gray-600">Enrolled</span>
+        </div>
+      </div>
 
       {/* querie Table */}
       <div className="relative overflow-x-auto shadow-md  bg-white   border border-gray-200">
@@ -330,56 +357,74 @@ export default function AllQuery() {
                 const matchedUser = user.find((u) => u._id === querie.userid);
 
                 return (
-                  <tr
-                  key={querie._id}
-                  className={`border-b cursor-pointer transition-colors duration-200  relative
+                  <>
+                    <tr
+                      key={querie._id}
+                      className={`border-b cursor-pointer transition-colors duration-200 relative
                     ${querie.addmission ? 'bg-[#6cb049] text-white' :
-                      new Date(querie.deadline) < new Date() ? 'bg-red-700 text-white animate-blink' :
-                        new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
-                          new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-orange-400 text-white' :
-                            new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-yellow-400 text-black' :
-                              ''
-                    }`}
-                >
-                  <td className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedqueries.includes(querie._id)}
-                      onChange={() => handleSelectquerie(querie._id)}
-                    />
-                  </td>
-                
-                  {/* Display the matched user's name */}
-                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
-                    {matchedUser ? matchedUser.name : 'Tifa Admin'}
-                  </td>
-                  
-                  <td
-                    className="px-4 py-2 font-semibold text-sm whitespace-nowrap"
-                    onClick={() => handleRowClick(querie._id)}
-                  >
-                    {querie.studentName}
-                  </td>
-                  
-                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                    {querie.branch}
-                  </td>
-                  
-                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                    {querie.studentContact.phoneNumber}
-                  </td>
-                  
-                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                    {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
-                  </td>
-                  
-                  <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                    {querie.studentContact.address}
-                  </td>
-                  
-                 
-                </tr>
-                
+                          new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
+                            new Date(querie.deadline) < new Date() ? 'text-white animate-blink' :
+                              new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-[#fcccba] text-black' :
+                                new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-[#ffe9bf] text-black' :
+                                  ''
+                        }`}
+                    >
+                      <td className="px-4 py-2 relative">
+                        <input
+                          type="checkbox"
+                          checked={selectedqueries.includes(querie._id)}
+                          onChange={() => handleSelectquerie(querie._id)}
+                        />
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
+                        {matchedUser ? matchedUser.name : 'Tifa Admin'}
+                      </td>
+
+                      <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
+                        {querie.studentName}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.branch}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.studentContact.phoneNumber}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.studentContact.address}
+                      </td>
+
+                      <span className="absolute right-0 top-0 bottom-0 flex items-center">
+                        {!querie.addmission && ( // Show only if addmission is false
+                          new Date(querie.lastDeadline) < new Date() && new Date(querie.lastDeadline).toDateString() !== new Date().toDateString() ? (
+                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-red-600 bg-red-200 rounded-full shadow-md">
+                              ✖️ Today Update
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
+                              ✔️ Checked
+                            </span>
+                          )
+                        )}
+                      </span>
+
+
+
+                    </tr>
+
+
+
+                  </>
+
+
+
                 );
               })
             ) : (

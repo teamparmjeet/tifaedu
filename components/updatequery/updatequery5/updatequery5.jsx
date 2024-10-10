@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 
 export default function UpdateQuery5({ query, audit }) {
+  const { data: session } = useSession();
   const queryid = query._id;
   const userid = query.userid;
   const [selectedOption, setSelectedOption] = useState('');
@@ -18,7 +20,7 @@ export default function UpdateQuery5({ query, audit }) {
     // Prepare data to send to the backend for the audit update
     const data = {
       queryId: queryid,
-      actionby: userid,
+      actionby: session?.user?.name,
       onlinesubStatus: selectedOption,
       message: selectedOption === 'response' ? message : '', // Only send message if response is selected
       stage: selectedOption === 'visited' ? 6 : undefined, // Update stage to 6 if 'visited' is selected

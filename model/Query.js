@@ -22,6 +22,10 @@ const querySchema = new Schema({
         type: String,
         required: true
     },
+    lastDeadline: {
+        type: String, 
+      },
+
     assignedTo: {
         type: String,
         default: "Not-Assigned",
@@ -37,9 +41,9 @@ const querySchema = new Schema({
         enum: ["open", "close"],
         default: "open"
     },
-    addmission:{
-        type:Boolean,
-        default:false
+    addmission: {
+        type: Boolean,
+        default: false
     },
     notes: {
         type: String,
@@ -51,6 +55,15 @@ const querySchema = new Schema({
     }
 }, { timestamps: true });
 
+querySchema.pre('save', function (next) {
+    // Check if deadline has been modified
+    if (this.isModified('deadline')) {
+      // Set lastDeadline to today's date
+      this.lastDeadline = new Date(); // Store today's date in lastDeadline
+    }
+    next();
+  });
+
 const QueryModel =
-    mongoose.models.Queries12 || mongoose.model('Queries12', querySchema);
+    mongoose.models.Queries14 || mongoose.model('Queries14', querySchema);
 export default QueryModel;

@@ -80,7 +80,10 @@ export const PATCH = async (request) => {
         await QueryModel.updateOne(
             { _id: data.queryId }, // Find the related QueryModel document
             {
-                $set: { deadline: tomorrow.toISOString() }, // Update the deadline to tomorrow's date
+                $set: { 
+                    deadline: tomorrow.toISOString(),
+                    lastDeadline: new Date().toISOString() 
+                }
             }
         );
 

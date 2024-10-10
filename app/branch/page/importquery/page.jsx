@@ -8,6 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function Importquery() {
     const { data: session } = useSession();
     const [adminData, setAdminData] = useState(null);
+    const [adminId, setAdminId] = useState(null);
     const [excelData, setExcelData] = useState([]);
     const [fileName, setFileName] = useState("");
     const [uploadSuccess, setUploadSuccess] = useState(null);
@@ -22,6 +23,7 @@ export default function Importquery() {
                     `/api/admin/find-admin-byemail/${session?.user?.email}`
                 );
                 setAdminData(response.data.branch);
+                setAdminId(response.data._id);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -59,6 +61,7 @@ export default function Importquery() {
             const formattedTomorrow = tomorrow.toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
             const mappedData = jsonData.map((row) => ({
+                // userid:adminId,
                 studentName: row['studentName'],
                 phoneNumber: row['phoneNumber'], // Separate phone number
                 address: row['address'], // Separate address
@@ -76,6 +79,7 @@ export default function Importquery() {
         setUploading(true);
         try {
             const dataToUpload = excelData.map((row) => ({
+                userid: adminId,
                 studentName: row.studentName,
                 studentContact: {
                     phoneNumber: row.phoneNumber,
@@ -128,7 +132,7 @@ export default function Importquery() {
                         />
                     )}
 
-                   
+
 
                     {excelData.length > 0 && (
                         <>

@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Loader from "@/components/Loader/Loader";
 import { Phone, MapPin, Calendar, CheckCircle } from "lucide-react";
-import UpdateQuere from "@/app/branch/component/Updatequere/UpdateQuere";
+import UpdateQuere from "@/app/main/component/Updatequere/UpdateQuere";
 import AssignedQuery from "@/components/AssignedQuery/AssignedQuery";
 import QueryHistory from "@/components/QueryHistory/QueryHistory";
 export default function Page({ params }) {
@@ -57,7 +57,7 @@ export default function Page({ params }) {
             {/* Left Sidebar */}
             <div className="col-span-1 bg-white shadow-lg rounded-lg p-6 ">
                 <div className="sticky top-5">
-
+                <button onClick={() => setIsModalOpen(true)} className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">{query.studentName}</h1>
                     <div className="flex flex-col  text-sm text-gray-700">
                         <p className="flex items-center gap-x-2 p-2 rounded-lg hover:bg-gray-100 transition duration-200">
@@ -80,66 +80,38 @@ export default function Page({ params }) {
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
                         <p className="text-sm text-gray-700">{query.courseInterest}</p>
                     </div>
+
+
                     <div className="mt-4">
-                        <h2 className="text-lg font-semibold text-[#29234b] mb-2">Stage</h2>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Call Stage:</span> {query.callStage}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Connection Status:</span> {query.connectionStatus}
-                        </p>
-                        <p className="text-sm text-gray-700">
-                            <span className="font-semibold">Lead Status:</span> {query.leadStatus}
-                        </p>
+                        <h2 className="text-lg font-semibold text-[#29234b]">Enrolled Status</h2>
+                        <p className="text-sm text-gray-700">{query.addmission ? "Enrolled" : "Not Enrolled"}</p>
                     </div>
+
+                    <div className="mt-4">
+                        <h2 className="text-lg font-semibold text-[#29234b]">Query Status</h2>
+                        <p className="text-sm text-gray-700 capitalize">{query.autoclosed}</p>
+                    </div>
+
+
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">More Info</h2>
                         <p className="text-sm text-gray-700">Additional information can go here.</p>
                     </div>
 
-                    <button onClick={() => setIsModalOpen(true)} className=" mt-4 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
+                  
                 </div>
             </div>
 
 
             {/* Right Section */}
             <div className="col-span-3 bg-white shadow-md rounded-lg p-5">
-                <h2 className="text-lg font-bold text-[#29234b] mb-3">Latest Activities</h2>
+
 
                 {/* History Timeline */}
                 <div className="space-y-6">
-                    {sortedHistory.length > 0 ? (
-                        sortedHistory.map((item, index) => (
-                            <div
-                                key={index}
-                                className="flex items-start p-6 bg-gradient-to-r from-gray-100 to-white shadow-lg rounded-lg border border-gray-300"
-                            >
-                                <div className="flex-shrink-0">
-                                    <CheckCircle color="#6cb049" size={24} />
-                                </div>
-                                <div className="ml-4 flex-grow">
-                                    <p className="text-lg font-bold text-gray-800 hover:text-[#6cb049] transition-colors">
-                                        {item.actionBy} updated {query.studentName}&apos;s query
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Created on{" "}
-                                        {`${String(new Date(query.createdAt).getDate()).padStart(2, "0")}-${String(
-                                            new Date(query.createdAt).getMonth() + 1
-                                        ).padStart(2, "0")}-${String(new Date(query.createdAt).getFullYear()).slice(-2)}`}
-                                    </p>
+                  
+                    <QueryHistory initialData={query} />
 
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        <span className="font-medium text-gray-600 mr-2">Updated At:</span>
-                                        <span className="text-gray-800">{new Date(item.actionDate).toLocaleString()}</span>
-                                    </p>
-                                    <QueryHistory item={item} />
-                                    
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-sm text-gray-500 text-center">No activities recorded yet.</p>
-                    )}
                 </div>
 
             </div>

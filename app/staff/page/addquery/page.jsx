@@ -20,8 +20,8 @@ export default function Page() {
             address: "",
         },
         courseInterest: "",
-        deadline: "",
-        branch: "",  // Initially empty
+        deadline:"",
+        branch: "",
         notes: ""
     });
 

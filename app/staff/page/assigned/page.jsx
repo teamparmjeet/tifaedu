@@ -9,7 +9,7 @@ import { useSession} from 'next-auth/react';
 
 
 
-export default function AllQuery() {
+export default function Assigned() {
   const [queries, setqueries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,8 +46,8 @@ export default function AllQuery() {
       if (adminData) {
         try {
           setLoading(true);
-          const autoclosedStatus = 'close'; // or 'close', based on your logic
-          const response = await axios.get(`/api/queries/fetchall-byuser/${adminData}?autoclosed=${autoclosedStatus}`);
+          const autoclosedStatus = 'open'; // or 'close', based on your logic
+          const response = await axios.get(`/api/queries/assigned/${adminData}?autoclosed=${autoclosedStatus}`);
           setqueries(response.data.fetch);
         } catch (error) {
           console.error('Error fetching query data:', error);

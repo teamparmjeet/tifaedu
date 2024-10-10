@@ -1,29 +1,28 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useSession} from 'next-auth/react';
-
 import axios from 'axios';
 import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lucide-react";
 import Link from 'next/link';
+import { useSession} from 'next-auth/react';
+
+
 
 export default function AllQuery() {
   const [queries, setqueries] = useState([]);
-  const [adminData, setAdminData] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
+  const [adminData,setAdminData]=useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedqueries, setSelectedqueries] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
   const [filterCourse, setFilterCourse] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [user, setuser] = useState([]);
+  const [deadlineFilter, setDeadlineFilter] = useState(""); // State for deadline filter
   const { data: session } = useSession();
-
-  const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
@@ -37,10 +36,10 @@ export default function AllQuery() {
         setLoading(false);
       }
     };
-
+  
     if (session?.user?.email) fetchAdminData();
   }, [session]);
-
+  
   useEffect(() => {
     // Fetch queries data once the adminData is available
     const fetchQueryData = async () => {
@@ -57,9 +56,10 @@ export default function AllQuery() {
         }
       }
     };
-
+  
     fetchQueryData();
   }, [adminData]);
+
   const router = useRouter();
   const handleRowClick = (id) => {
     router.push(`/staff/page/allquery/${id}`);
@@ -78,12 +78,36 @@ export default function AllQuery() {
   };
 
   // Filter queries based on course and search term
+  const filterByDeadline = (querie) => {
+    const currentDate = new Date();
+    const querieDeadline = new Date(querie.deadline);
+
+    switch (deadlineFilter) {
+      case "today":
+        return querieDeadline.toDateString() === currentDate.toDateString();
+      case "tomorrow":
+        const tomorrow = new Date(currentDate);
+        tomorrow.setDate(currentDate.getDate() + 1);
+        return querieDeadline.toDateString() === tomorrow.toDateString();
+      case "dayAfterTomorrow":
+        const dayAfterTomorrow = new Date(currentDate);
+        dayAfterTomorrow.setDate(currentDate.getDate() + 2);
+        return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
+      case "past":
+        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
+      default:
+        return true; // 'All' will display all queries
+    }
+  };
+
   const filteredqueries = sortqueries(
-    queries.filter(querie =>
-      (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        querie.studentContact.phoneNumber.includes(searchTerm)) &&
-      (filterCourse === "" || querie.branch.includes(filterCourse))
-    )
+    queries
+      .filter(querie =>
+        (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          querie.studentContact.phoneNumber.includes(searchTerm)) &&
+        (filterCourse === "" || querie.branch.includes(filterCourse)) &&
+        filterByDeadline(querie)
+      )
   );
 
 
@@ -132,8 +156,9 @@ export default function AllQuery() {
 
   return (
     <div className='container lg:w-[95%] mx-auto py-5'>
+
+
       {/* Search, Sort, Filter, and Bulk Actions */}
-     
       <div className="flex justify-between items-center mb-4">
         <div className="relative w-1/3">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -170,6 +195,18 @@ export default function AllQuery() {
                   {Array.from(new Set(queries.flatMap(querie => querie.branch))).map((branch, index) => (
                     <option key={index} value={branch}>{branch}</option>
                   ))}
+                </select>
+                <select
+                  className="border px-3 py-2 focus:outline-none text-sm"
+                  value={deadlineFilter} // Binding the deadline filter state
+                  onChange={(e) => setDeadlineFilter(e.target.value)} // Update the deadline filter state
+                >
+                  <option value="" disabled>Deadline</option>
+                  <option value="">All </option>
+                  <option value="today">Today</option>
+                  <option value="tomorrow">Tomorrow</option>
+                  <option value="dayAfterTomorrow">Day After Tomorrow</option>
+                  <option value="past">Past Date</option>
                 </select>
 
                 <select
@@ -218,6 +255,19 @@ export default function AllQuery() {
 
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
+            value={deadlineFilter} // Binding the deadline filter state
+            onChange={(e) => setDeadlineFilter(e.target.value)} // Update the deadline filter state
+          >
+            <option value="" disabled>Deadline</option>
+            <option value="">All </option>
+            <option value="today">Today</option>
+            <option value="tomorrow">Tomorrow</option>
+            <option value="dayAfterTomorrow">Day After Tomorrow</option>
+            <option value="past">Past Date</option>
+          </select>
+
+          <select
+            className="border px-3 py-2 focus:outline-none text-sm"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
           >
@@ -245,6 +295,34 @@ export default function AllQuery() {
             <Trash2 size={16} />
           </button>
         </div>
+
+      </div>
+      <div className="flex flex-wrap gap-4 mt-2 text-sm py-1">
+        {/* Legend Item */}
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full animate-blink"></span>
+          <span className="text-gray-600">Past Due</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-red-500"></span>
+          <span className="text-gray-600">Due Today</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
+          <span className="text-gray-600">Due Tomorrow</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
+          <span className="text-gray-600">Due Day After Tomorrow</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
+          <span className="text-gray-600">Enrolled</span>
+        </div>
       </div>
 
       {/* querie Table */}
@@ -265,61 +343,100 @@ export default function AllQuery() {
                   checked={selectedqueries.length === queries.length}
                 />
               </th>
+             
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Address</th>
-
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" className="px-6 py-4">
+                <td colSpan="7" className="px-6 py-4"> {/* Updated colspan to 7 */}
                   <div className="flex justify-center items-center h-[300px]">
                     <Loader />
                   </div>
                 </td>
               </tr>
             ) : currentqueries.length > 0 ? (
-              currentqueries.map((querie, index) => (
-                <tr
-                  key={querie._id}
-                  className={`border-b cursor-pointer hover:bg-gray-100 odd:bg-gray-50 even:bg-gray-100 transition-colors duration-200`}
-                >
-                  <td className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedqueries.includes(querie._id)}
-                      onChange={() => handleSelectquerie(querie._id)}
-                    />
-                  </td>
-                  <td
-                    className="px-4 py-2 font-semibold text-gray-900 text-sm whitespace-nowrap"
-                    onClick={() => handleRowClick(querie._id)}
-                  >
-                    {querie.studentName}
-                  </td>
-                  <td className="px-4 py-2 text-[12px]">
-                    {querie.branch}
-                  </td>
-                  <td className="px-4 py-2 text-[12px]">
-                    {querie.studentContact.phoneNumber}
-                  </td>
-                  <td className="px-4 py-2 text-[12px]">
-                    {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
-                  </td>
+              currentqueries.map((querie, index) => {
+                // Find the user that matches the querie.userid
+                const matchedUser = user.find((u) => u._id === querie.userid);
 
-                  <td className="px-4 py-2 text-[12px]">
-                    {querie.studentContact.address}
-                  </td>
+                return (
+                  <>
+                    <tr
+                      key={querie._id}
+                      className={`border-b cursor-pointer transition-colors duration-200 relative
+                    ${querie.addmission ? 'bg-[#6cb049] text-white' :
+                          new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
+                            new Date(querie.deadline) < new Date() ? 'text-white animate-blink' :
+                              new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-[#fcccba] text-black' :
+                                new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-[#ffe9bf] text-black' :
+                                  ''
+                        }`}
+                    >
+                      <td className="px-4 py-2 relative">
+                        <input
+                          type="checkbox"
+                          checked={selectedqueries.includes(querie._id)}
+                          onChange={() => handleSelectquerie(querie._id)}
+                        />
+                      </td>
 
-                </tr>
-              ))
+                    
+
+                      <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
+                        {querie.studentName}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.branch}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.studentContact.phoneNumber}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
+                      </td>
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {querie.studentContact.address}
+                      </td>
+
+                      <span className="absolute right-0 top-0 bottom-0 flex items-center">
+                        {!querie.addmission && ( // Show only if addmission is false
+                          new Date(querie.lastDeadline) < new Date() && new Date(querie.lastDeadline).toDateString() !== new Date().toDateString() ? (
+                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-red-600 bg-red-200 rounded-full shadow-md">
+                              ✖️ Today Update
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2  text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
+                              ✔️ Checked
+                            </span>
+                          )
+                        )}
+                      </span>
+
+
+
+                    </tr>
+
+
+
+                  </>
+
+
+
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
                   No queries available
                 </td>
               </tr>
@@ -363,3 +480,5 @@ const Pagination = ({ currentPage, totalPages, paginate }) => {
     </div>
   );
 };
+
+

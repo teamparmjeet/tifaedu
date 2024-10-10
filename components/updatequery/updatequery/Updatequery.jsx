@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 
 export default function UpdateQuery({ query, audit }) {
+  const { data: session } = useSession();
   const queryid = query._id;
   const userid = query.userid;
   const [selectedOption, setSelectedOption] = useState('');
@@ -24,7 +26,7 @@ export default function UpdateQuery({ query, audit }) {
     // Prepare data to send to the backend
     const data = {
       queryId: queryid,
-      actionby: userid,
+      actionby: session?.user?.name,
       connectionStatus: selectedOption,
       message: message || subOption,
       connectedsubStatus: selectedOption === 'connected' ? subOption : undefined,
@@ -84,6 +86,7 @@ export default function UpdateQuery({ query, audit }) {
         // Check if wrong_no was selected or any count reaches 3, then call the second API
         if (
           selectedOption === 'wrong_no' ||
+          subOption === 'not_interested' ||
           statusCountsUpdate.busy >= 3 ||
           statusCountsUpdate.call_back >= 3 ||
           statusCountsUpdate.switch_off >= 3 ||

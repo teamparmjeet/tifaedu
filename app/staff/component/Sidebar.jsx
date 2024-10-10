@@ -101,7 +101,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
               </Link>
 
-
+              <Link href="/staff/page/assigned">
               <li
                 className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                   }`}
@@ -109,6 +109,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 <ListTodo size={18} />
                 Assigned Query
               </li>
+</Link>
 
               <li
                 className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
