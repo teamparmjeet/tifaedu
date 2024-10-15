@@ -8,6 +8,8 @@ import { useSession } from 'next-auth/react';
 
 export default function Page() {
     const [branches, setBranches] = useState([]);
+    const [allCourses, setAllCourses] = useState([]); // Store all courses
+
     const [adminData, setAdminData] = useState(null);
     const { data: session } = useSession();
     const [formData, setFormData] = useState({
@@ -18,7 +20,7 @@ export default function Page() {
             address: "",
         },
         courseInterest: "",
-        deadline:"",
+        deadline: "",
         branch: "",
         notes: ""
     });
@@ -31,7 +33,23 @@ export default function Page() {
     const today = new Date().toISOString().split('T')[0];
 
 
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
 
+                const courseResponse = await axios.get("/api/course/fetchall/courses");
+                setAllCourses(courseResponse.data.fetch || []);
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const fetchAdminData = async () => {
@@ -46,7 +64,7 @@ export default function Page() {
                 // Update the formData with the fetched admin branch
                 setFormData((prevFormData) => ({
                     ...prevFormData,
-                 
+
                     userid: adminBranch._id,
                 }));
             } catch (err) {
@@ -101,7 +119,7 @@ export default function Page() {
 
     useEffect(() => {
         const isFormFilled =
-        
+
             formData.studentName &&
             formData.studentContact.phoneNumber &&
             formData.studentContact.address &&
@@ -132,10 +150,10 @@ export default function Page() {
                     studentName: "",
                     studentContact: {
                         phoneNumber: "",
-                        address:"",
+                        address: "",
                     },
                     courseInterest: "",
-                    deadline:"",
+                    deadline: "",
                     branch: "",
                     notes: ""
                 });
@@ -192,8 +210,19 @@ export default function Page() {
                             />
                         </div>
 
-
                         <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="courseInterest" className="block text-[12px] text-gray-700">
+                                Course Interest
+                            </label>
+                            <select name="courseInterest" value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                <option value="" disabled selected>Select Course</option>
+                                {allCourses.map((allCourses, index) => (
+                                    <option key={index} value={allCourses._id}>{allCourses.course_name}</option>
+                                ))}
+                            </select>
+
+                        </div>
+                        {/* <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="courseInterest" className="block text-[12px] text-gray-700">
                                 Course Interest
                             </label>
@@ -205,7 +234,7 @@ export default function Page() {
                                 onChange={handleChange}
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
-                        </div>
+                        </div> */}
                         <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="studentContact.address" className="block text-[12px] text-gray-700">
                                 Address
@@ -218,10 +247,10 @@ export default function Page() {
                                 onChange={handleChange}
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
-                        </div> 
+                        </div>
 
 
-                         <div className="sm:col-span-6 col-span-12">
+                        <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="deadline" className="block text-[12px] text-gray-700">
                                 DeadLine
                             </label>
@@ -234,17 +263,17 @@ export default function Page() {
                                 min={today}
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
-                        </div>  
+                        </div>
 
                         <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="branch" className="block text-[12px] text-gray-700">
-                               Branch
+                                Branch
                             </label>
                             <select name="branch" value={formData.branch} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                 <option value="" disabled selected>Select Branch</option>
-                               {branches.map((branch,index)=>(
-                                <option key={index} value={branch.branch_name}>{branch.branch_name}</option>
-                               ))}
+                                {branches.map((branch, index) => (
+                                    <option key={index} value={branch.branch_name}>{branch.branch_name}</option>
+                                ))}
                             </select>
 
                         </div>

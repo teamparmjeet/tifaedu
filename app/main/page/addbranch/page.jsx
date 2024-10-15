@@ -7,7 +7,8 @@ import toast, { Toaster } from "react-hot-toast";
 import { CirclePlus } from "lucide-react";
 
 export default function Page() {
-  // State to store form data
+  const [allCourses, setAllCourses] = useState([]);
+
   const [formData, setFormData] = useState({
     branch_name: "",
     location: {
@@ -30,6 +31,28 @@ export default function Page() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
+
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const courseResponse = await axios.get("/api/course/fetchall/courses");
+        setAllCourses(courseResponse.data.fetch || []);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -233,13 +256,19 @@ export default function Page() {
             <label className="block  text-[12px] text-gray-700">Courses</label>
             {formData.courses.map((course, index) => (
               <div key={index} className="flex items-center gap-2">
-                <input
-                  type="text"
+                <select
                   value={course}
-                  placeholder="Course Name"
                   onChange={(e) => handleCourseChange(index, e.target.value)}
-                  className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200   placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-                />
+                  className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                >
+                  <option value="">Select a Course</option>
+                  {allCourses.map((courseOption, i) => (
+                    <option key={i} value={courseOption._id}>
+                      {courseOption.course_name}
+                    </option>
+                  ))}
+                </select>
+
                 {formData.courses.length > 1 && (
                   <button
                     type="button"
@@ -251,11 +280,12 @@ export default function Page() {
                 )}
               </div>
             ))}
-            <button type="button" onClick={addCourse} className="bg-[#29234b] mt-3 rounded-md flex items-center text-white text-sm px-4 py-2 ">
-              <CirclePlus size={16} className='me-1' /> Add Course
-            </button>
 
+            <button type="button" onClick={addCourse} className="bg-[#29234b] mt-3 rounded-md flex items-center text-white text-sm px-4 py-2">
+              <CirclePlus size={16} className="me-1" /> Add Course
+            </button>
           </div>
+
 
           {/* Submit button */}
           <div>

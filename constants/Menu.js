@@ -16,6 +16,7 @@ import {
     Mail,
     Gauge,
     
+    
 } from 'lucide-react';
 
 export const Menulist = [
@@ -24,6 +25,7 @@ export const Menulist = [
         title: "Admission",
         icon: CheckSquare ,
         submenu: [
+            { name: "Our Courses", icon: Book ,href:"/main/page/courses"},
             { name: "New Admissions", icon: UserPlus ,href:"/main/underdevelopment"},
             { name: "Branch Visits", icon: User ,href:"/main/underdevelopment"},
             { name: "Enrolled Students", icon: CheckSquare ,href:"/main/underdevelopment"},

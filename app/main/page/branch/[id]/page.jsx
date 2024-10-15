@@ -12,6 +12,8 @@ export default function Page({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [allCourses, setAllCourses] = useState([]);
+
   const [branchData, setBranchData] = useState({
     courses: [], // Initialize with an empty array for courses
   });
@@ -34,6 +36,24 @@ export default function Page({ params }) {
 
     fetchBranchData();
   }, [id]);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+
+
+        const courseResponse = await axios.get("/api/course/fetchall/courses");
+        setAllCourses(courseResponse.data.fetch || []);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -82,7 +102,7 @@ export default function Page({ params }) {
 
   const handledelete = async () => {
     const isConfirmed = window.confirm("Are you sure you want to delete this branch?");
-    
+
     if (isConfirmed) {
       try {
         await axios.delete(`/api/branch/delete/${branchid}`);
@@ -94,7 +114,7 @@ export default function Page({ params }) {
       }
     }
   };
-  
+
 
   // Handle adding/removing courses
   const addCourse = () => {
@@ -162,12 +182,19 @@ export default function Page({ params }) {
                   <label className="block text-gray-700">Courses</label>
                   {branchData.courses.map((course, index) => (
                     <div key={index} className="flex items-center gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={course}
+                      <select
+                        value={branchData.courses[index]}
                         onChange={(e) => handleCourseChange(index, e.target.value)}
-                        className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200 rounded-md placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-                      />
+                        className="block w-full px-2 py-2 mt-1 text-gray-500 bg-white border border-gray-200 rounded-md"
+                      >
+                        <option value="">Select a Course</option>
+                        {allCourses.map((course) => (
+                          <option key={course._id} value={course._id}>
+                            {course.course_name}
+                          </option>
+                        ))}
+                      </select>
+
                       {branchData.courses.length > 1 && (
                         <button
                           type="button"
@@ -284,17 +311,17 @@ export default function Page({ params }) {
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700 border-b py-2">
                   <FaBook className="text-xl text-[#6cb049]" />
+
+
                   <p>
-                    {branch.courses.length > 0 ? (
-                      <ul className=" flex gap-x-2">
-                        {branch.courses.map((course, index) => (
-                          <li key={index}>{course},</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      "No courses available"
-                    )}
+                    {branch.courses.map(courseId => {
+                      const course = allCourses.find(course => course._id === courseId);
+                      return course ? course.course_name : "Unknown Course";
+                    }).join(" , ")}
                   </p>
+
+
+
 
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700 border-b py-2">
