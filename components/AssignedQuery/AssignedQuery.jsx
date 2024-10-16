@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useSession} from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
-export default function AssignedQuery({ initialData ,refreshData}) {
+export default function AssignedQuery({ initialData, refreshData }) {
     const [assignedTo, setAssignedTo] = useState(initialData.assignedTo);
     const [assignedUserDetails, setAssignedUserDetails] = useState(null);
     const [users, setUsers] = useState([]);
@@ -13,6 +13,7 @@ export default function AssignedQuery({ initialData ,refreshData}) {
     const [success, setSuccess] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [message, setMessage] = useState(''); // State for the message
     const { data: session } = useSession();
 
     useEffect(() => {
@@ -47,22 +48,33 @@ export default function AssignedQuery({ initialData ,refreshData}) {
 
         try {
             const userBranch = assignedUserDetails.branch;
-            const response = await axios.patch('/api/queries/update', {
+
+            // Update query assignment with actionBy (who is performing the update)
+            const queryResponse = await axios.patch('/api/queries/update', {
                 id: initialData._id,
                 assignedTo,
-                branch: userBranch,
-                actionBy: session?.user?.name
+                // branch: userBranch,
+                actionBy: session?.user?.name // The user performing the action
             });
 
-            if (response.status === 200) {
+            // Update audit log with actionBy, assignedBy, and message
+            const auditResponse = await axios.patch('/api/audit/update', {
+                queryId: initialData._id,
+                message,
+                assignedTo,                       
+                assignedBy: session?.user?.name, 
+              
+            });
+
+            if (queryResponse.status === 200 && auditResponse.status === 200) {
                 const updatedUser = users.find(user => user._id === assignedTo);
                 setAssignedUserDetails(updatedUser || null);
-                setSuccess('Query updated successfully');
+                setSuccess('Query, message, and assignment details updated successfully');
                 refreshData();
                 setIsEditing(false);
             }
         } catch (err) {
-            setError('Failed to update query');
+            setError('Failed to update query, message, or assignment details');
         } finally {
             setLoading(false);
         }
@@ -78,7 +90,6 @@ export default function AssignedQuery({ initialData ,refreshData}) {
         setIsDropdownOpen(false);
     };
 
-    // Filter users based on the search term
     const handleSearch = (e) => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
@@ -92,12 +103,12 @@ export default function AssignedQuery({ initialData ,refreshData}) {
         );
 
         setFilteredUsers(filtered);
-        setIsDropdownOpen(term.length > 0); // Open dropdown if there is text in the search
+        setIsDropdownOpen(term.length > 0);
     };
 
     return (
         <div>
-            <div className="p-2 border  mx-auto my-4 bg-white max-w-sm">
+            <div className="p-2 border mx-auto my-4 bg-white max-w-sm">
                 {assignedUserDetails ? (
                     <div>
                         <p className="text-sm">
@@ -116,18 +127,16 @@ export default function AssignedQuery({ initialData ,refreshData}) {
 
                 <button
                     onClick={() => setIsEditing(true)}
-                    className="mt-3  px-3 py-1 bg-[#6cb049] text-white rounded-md text-sm hover:bg-[#5aa43f] transition duration-200"
+                    className="mt-3 px-3 py-1 bg-[#6cb049] text-white rounded-md text-sm hover:bg-[#5aa43f] transition duration-200"
                 >
                     Assign
                 </button>
             </div>
 
-
-            {/* Modal */}
             {isEditing && (
-                <div className="fixed inset-0 border flex  items-center justify-center z-50">
+                <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                        <h2 className="text-xl font-semibold mb-4">Update Assigned User</h2>
+                        <h2 className="text-xl font-semibold mb-4">Update Assigned User & Message</h2>
 
                         <div className="relative">
                             <input
@@ -145,30 +154,35 @@ export default function AssignedQuery({ initialData ,refreshData}) {
                                 {assignedUserDetails ? assignedUserDetails.name : "Select a user"}
                             </button>
 
-                            {/* Dropdown with search filtering */}
                             {isDropdownOpen && (
-                               <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-auto">
-                               {filteredUsers.filter(user => user.usertype !== "2").length > 0 ? (
-                                   filteredUsers
-                                       .filter(user => user.usertype !== "2") // Filter out users with usertype "2"
-                                       .map((user) => (
-                                           <div
-                                               key={user._id}
-                                               onClick={() => selectUser(user)}
-                                               className="p-4 cursor-pointer hover:bg-gray-100 transition duration-200"
-                                           >
-                                               <p className="font-semibold">{user.name}</p>
-                                               <p className="text-sm text-gray-600">Branch: {user.branch}</p>
-                                               <p className="text-sm text-gray-600">User Type: {user.usertype === "0" ? "Staff" : user.usertype === "1" ? "Branch Admin" : "Staff"}</p>
-                                           </div>
-                                       ))
-                               ) : (
-                                   <p className="p-4 text-sm text-gray-500">No users found</p>
-                               )}
-                           </div>
-                           
+                                <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-auto">
+                                    {filteredUsers.filter(user => user.usertype !== "2").length > 0 ? (
+                                        filteredUsers
+                                            .filter(user => user.usertype !== "2")
+                                            .map((user) => (
+                                                <div
+                                                    key={user._id}
+                                                    onClick={() => selectUser(user)}
+                                                    className="p-4 cursor-pointer hover:bg-gray-100 transition duration-200"
+                                                >
+                                                    <p className="font-semibold">{user.name}</p>
+                                                    <p className="text-sm text-gray-600">Branch: {user.branch}</p>
+                                                    <p className="text-sm text-gray-600">User Type: {user.usertype === "0" ? "Staff" : user.usertype === "1" ? "Branch Admin" : "Staff"}</p>
+                                                </div>
+                                            ))
+                                    ) : (
+                                        <p className="p-4 text-sm text-gray-500">No users found</p>
+                                    )}
+                                </div>
                             )}
                         </div>
+
+                        <textarea
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Write a message..."
+                            className="w-full p-2 border border-gray-300 rounded mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                        />
 
                         <div className="flex justify-end space-x-2 mt-4">
                             <button

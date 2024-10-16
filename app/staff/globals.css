@@ -20,3 +20,22 @@
   ::-webkit-scrollbar-thumb {
     background: #6cb049; 
   }
+
+
+  @keyframes blink {
+    0% {
+      background-color: red; 
+    }
+    50% {
+      background-color: #ad0000; 
+    }
+    100% {
+      background-color: red; 
+  
+    }
+  }
+  
+  .animate-blink {
+    animation: blink 1s infinite;
+  }
+  

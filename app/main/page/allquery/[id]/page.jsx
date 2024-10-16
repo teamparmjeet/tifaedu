@@ -6,52 +6,55 @@ import { Phone, MapPin, Calendar, CheckCircle } from "lucide-react";
 import UpdateQuere from "@/app/main/component/Updatequere/UpdateQuere";
 import AssignedQuery from "@/components/AssignedQuery/AssignedQuery";
 import QueryHistory from "@/components/QueryHistory/QueryHistory";
+
 export default function Page({ params }) {
     const { id } = params;
+
     const [query, setQuery] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
+    const [loadingQuery, setLoadingQuery] = useState(true);  // Loading state for query data
+    const [loadingCourses, setLoadingCourses] = useState(true);  // Loading state for course data
+    const [errorQuery, setErrorQuery] = useState(null);  // Error state for query data
+    const [errorCourses, setErrorCourses] = useState(null);  // Error state for course data
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [allCourses, setAllCourses] = useState([]);
 
+    // Fetch query data
     const fetchBranchData = useCallback(async () => {
         try {
-            setLoading(true);
+            setLoadingQuery(true);
             const response = await axios.get(`/api/queries/find-single-byid/${id}`);
             setQuery(response.data.query);
+            setErrorQuery(null);  // Clear any previous errors
         } catch (error) {
             console.error("Error fetching branch data:", error);
-            setError("Failed to fetch branch data.");
+            setErrorQuery("Failed to fetch branch data.");
         } finally {
-            setLoading(false);
+            setLoadingQuery(false);
         }
     }, [id]);
 
-    useEffect(() => {
-        fetchBranchData();
-    }, [fetchBranchData]);
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-
-
-                const courseResponse = await axios.get("/api/course/fetchall/courses");
-                setAllCourses(courseResponse.data.fetch || []);
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+    // Fetch course data
+    const fetchCourseData = useCallback(async () => {
+        try {
+            setLoadingCourses(true);
+            const courseResponse = await axios.get("/api/course/fetchall/courses");
+            setAllCourses(courseResponse.data.fetch || []);
+            setErrorCourses(null);  // Clear any previous errors
+        } catch (error) {
+            console.error("Error fetching course data:", error);
+            setErrorCourses("Failed to fetch course data.");
+        } finally {
+            setLoadingCourses(false);
+        }
     }, []);
 
-    if (loading) {
+    useEffect(() => {
+        fetchBranchData();
+        fetchCourseData();
+    }, [fetchBranchData, fetchCourseData]);
+
+    // Show loader when either query or course data is loading
+    if (loadingQuery || loadingCourses) {
         return (
             <div className="flex justify-center items-center w-full min-h-screen bg-gray-50">
                 <Loader />
@@ -59,10 +62,13 @@ export default function Page({ params }) {
         );
     }
 
-    if (error) {
+    // Display error if either fetch has an issue
+    if (errorQuery || errorCourses) {
         return (
             <div className="flex justify-center items-center w-full min-h-screen bg-gray-50">
-                <p className="text-red-500 text-lg">{error}</p>
+                <p className="text-red-500 text-lg">
+                    {errorQuery || errorCourses}
+                </p>
             </div>
         );
     }
@@ -70,11 +76,15 @@ export default function Page({ params }) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 p-6 bg-gray-50 min-h-screen">
             {/* Left Sidebar */}
-            <div className="col-span-1 bg-white shadow-lg rounded-lg p-6 ">
+            <div className="col-span-1 bg-white shadow-lg rounded-lg p-6">
                 <div className="sticky top-5">
-                    <button onClick={() => setIsModalOpen(true)} className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white">Update</button>
-                    <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">{query.studentName}</h1>
-                    <div className="flex flex-col  text-sm text-gray-700">
+                    <button onClick={() => setIsModalOpen(true)} className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white">
+                        Update
+                    </button>
+                    <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
+                        {query.studentName}
+                    </h1>
+                    <div className="flex flex-col text-sm text-gray-700">
                         <p className="flex items-center gap-x-2 p-2 rounded-lg hover:bg-gray-100 transition duration-200">
                             <Phone color="#6cb049" size={18} />
                             {query.studentContact.phoneNumber}
@@ -89,7 +99,7 @@ export default function Page({ params }) {
                         </p>
                     </div>
                     <p className="mt-4 text-sm">
-                        <span className="font-semibold"></span><AssignedQuery refreshData={fetchBranchData} initialData={query} />
+                        <AssignedQuery refreshData={fetchBranchData} initialData={query} />
                     </p>
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
@@ -99,42 +109,29 @@ export default function Page({ params }) {
                                 : query.courseInterest}
                         </p>
                     </div>
-
-
-
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Enrolled Status</h2>
                         <p className="text-sm text-gray-700">{query.addmission ? "Enrolled" : "Not Enrolled"}</p>
                     </div>
-
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Query Status</h2>
                         <p className="text-sm text-gray-700 capitalize">{query.autoclosed}</p>
                     </div>
-
-
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">More Info</h2>
                         <p className="text-sm text-gray-700">Additional information can go here.</p>
                     </div>
-
-
                 </div>
             </div>
-
 
             {/* Right Section */}
             <div className="col-span-3 bg-white shadow-md rounded-lg p-5">
-
-
                 {/* History Timeline */}
                 <div className="space-y-6">
-
                     <QueryHistory initialData={query} />
-
                 </div>
-
             </div>
+
             <UpdateQuere refreshData={fetchBranchData} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} initialData={query} />
         </div>
     );

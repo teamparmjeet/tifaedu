@@ -3,482 +3,294 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lucide-react";
-import Link from 'next/link';
-import { useSession} from 'next-auth/react';
-
-
+import { useSession } from 'next-auth/react';
 
 export default function Assigned() {
-  const [queries, setqueries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [queriesPerPage] = useState(8);
-  const [adminData,setAdminData]=useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedqueries, setSelectedqueries] = useState([]);
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [filterCourse, setFilterCourse] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [user, setuser] = useState([]);
-  const [deadlineFilter, setDeadlineFilter] = useState(""); // State for deadline filter
-  const { data: session } = useSession();
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const response = await axios.get(
-          `/api/admin/find-admin-byemail/${session?.user?.email}`
-        );
-        setAdminData(response.data._id);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    if (session?.user?.email) fetchAdminData();
-  }, [session]);
-  
-  useEffect(() => {
-    // Fetch queries data once the adminData is available
-    const fetchQueryData = async () => {
-      if (adminData) {
-        try {
-          setLoading(true);
-          const autoclosedStatus = 'open'; // or 'close', based on your logic
-          const response = await axios.get(`/api/queries/assigned/${adminData}?autoclosed=${autoclosedStatus}`);
-          setqueries(response.data.fetch);
-        } catch (error) {
-          console.error('Error fetching query data:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-  
-    fetchQueryData();
-  }, [adminData]);
+    const [queries, setQueries] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [adminId, setAdminId] = useState(null);
+    const { data: session } = useSession();
+    const router = useRouter();
 
-  const router = useRouter();
-  const handleRowClick = (id) => {
-    router.push(`/staff/page/allquery/${id}`);
-  };
-  const toggleFilterPopup = () => {
-    setIsFilterOpen(!isFilterOpen);
-  };
+    // Filter states
+    const [selectedBranch, setSelectedBranch] = useState('All');
+    const [selectedDeadline, setSelectedDeadline] = useState('All');
+    const [selectedEnrollStatus, setSelectedEnrollStatus] = useState('All');
+    const [openBranchDetails, setOpenBranchDetails] = useState(null);
 
-  // Sort queries based on selected order
-  const sortqueries = (queries) => {
-    return queries.sort((a, b) => {
-      return sortOrder === "newest"
-        ? new Date(b.createdAt) - new Date(a.createdAt)
-        : new Date(a.createdAt) - new Date(b.createdAt);
+    // Pagination states
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            if (session?.user?.email) {
+                try {
+                    const { data } = await axios.get(`/api/admin/find-admin-byemail/${session.user.email}`);
+                    setAdminId(data._id);
+                } catch (error) {
+                    console.error(error.message);
+                }
+            }
+        };
+        fetchAdminData();
+    }, [session]);
+
+    useEffect(() => {
+        const fetchBranchData = async () => {
+            try {
+                const response = await axios.get('/api/branch/fetchall/branch');
+                setBranches(response.data.fetch);
+            } catch (error) {
+                console.error('Error fetching branch data:', error);
+            }
+        };
+        fetchBranchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchQueryData = async () => {
+            if (adminId) {
+                try {
+                    setLoading(true);
+                    const { data } = await axios.get(`/api/queries/assigned/${adminId}?autoclosed=open`);
+                    setQueries(data.fetch);
+                } catch (error) {
+                    console.error('Error fetching query data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        fetchQueryData();
+    }, [adminId]);
+
+    const handleRowClick = (id) => {
+        router.push(`/staff/page/allquery/${id}`);
+    };
+
+    const branchDetails = branches.reduce((acc, branch) => {
+        const branchQueries = queries.filter(query => query.branch === branch.branch_name);
+        acc[branch.branch_name] = {
+            count: branchQueries.length,
+            Enrolls: branchQueries.filter(query => query.addmission).length,
+            pending: branchQueries.filter(query => !query.addmission).length,
+        };
+        return acc;
+    }, {});
+
+    const totalRequests = Object.values(branchDetails).reduce((acc, { count }) => acc + count, 0);
+
+    const filteredQueries = queries.filter(query => {
+        const matchesBranch = selectedBranch === 'All' || query.branch === selectedBranch;
+        const queryDeadline = new Date(query.deadline);
+
+        const matchesDeadline = selectedDeadline === 'All' ||
+            (selectedDeadline === 'Today' && queryDeadline.toDateString() === new Date().toDateString()) ||
+            (selectedDeadline === 'Tomorrow' && queryDeadline.toDateString() === new Date(Date.now() + 86400000).toDateString()) ||
+            (selectedDeadline === 'Past' && queryDeadline < new Date() && queryDeadline.toDateString() !== new Date().toDateString());
+
+        const matchesEnrollStatus = selectedEnrollStatus === 'All' ||
+            (selectedEnrollStatus === 'Enroll' && query.addmission) ||
+            (selectedEnrollStatus === 'Pending' && !query.addmission);
+
+        return matchesBranch && matchesDeadline && matchesEnrollStatus;
     });
-  };
-
-  // Filter queries based on course and search term
-  const filterByDeadline = (querie) => {
-    const currentDate = new Date();
-    const querieDeadline = new Date(querie.deadline);
-
-    switch (deadlineFilter) {
-      case "today":
-        return querieDeadline.toDateString() === currentDate.toDateString();
-      case "tomorrow":
-        const tomorrow = new Date(currentDate);
-        tomorrow.setDate(currentDate.getDate() + 1);
-        return querieDeadline.toDateString() === tomorrow.toDateString();
-      case "dayAfterTomorrow":
-        const dayAfterTomorrow = new Date(currentDate);
-        dayAfterTomorrow.setDate(currentDate.getDate() + 2);
-        return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
-      case "past":
-        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
-      default:
-        return true; // 'All' will display all queries
-    }
-  };
-
-  const filteredqueries = sortqueries(
-    queries
-      .filter(querie =>
-        (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          querie.studentContact.phoneNumber.includes(searchTerm)) &&
-        (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-        filterByDeadline(querie)
-      )
-  );
 
 
-  // Pagination logic
-  const indexOfLastquerie = currentPage * queriesPerPage;
-  const indexOfFirstquerie = indexOfLastquerie - queriesPerPage;
-  const currentqueries = filteredqueries.slice(indexOfFirstquerie, indexOfLastquerie);
-  const totalPages = Math.ceil(filteredqueries.length / queriesPerPage);
+    const toggleBranchDetails = (branchName) => {
+        setOpenBranchDetails(prev => (prev === branchName ? null : branchName));
+        setSelectedBranch(prev => (prev === branchName ? 'All' : branchName));
+    };
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const sortedQueries = filteredQueries.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-  // Handle multi-select for bulk actions
-  const handleSelectquerie = (id) => {
-    if (selectedqueries.includes(id)) {
-      setSelectedqueries(selectedqueries.filter(querieId => querieId !== id));
-    } else {
-      setSelectedqueries([...selectedqueries, id]);
-    }
-  };
+    // Pagination Logic
+    const indexOfLastQuery = currentPage * itemsPerPage;
+    const indexOfFirstQuery = indexOfLastQuery - itemsPerPage;
+    const currentQueries = sortedQueries.slice(indexOfFirstQuery, indexOfLastQuery);
+    const totalPages = Math.ceil(sortedQueries.length / itemsPerPage);
+
+    const handlePageChange = (direction) => {
+        if (direction === 'next' && currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        } else if (direction === 'prev' && currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    return (
+        <div className="container mx-auto p-5">
+            <div className="flex flex-col lg:flex-row justify-between space-y-6 lg:space-y-0 lg:space-x-6">
+                {/* Queries List */}
+                <div className="w-full lg:w-2/3">
+                    <div className="shadow-lg rounded-lg bg-white mb-6 relative">
+                        <div className="p-4">
+                            <h2 className="text-xl font-semibold mb-4 text-gray-800">Assigned Queries</h2>
+                            <p className="text-sm text-gray-600 mb-4">Total Requests: <span className="font-bold">{totalRequests}</span></p>
+                            <div className="relative overflow-y-auto" style={{ height: '400px' }}>
+                                <table className="min-w-full text-xs text-left text-gray-600 font-sans">
+                                    <thead className="bg-[#29234b] text-white uppercase">
+                                        <tr>
+                                            <th className="px-6 py-4">Student Name</th>
+                                            <th className="px-6 py-4">Branch</th>
+                                            <th className="px-6 py-4">Deadline</th>
+                                            <th className="px-6 py-4">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {loading ? (
+                                         <tr>
+                                         <td colSpan="4" className="px-6 py-4  text-center">
+                                           <div className="flex items-center justify-center h-full">
+                                             <Loader />
+                                           </div>
+                                         </td>
+                                       </tr>
+                                       
+                                        
+                                         
+                                        ) : currentQueries.length > 0 ? (
+                                            currentQueries
+                                                .sort((a, b) => new Date(a.deadline) - new Date(b.deadline)) // Sort by deadline
+                                                .map((query) => {
+
+                                                    const deadline = new Date(query.deadline);
+                                                    const isToday = deadline.toDateString() === new Date().toDateString();
+                                                    const isPastDeadline = deadline < new Date();
+                                                    const isIn24Hours = deadline.toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString();
+                                                    const isIn48Hours = deadline.toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString();
+
+                                                    // Define the row class based on conditions
+                                                    const rowClass = query.addmission
+                                                        ? 'bg-[#6cb049] text-white'
+                                                        : isToday ? 'bg-red-500 text-white'
+                                                            : isPastDeadline ? 'bg-gray-800 text-white animate-blink'  // Changed bg color for visibility
+                                                                : isIn24Hours ? 'bg-[#fcccba] text-black'
+                                                                    : isIn48Hours ? 'bg-[#ffe9bf] text-black'
+                                                                        : '';
+
+                                                    return (
+                                                        <tr
+                                                            key={query._id}
+                                                            className={`border-b cursor-pointer transition-colors duration-200 hover:opacity-90 ${rowClass}`}
+                                                            onClick={() => handleRowClick(query._id)}
+                                                        >
+                                                            <td className="px-6 py-1 font-semibold">{query.studentName}</td>
+                                                            <td className="px-6 py-1">{query.branch}</td>
+                                                            <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>
+                                                            <td className="px-6 py-1">{query.addmission ? 'Enroll' : 'Pending'}</td>
+                                                        </tr>
+                                                    );
+                                                })
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                                                    No queries available
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+
+
+                                </table>
+                            </div>
+
+                            {/* Pagination Controls */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-gray-100 py-2 px-4 flex justify-between">
+                                <button
+                                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-xs"
+                                    onClick={() => handlePageChange('prev')}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </button>
+                                <span className="self-center text-xs">Page {currentPage} of {totalPages}</span>
+                                <button
+                                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-xs"
+                                    onClick={() => handlePageChange('next')}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filters */}
+                <div className="w-full lg:w-1/3 space-y-6">
+                    {/* Branch Filter */}
+                    <div className="shadow-lg rounded-lg bg-white p-4">
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Branch Statistics</h2>
+                        <ul className="space-y-2 text-sm">
+
+                            {branches.map(branch => {
+                                // Calculate total count of Enrolls and Pending
+                                const totalCount = branchDetails[branch.branch_name].Enrolls + branchDetails[branch.branch_name].pending;
+
+                                return (
+                                    <li key={branch._id}>
+                                        <button
+                                            onClick={() => toggleBranchDetails(branch.branch_name)}
+                                            className={`w-full py-2 px-4 text-left rounded flex justify-between items-center ${selectedBranch === branch.branch_name ? 'bg-gray-200 font-semibold' : 'hover:bg-gray-100'}`}
+                                        >
+                                            {/* Show branch name with total count in parentheses */}
+                                            <span>
+                                                {branch.branch_name} ({totalCount})
+                                            </span>
+                                            <span className="ml-2 text-gray-500">
+                                                {selectedBranch === branch.branch_name ? '-' : '+'}
+                                            </span>
+                                        </button>
+
+                                        {openBranchDetails === branch.branch_name && (
+                                            <div className="pl-4 py-2 bg-gray-100 rounded mt-2 space-y-2 transition-all duration-300 ease-in-out">
+                                                <p className="text-gray-700">Enrolls: <span className="font-semibold">{branchDetails[branch.branch_name].Enrolls}</span></p>
+                                                <p className="text-gray-700">Pending: <span className="font-semibold">{branchDetails[branch.branch_name].pending}</span></p>
+                                            </div>
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
 
 
 
-  const handleBulkDelete = async () => {
-    const isConfirmed = window.confirm("Are you sure you want to delete this Queries?");
-    if (isConfirmed) {
-
-      try {
-        // Make a DELETE request to the API with the selected branches' IDs in the request body
-        await axios.delete('/api/queries/delete', {
-          data: { ids: selectedqueries } // Pass the ids in the 'data' field for DELETE request
-        });
-
-        // Filter out the deleted branches from the state
-        setqueries(queries.filter(querie => !selectedqueries.includes(querie._id)));
-
-        // Clear the selected branches after deletion
-        setSelectedqueries([]);
-
-        alert('queries deleted successfully');
-      } catch (error) {
-        console.error('Error deleting queries:', error);
-        alert(error);
-      }
-    }
-  };
-
-  return (
-    <div className='container lg:w-[95%] mx-auto py-5'>
 
 
-      {/* Search, Sort, Filter, and Bulk Actions */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="relative w-1/3">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Search size={14} />
-          </span>
-          <input
-            type="text"
-            placeholder="Search By Student Name and Phone Number"
-            className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+                    {/* Deadline Filter */}
+                    <div className="shadow-lg rounded-lg bg-white p-4">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Deadline</h3>
+                        <select
+                            className="w-full py-2 px-3 bg-gray-100 rounded"
+                            value={selectedDeadline}
+                            onChange={(e) => setSelectedDeadline(e.target.value)}
+                        >
+                            <option value="All">All</option>
+                            <option value="Today">Today</option>
+                            <option value="Tomorrow">Tomorrow</option>
+                            <option value="Past">Past Deadline</option>
+                        </select>
+                    </div>
 
-        <button className="lg:hidden text-gray-600 px-3 py-2 border rounded-md" onClick={toggleFilterPopup}>
-          <Filter size={16} />
-        </button>
-
-        {/* Popup for Filters on Mobile */}
-        {isFilterOpen && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 z-50">
-            <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-lg p-4 z-50">
-              <button className="text-gray-600 mb-4" onClick={toggleFilterPopup}>
-                <X size={20} />
-              </button>
-
-              <div className="flex flex-col space-y-3">
-                <select
-                  className="border px-3 py-2 focus:outline-none text-sm"
-                  value={filterCourse}
-                  onChange={(e) => setFilterCourse(e.target.value)}
-                >
-                  <option value="">All Branch</option>
-                  {Array.from(new Set(queries.flatMap(querie => querie.branch))).map((branch, index) => (
-                    <option key={index} value={branch}>{branch}</option>
-                  ))}
-                </select>
-                <select
-                  className="border px-3 py-2 focus:outline-none text-sm"
-                  value={deadlineFilter} // Binding the deadline filter state
-                  onChange={(e) => setDeadlineFilter(e.target.value)} // Update the deadline filter state
-                >
-                  <option value="" disabled>Deadline</option>
-                  <option value="">All </option>
-                  <option value="today">Today</option>
-                  <option value="tomorrow">Tomorrow</option>
-                  <option value="dayAfterTomorrow">Day After Tomorrow</option>
-                  <option value="past">Past Date</option>
-                </select>
-
-                <select
-                  className="border px-3 py-2 focus:outline-none text-sm"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                >
-                  <option value="newest">Newest</option>
-                  <option value="oldest">Oldest</option>
-                </select>
-                <Link href={'/staff/page/importquery'}>
-                  <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
-                    <CirclePlus size={16} className='me-1' /> Import Query
-                  </button>
-                </Link>
-                <Link href={'/staff/page/addquery'}>
-                  <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
-                    <CirclePlus size={16} className='me-1' /> Add Query
-                  </button>
-                </Link>
-
-                <button
-                  className="text-red-500 rounded-md border border-red-500 px-3 py-2"
-                  onClick={handleBulkDelete}
-                  disabled={selectedqueries.length === 0}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
+                    {/* Enroll Status Filter */}
+                    <div className="shadow-lg rounded-lg bg-white p-4">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Status</h3>
+                        <select
+                            className="w-full py-2 px-3 bg-gray-100 rounded"
+                            value={selectedEnrollStatus}
+                            onChange={(e) => setSelectedEnrollStatus(e.target.value)}
+                        >
+                            <option value="All">All</option>
+                            <option value="Enroll">Enroll</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-          </div>
-        )}
-
-        {/* Desktop Filter Section */}
-        <div className="hidden lg:flex space-x-3">
-          <select
-            className="border px-3 py-2 focus:outline-none text-sm"
-            value={filterCourse}
-            onChange={(e) => setFilterCourse(e.target.value)}
-          >
-            <option value="">All Branch</option>
-            {Array.from(new Set(queries.flatMap(querie => querie.branch))).map((branch, index) => (
-              <option key={index} value={branch}>{branch}</option>
-            ))}
-          </select>
-
-          <select
-            className="border px-3 py-2 focus:outline-none text-sm"
-            value={deadlineFilter} // Binding the deadline filter state
-            onChange={(e) => setDeadlineFilter(e.target.value)} // Update the deadline filter state
-          >
-            <option value="" disabled>Deadline</option>
-            <option value="">All </option>
-            <option value="today">Today</option>
-            <option value="tomorrow">Tomorrow</option>
-            <option value="dayAfterTomorrow">Day After Tomorrow</option>
-            <option value="past">Past Date</option>
-          </select>
-
-          <select
-            className="border px-3 py-2 focus:outline-none text-sm"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-          </select>
-
-          <Link href={'/staff/page/importquery'}>
-            <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
-              <CirclePlus size={16} className='me-1' /> Import Query
-            </button>
-          </Link>
-
-          <Link href={'/staff/page/addquery'}>
-            <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
-              <CirclePlus size={16} className='me-1' /> Add Query
-            </button>
-          </Link>
-
-          <button
-            className="text-red-500 rounded-md border border-red-500 px-3 py-2"
-            onClick={handleBulkDelete}
-            disabled={selectedqueries.length === 0}
-          >
-            <Trash2 size={16} />
-          </button>
         </div>
-
-      </div>
-      <div className="flex flex-wrap gap-4 mt-2 text-sm py-1">
-        {/* Legend Item */}
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full animate-blink"></span>
-          <span className="text-gray-600">Past Due</span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-red-500"></span>
-          <span className="text-gray-600">Due Today</span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
-          <span className="text-gray-600">Due Tomorrow</span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
-          <span className="text-gray-600">Due Day After Tomorrow</span>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
-          <span className="text-gray-600">Enrolled</span>
-        </div>
-      </div>
-
-      {/* querie Table */}
-      <div className="relative overflow-x-auto shadow-md  bg-white   border border-gray-200">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
-          <thead className="bg-[#29234b] text-white uppercase">
-            <tr>
-              <th scope="col" className="px-4 font-medium capitalize py-2">
-                <input
-                  type="checkbox"
-                  onChange={(e) =>
-                    setSelectedqueries(
-                      e.target.checked
-                        ? queries.map(querie => querie._id)
-                        : []
-                    )
-                  }
-                  checked={selectedqueries.length === queries.length}
-                />
-              </th>
-             
-              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
-              <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
-              <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
-              <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
-              <th scope="col" className="px-4 font-medium capitalize py-2">Address</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="7" className="px-6 py-4"> {/* Updated colspan to 7 */}
-                  <div className="flex justify-center items-center h-[300px]">
-                    <Loader />
-                  </div>
-                </td>
-              </tr>
-            ) : currentqueries.length > 0 ? (
-              currentqueries.map((querie, index) => {
-                // Find the user that matches the querie.userid
-                const matchedUser = user.find((u) => u._id === querie.userid);
-
-                return (
-                  <>
-                    <tr
-                      key={querie._id}
-                      className={`border-b cursor-pointer transition-colors duration-200 relative
-                    ${querie.addmission ? 'bg-[#6cb049] text-white' :
-                          new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
-                            new Date(querie.deadline) < new Date() ? 'text-white animate-blink' :
-                              new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-[#fcccba] text-black' :
-                                new Date(querie.deadline).toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString() ? 'bg-[#ffe9bf] text-black' :
-                                  ''
-                        }`}
-                    >
-                      <td className="px-4 py-2 relative">
-                        <input
-                          type="checkbox"
-                          checked={selectedqueries.includes(querie._id)}
-                          onChange={() => handleSelectquerie(querie._id)}
-                        />
-                      </td>
-
-                    
-
-                      <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
-                        {querie.studentName}
-                      </td>
-
-                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                        {querie.branch}
-                      </td>
-
-                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                        {querie.studentContact.phoneNumber}
-                      </td>
-
-                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                        {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
-                      </td>
-
-                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
-                        {querie.studentContact.address}
-                      </td>
-
-                      <span className="absolute right-0 top-0 bottom-0 flex items-center">
-                        {!querie.addmission && ( // Show only if addmission is false
-                          new Date(querie.lastDeadline) < new Date() && new Date(querie.lastDeadline).toDateString() !== new Date().toDateString() ? (
-                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-red-600 bg-red-200 rounded-full shadow-md">
-                              ✖️ Today Update
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2  text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
-                              ✔️ Checked
-                            </span>
-                          )
-                        )}
-                      </span>
-
-
-
-                    </tr>
-
-
-
-                  </>
-
-
-
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                  No queries available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          paginate={paginate}
-        />
-      </div>
-    </div>
-  );
+    );
 }
-
-const Pagination = ({ currentPage, totalPages, paginate }) => {
-  return (
-    <div className="flex justify-center my-4">
-      <button
-        onClick={() => paginate(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === 1 ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowLeft size={18} />
-      </button>
-
-      <span className="px-3 py-1 mx-1 text-sm border rounded bg-gray-200">
-        Page {currentPage} of {totalPages}
-      </span>
-
-      <button
-        onClick={() => paginate(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowRight size={18} />
-      </button>
-    </div>
-  );
-};
-
-

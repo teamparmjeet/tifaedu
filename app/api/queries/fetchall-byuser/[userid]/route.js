@@ -4,15 +4,18 @@ import QueryModel from "@/model/Query";
 export const GET = async (request, context) => {
     await dbConnect();
     const userid = context.params.userid;
-    
+
     // Parse the query parameters from the request URL
     const url = new URL(request.url);
     const autoclosedStatus = url.searchParams.get("autoclosed");
 
     try {
         // Fetch data dynamically based on the `autoclosed` status
-        const fetch = await QueryModel.find({ 
-            userid: userid, 
+        const fetch = await QueryModel.find({
+            $or: [
+                { userid: userid },                // Matches documents with the specified userid
+                { assignedTo: userid }             // Matches documents assigned to the specified userid
+            ],
             autoclosed: autoclosedStatus || "open" // Default to "open" if not provided
         });
 
