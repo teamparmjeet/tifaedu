@@ -23,7 +23,7 @@ export default function UpdateQuery2({ query, audit }) {
       queryId: queryid,
       actionby: session?.user?.name,
       onlinesubStatus: selectedOption,
-      message: selectedOption === 'response' ? message : '', // Only send message if response is selected
+      message: message , 
       stage: selectedOption === 'admission' ? 4 : undefined,
     };
 
@@ -102,8 +102,7 @@ export default function UpdateQuery2({ query, audit }) {
         </select>
       </div>
 
-      {/* Textarea for message, shown only when 'response' is selected */}
-      {selectedOption === 'response' && (
+     
         <div className="mb-6 transition-opacity duration-300 ease-in-out">
           <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message:</h4>
           <textarea
@@ -115,7 +114,7 @@ export default function UpdateQuery2({ query, audit }) {
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
-      )}
+    
 
       <button
         type="submit"

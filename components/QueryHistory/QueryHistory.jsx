@@ -98,63 +98,80 @@ export default function QueryHistory({ initialData }) {
             .map((entry, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-50 to-gray-100 shadow-md rounded-2xl p-6 border border-gray-200"
+                className="bg-white shadow-md rounded-lg p-6 border border-gray-200"
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-                    <UserCheck size={28} className="text-[#6cb049]" />
+                {/* Header Section */}
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                    <UserCheck size={22} className="text-[#6cb049]" />
                     {getUserNameById(entry.actionBy)} {entry.action} Query
                   </h3>
-                  <p className="text-gray-500 text-sm italic flex items-center gap-2">
-                    <Clock size={18} />
+                  <p className="text-gray-400 text-xs italic flex items-center gap-1">
+                    <Clock size={14} />
                     {new Date(entry.actionDate).toLocaleString()}
                   </p>
                 </div>
 
-                <div className="text-base text-gray-700 mb-6">
-                  <p className="flex gap-3 items-center">
+                {/* Current Stage */}
+                <div className="bg-gray-50 p-3 rounded-md mb-2">
+                  <p className="flex gap-2 items-center text-sm text-gray-600">
                     <span className="font-semibold text-[#6cb049]">Current Stage:</span>
                     <span>{getStageName(entry.stage)}</span>
                   </p>
                 </div>
 
-                <div className="text-sm mt-4 space-y-4">
-                  {Object.keys(entry.changes)
-                    .filter(
-                      (field) =>
-                        field !== 'statusCounts' &&
-                        field !== 'actionby' &&
-                        (entry.changes[field].oldValue || entry.changes[field].newValue)
-                    )
-                    .map((field, i) => (
-                      <div
-                        key={i}
-                        className="bg-white p-4 rounded-md border border-gray-200 flex items-center gap-6 shadow-sm "
-                      >
-                        <strong className="text-gray-800 capitalize">{field}</strong>
-                        <div className="flex items-center gap-2">
-                          <span className="block text-red-500">
-                            {typeof entry.changes[field].oldValue === 'object'
-                              ? JSON.stringify(entry.changes[field].oldValue)
-                              : formatFieldValue(entry.changes[field].oldValue)}
-                          </span>
-                          <ArrowRight size={18} className="text-gray-400" />
-                          <span className="block text-green-500">
-                            {typeof entry.changes[field].newValue === 'object'
-                              ? JSON.stringify(entry.changes[field].newValue)
-                              : formatFieldValue(entry.changes[field].newValue)}
-                          </span>
-                        </div>
+                {/* Changes Table */}
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white rounded-lg border border-gray-200 shadow-md">
+                    <thead className="bg-[#29234b] text-white uppercase text-xs font-semibold">
+                      <tr>
+                        <th className="py-3 px-6 text-left">Field</th>
+                        <th className="py-3 px-6 text-left">Old Value</th>
+                        <th className="py-3 px-6 text-left">New Value</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-800 font-normal text-sm">
+                      {Object.keys(entry.changes)
+                        .filter(
+                          (field) =>
+                            field !== 'statusCounts' &&
+                            field !== 'actionby' &&
+                            (entry.changes[field].oldValue || entry.changes[field].newValue)
+                        )
+                        .map((field, i) => (
+                          <tr
+                            key={i}
+                            className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : 'bg-white'} `}
+                          >
+                            <td className="py-3 px-6 capitalize font-medium">{field}</td>
+                            <td className="py-3 px-6 text-red-500">
+                              {typeof entry.changes[field].oldValue === 'object'
+                                ? JSON.stringify(entry.changes[field].oldValue)
+                                : formatFieldValue(entry.changes[field].oldValue)}
+                            </td>
+                            <td className="py-3 px-6 text-green-500">
+                              {typeof entry.changes[field].newValue === 'object'
+                                ? JSON.stringify(entry.changes[field].newValue)
+                                : formatFieldValue(entry.changes[field].newValue)}
+                            </td>
+                          </tr>
+                        ))}
 
-                      </div>
-                    ))}
-                  {Object.keys(entry.changes)
-                    .filter((field) => field !== 'statusCounts')
-                    .every((field) => !entry.changes[field].oldValue && !entry.changes[field].newValue) && (
-                      <p className="text-gray-500">No changes</p>
-                    )}
+                      {Object.keys(entry.changes)
+                        .filter((field) => field !== 'statusCounts')
+                        .every((field) => !entry.changes[field].oldValue && !entry.changes[field].newValue) && (
+                          <tr>
+                            <td colSpan={3} className="py-3 px-6 text-center text-gray-400">
+                              No changes available
+                            </td>
+                          </tr>
+                        )}
+                    </tbody>
+                  </table>
                 </div>
+
               </div>
+
             ))}
         </div>
       ) : (

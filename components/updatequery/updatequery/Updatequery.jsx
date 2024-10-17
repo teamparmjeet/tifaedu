@@ -184,10 +184,10 @@ export default function UpdateQuery({ query, audit }) {
         </div>
       )}
 
-      {/* Textarea for 'Wrong No' */}
-      {selectedOption === 'wrong_no' && (
+     
+     
         <div className="mb-6 transition-opacity duration-300 ease-in-out">
-          <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Wrong Number Feedback:</h4>
+          <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message</h4>
           <textarea
             className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
             rows="4"
@@ -197,7 +197,7 @@ export default function UpdateQuery({ query, audit }) {
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
-      )}
+      
 
       <button
         type="submit"

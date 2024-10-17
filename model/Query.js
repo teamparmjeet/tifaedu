@@ -12,7 +12,9 @@ const querySchema = new Schema({
     },
     studentContact: {
         phoneNumber: { type: String, required: true },
-        address: { type: String, required: true }
+        whatsappNumber: { type: String, required: true },
+        address: { type: String, required: true },
+        city: { type: String, required: true },
     },
     courseInterest: {
         type: String,
@@ -23,8 +25,8 @@ const querySchema = new Schema({
         required: true
     },
     lastDeadline: {
-        type: String, 
-      },
+        type: String,
+    },
 
     assignedTo: {
         type: String,
@@ -58,12 +60,12 @@ const querySchema = new Schema({
 querySchema.pre('save', function (next) {
     // Check if deadline has been modified
     if (this.isModified('deadline')) {
-      // Set lastDeadline to today's date
-      this.lastDeadline = new Date(); // Store today's date in lastDeadline
+        // Set lastDeadline to today's date
+        this.lastDeadline = new Date(); // Store today's date in lastDeadline
     }
     next();
-  });
+});
 
 const QueryModel =
-    mongoose.models.Queries14 || mongoose.model('Queries14', querySchema);
+    mongoose.models.Queries15 || mongoose.model('Queries15', querySchema);
 export default QueryModel;

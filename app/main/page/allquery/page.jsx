@@ -95,11 +95,14 @@ export default function AllQuery() {
     queries
       .filter(querie =>
         (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          querie.studentContact.phoneNumber.includes(searchTerm)) &&
+         querie.studentContact.phoneNumber.includes(searchTerm)) &&
         (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-        filterByDeadline(querie)
+        filterByDeadline(querie) // Ensure the deadline filter is applied
       )
-  );
+  )
+  .sort((a, b) => new Date(a.deadline) - new Date(b.deadline)); 
+  
+
 
 
   // Pagination logic
