@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, X, CopyPlus, ListTodo, Rocket, Gauge,  LayoutDashboard, Users, LayoutList, Trash2,  FileLineChart } from "lucide-react";
+import { Menu, X, CopyPlus, ListTodo, Rocket, Gauge, LayoutDashboard, Users, LayoutList, Trash2, FileLineChart } from "lucide-react";
 import { Menulist } from "@/constants/BranchMenu";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
@@ -101,15 +101,15 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
               </Link>
 
-
-              <li
-                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-              >
-                <ListTodo size={18} />
-                Assigned Query
-              </li>
-
+              <Link href="/branch/page/assigned">
+                <li
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  <ListTodo size={18} />
+                  Assigned Query
+                </li>
+              </Link>
               <li
                 className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                   }`}
@@ -164,7 +164,7 @@ export default function Sidebar({ onToggleSidebar }) {
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
                 <Link href="/branch/page/trash">
-                <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2  rounded-md ${isActiveLink("/branch/page/trash") ? "bg-red-600 text-white " : "hover:bg-red-600 hover:text-white"
+                  <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2  rounded-md ${isActiveLink("/branch/page/trash") ? "bg-red-600 text-white " : "hover:bg-red-600 hover:text-white"
                     }`}>
                     <Trash2 size={18} />
                     Trash

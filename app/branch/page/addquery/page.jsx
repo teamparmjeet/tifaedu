@@ -5,11 +5,12 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import toast, { Toaster } from "react-hot-toast";
 import { useSession } from 'next-auth/react';
+import { Citylist } from "@/constants/City";
 
 
 export default function Page() {
-    const [branches, setBranches] = useState([]);
     const [adminData, setAdminData] = useState(null);
+    const [allCourses, setAllCourses] = useState([]); // Store all courses
 
     const { data: session } = useSession();
     const [formData, setFormData] = useState({
@@ -17,11 +18,13 @@ export default function Page() {
         studentName: "",
         studentContact: {
             phoneNumber: "",
+            whatsappNumber: "",
             address: "",
+            city: ""
         },
         courseInterest: "",
-        deadline: "",
-        branch: "",  // Initially empty
+        deadline:"",
+        branch: "",
         notes: ""
     });
 
@@ -59,6 +62,24 @@ export default function Page() {
     }, [session]);
 
 
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+
+                const courseResponse = await axios.get("/api/course/fetchall/courses");
+                setAllCourses(courseResponse.data.fetch || []);
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -82,7 +103,9 @@ export default function Page() {
         const isFormFilled =
             formData.studentName &&
             formData.studentContact.phoneNumber &&
+            formData.studentContact.whatsappNumber &&
             formData.studentContact.address &&
+            formData.studentContact.city &&
             formData.courseInterest &&
             formData.deadline &&
             formData.notes;
@@ -109,7 +132,9 @@ export default function Page() {
                     studentName: "",
                     studentContact: {
                         phoneNumber: "",
+                        whatsappNumber: "",
                         address: "",
+                        city: ""
                     },
                     courseInterest: "",
                     deadline: "",
@@ -138,7 +163,7 @@ export default function Page() {
 
                 <form onSubmit={handleSubmit} className="px-5 py-3 space-y-3">
 
-                    <div className="grid grid-cols-12 gap-4">
+                <div className="grid grid-cols-12 gap-4">
                         <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="studentName" className="block text-[12px] text-gray-700">
                                 Student Name
@@ -168,20 +193,51 @@ export default function Page() {
                                 className="w-full rounded-0"
                             />
                         </div>
-
-
+                        
                         <div className="sm:col-span-6 col-span-12">
+                            <label className="block text-[12px] text-gray-700">Whatsapp Number</label>
+                            <PhoneInput
+                                country={"in"}
+                                value={formData.studentContact.whatsappNumber}
+                                onChange={(phone) =>
+                                    setFormData({
+                                        ...formData,
+                                        studentContact: { ...formData.studentContact, whatsappNumber: phone },
+                                    })
+                                }
+                                className="w-full rounded-0"
+                            />
+                        </div>
+
+
+                         <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="courseInterest" className="block text-[12px] text-gray-700">
                                 Course Interest
                             </label>
-                            <input
-                                type="text"
-                                name="courseInterest"
-                                placeholder="Enter Course Name"
-                                value={formData.courseInterest}
-                                onChange={handleChange}
-                                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-                            />
+                            <select name="courseInterest" value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                <option value="" disabled selected>Select Course</option>
+                                {allCourses.map((allCourses, index) => (
+                                    <option key={index} value={allCourses._id}>{allCourses.course_name}</option>
+                                ))}
+                            </select>
+
+                        </div>
+
+                        <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="city" className="block text-[12px] text-gray-700">
+                                City
+                            </label>
+                            <select name="studentContact.city" value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                <option value="" disabled selected>Select City</option>
+                                {Citylist.map((stateItem, index) =>
+                                    stateItem.cities.map((city, cityIndex) => (
+                                        <option key={cityIndex} value={city}>
+                                            {city}
+                                        </option>
+                                    ))
+                                )}
+                            </select>
+
                         </div>
                         <div className="sm:col-span-6 col-span-12">
                             <label htmlFor="studentContact.address" className="block text-[12px] text-gray-700">

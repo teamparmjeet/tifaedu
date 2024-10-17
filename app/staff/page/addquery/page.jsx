@@ -9,7 +9,6 @@ import { Citylist } from "@/constants/City";
 
 
 export default function Page() {
-    const [branches, setBranches] = useState([]);
     const [adminData, setAdminData] = useState(null);
     const [allCourses, setAllCourses] = useState([]); // Store all courses
 

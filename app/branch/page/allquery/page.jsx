@@ -5,10 +5,10 @@ import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lucide-react";
 import Link from 'next/link';
-import { useSession} from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 
 export default function AllQuery() {
-  const [queries, setqueries] = useState([]);
+  const [queries, setQueries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
@@ -40,14 +40,11 @@ export default function AllQuery() {
   }, []);
 
 
-
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const response = await axios.get(
-          `/api/admin/find-admin-byemail/${session?.user?.email}`
-        );
-        setAdminData(response.data.branch);
+        const response = await axios.get(`/api/admin/find-admin-byemail/${session?.user?.email}`);
+        setAdminData(response.data); // Make sure response.data contains branch and _id
       } catch (err) {
         setError(err.message);
       } finally {
@@ -59,14 +56,24 @@ export default function AllQuery() {
   }, [session]);
 
   useEffect(() => {
-    // Fetch queries data once the adminData is available
     const fetchQueryData = async () => {
       if (adminData) {
         try {
           setLoading(true);
+          const branch = adminData?.branch;
+          const userid = adminData?._id;
+
+          if (!branch || !userid) {
+            console.error("Branch or User ID is missing in adminData");
+            return;
+          }
+
           const autoclosedStatus = 'open'; // or 'close', based on your logic
-          const response = await axios.get(`/api/queries/fetchall-bybranch/${adminData}?autoclosed=${autoclosedStatus}`);
-          setqueries(response.data.fetch);
+          const response = await axios.get(
+            `/api/queries/fetchall-bybranch/${branch}?autoclosed=${autoclosedStatus}&_id=${userid}`
+          );
+
+          setQueries(response.data.fetch);
         } catch (error) {
           console.error('Error fetching query data:', error);
         } finally {
@@ -77,6 +84,7 @@ export default function AllQuery() {
 
     fetchQueryData();
   }, [adminData]);
+
 
   const router = useRouter();
   const handleRowClick = (id) => {
@@ -118,15 +126,17 @@ export default function AllQuery() {
     }
   };
 
+
   const filteredqueries = sortqueries(
     queries
       .filter(querie =>
         (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           querie.studentContact.phoneNumber.includes(searchTerm)) &&
         (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-        filterByDeadline(querie)
+        filterByDeadline(querie) // Ensure the deadline filter is applied
       )
-  );
+  )
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
 
   // Pagination logic

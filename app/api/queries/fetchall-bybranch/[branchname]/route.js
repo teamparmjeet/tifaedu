@@ -3,32 +3,44 @@ import QueryModel from "@/model/Query";
 
 export const GET = async (request, context) => {
     await dbConnect();
-    const branchname = context.params.branchname;
-    
-    // Parse the query parameters from the request URL
+
+    const { branchname } = context.params;  // Extract branchname from params
     const url = new URL(request.url);
-    const autoclosedStatus = url.searchParams.get("autoclosed");
+    const userid = url.searchParams.get("_id"); // Extract _id from query parameters
+    const autoclosedStatus = url.searchParams.get("autoclosed") || "open"; // Default to "open"
+
+    if (!branchname || !userid) {
+        return Response.json(
+            {
+                message: "Branch name or User ID is missing!",
+                success: false,
+            },
+            { status: 400 }
+        );
+    }
 
     try {
-        // Fetch data dynamically based on the `autoclosed` status
-        const fetch = await QueryModel.find({ 
-            branch: branchname, 
-            autoclosed: autoclosedStatus || "open" // Default to "open" if not provided
+        const fetch = await QueryModel.find({
+            $or: [
+                { assignedTo: userid },
+                { branch: branchname }
+            ],
+            autoclosed: autoclosedStatus
         });
 
         return Response.json(
             {
-                message: "Data fetched dynamically based on autoclosed status!",
+                message: "Data fetched successfully!",
                 success: true,
                 fetch,
             },
             { status: 200 }
         );
     } catch (error) {
-        console.log("Error fetching data list:", error);
+        console.error("Error fetching data:", error);
         return Response.json(
             {
-                message: "Error fetching data list!",
+                message: "Error fetching data!",
                 success: false,
             },
             { status: 500 }
