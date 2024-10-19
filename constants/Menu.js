@@ -26,9 +26,9 @@ export const Menulist = [
         icon: CheckSquare ,
         submenu: [
             { name: "Our Courses", icon: Book ,href:"/main/page/courses"},
-            { name: "New Admissions", icon: UserPlus ,href:"/main/underdevelopment"},
+            { name: "New Admissions", icon: UserPlus ,href:"/main/page/addquery"},
             { name: "Branch Visits", icon: User ,href:"/main/underdevelopment"},
-            { name: "Enrolled Students", icon: CheckSquare ,href:"/main/underdevelopment"},
+            { name: "Enrolled Students", icon: CheckSquare ,href:"/main/page/enroll"},
             { name: "Student Interaction History", icon: Book ,href:"/main/underdevelopment"},
             { name: "Class Scheduling", icon: Calendar ,href:"/main/underdevelopment"},
             { name: "Parent-Teacher Communication", icon: MessageSquare ,href:"/main/underdevelopment"},

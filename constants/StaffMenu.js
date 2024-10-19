@@ -26,7 +26,7 @@ export const Menulist = [
         submenu: [
             { name: "New Admissions", icon: UserPlus ,href:"/staff/underdevelopment"},
             { name: "staff Visits", icon: User ,href:"/staff/underdevelopment"},
-            { name: "Enrolled Students", icon: CheckSquare ,href:"/staff/underdevelopment"},
+            { name: "Enrolled Students", icon: CheckSquare ,href:"/staff/page/enroll"},
             { name: "Student Interaction History", icon: Book ,href:"/staff/underdevelopment"},
             { name: "Class Scheduling", icon: Calendar ,href:"/staff/underdevelopment"},
             { name: "Parent-Teacher Communication", icon: MessageSquare ,href:"/staff/underdevelopment"},

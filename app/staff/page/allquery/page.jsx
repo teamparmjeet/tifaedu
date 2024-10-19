@@ -69,48 +69,56 @@ export default function AllQuery() {
   };
 
   // Sort queries based on selected order
-  const sortqueries = (queries) => {
-    return queries.sort((a, b) => {
-      return sortOrder === "newest"
-        ? new Date(b.createdAt) - new Date(a.createdAt)
-        : new Date(a.createdAt) - new Date(b.createdAt);
-    });
-  };
+const sortqueries = (queries) => {
+  // Sort by 'newest' or 'oldest'
+  const sortedByCreatedDate = queries.sort((a, b) => {
+    return sortOrder === "newest"
+      ? new Date(b.createdAt) - new Date(a.createdAt)
+      : new Date(a.createdAt) - new Date(b.createdAt);
+  });
 
-  // Filter queries based on course and search term
-  const filterByDeadline = (querie) => {
-    const currentDate = new Date();
-    const querieDeadline = new Date(querie.deadline);
+  // If 'newest' is selected, sort by deadline
+  if (sortOrder === "newest") {
+    return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+  }
 
-    switch (deadlineFilter) {
-      case "today":
-        return querieDeadline.toDateString() === currentDate.toDateString();
-      case "tomorrow":
-        const tomorrow = new Date(currentDate);
-        tomorrow.setDate(currentDate.getDate() + 1);
-        return querieDeadline.toDateString() === tomorrow.toDateString();
-      case "dayAfterTomorrow":
-        const dayAfterTomorrow = new Date(currentDate);
-        dayAfterTomorrow.setDate(currentDate.getDate() + 2);
-        return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
-      case "past":
-        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
-      default:
-        return true; // 'All' will display all queries
-    }
-  };
+  return sortedByCreatedDate;
+};
 
-  const filteredqueries = sortqueries(
-    queries
-      .filter(querie =>
-        (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-         querie.studentContact.phoneNumber.includes(searchTerm)) &&
-        (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-        filterByDeadline(querie) // Ensure the deadline filter is applied
-      )
-  )
-  .sort((a, b) => new Date(a.deadline) - new Date(b.deadline)); 
-  
+// Filter queries based on course and search term
+const filterByDeadline = (querie) => {
+  const currentDate = new Date();
+  const querieDeadline = new Date(querie.deadline);
+
+  switch (deadlineFilter) {
+    case "today":
+      return querieDeadline.toDateString() === currentDate.toDateString();
+    case "tomorrow":
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(currentDate.getDate() + 1);
+      return querieDeadline.toDateString() === tomorrow.toDateString();
+    case "dayAfterTomorrow":
+      const dayAfterTomorrow = new Date(currentDate);
+      dayAfterTomorrow.setDate(currentDate.getDate() + 2);
+      return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
+    case "past":
+      return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
+    default:
+      return true; // 'All' will display all queries
+  }
+};
+
+// Apply filters and sort queries
+const filteredqueries = sortqueries(
+  queries
+    .filter(querie =>
+      (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       querie.studentContact.phoneNumber.includes(searchTerm)) &&
+      (filterCourse === "" || querie.branch.includes(filterCourse)) &&
+      filterByDeadline(querie) // Ensure the deadline filter is applied
+    )
+);
+
 
 
 

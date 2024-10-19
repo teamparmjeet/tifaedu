@@ -127,16 +127,7 @@ export default function Header() {
                                             </li>
                                         ))}
                                     </ul>
-                                    <div className="relative ms-4 w-full max-w-[300px] hidden lg:block">
-                                        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                                            <Search className="text-gray-500" size={18} />
-                                        </span>
-                                        <input
-                                            type="text"
-                                            placeholder="Search..."
-                                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-green-300 focus:border-green-300 sm:text-sm"
-                                        />
-                                    </div>
+                                
                                 </div>
                             </div>
                         </div>
@@ -155,7 +146,7 @@ export default function Header() {
                             </Link>
 
                             <div className='sm:block hidden'>
-                                <Smallbtn icon={Settings} href="/" />
+                                <Smallbtn icon={Settings} href="/staff/page/profile" />
                             </div>
                             <div onClick={toggleNotification}>
                                 <Smallbtn icon={Bell} href="javascript:void(0)" />

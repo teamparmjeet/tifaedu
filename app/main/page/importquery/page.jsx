@@ -61,7 +61,9 @@ export default function Importquery() {
             const mappedData = jsonData.map((row) => ({
                 studentName: row['studentName'],
                 phoneNumber: row['phoneNumber'], // Separate phone number
+                whatsappNumber: row['whatsappNumber'], // Separate whatsapp Number number
                 address: row['address'], // Separate address
+                city: row['city'], // Separate city
                 courseInterest: row['courseInterest'],
                 deadline: formattedTomorrow, // Save tomorrow's date as deadline
                 branch: adminData,
@@ -79,7 +81,9 @@ export default function Importquery() {
                 studentName: row.studentName,
                 studentContact: {
                     phoneNumber: row.phoneNumber,
+                    whatsappNumber: row.whatsappNumber,
                     address: row.address,
+                    city: row.city,
                 },
                 courseInterest: row.courseInterest,
                 deadline: row.deadline,
@@ -145,7 +149,7 @@ export default function Importquery() {
                                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                                     <thead>
                                         <tr className="bg-gray-200">
-                                            {['studentName', 'phoneNumber', 'address', 'courseInterest', 'deadline', 'branch', 'notes'].map((key, index) => (
+                                            {['studentName', 'phoneNumber','whatsappNumber', 'address','city', 'courseInterest', 'deadline', 'branch', 'notes'].map((key, index) => (
                                                 <th key={index} className="py-3 capitalize px-6 border bg-[#6cb049] text-left text-sm font-medium text-white">
                                                     {key}
                                                 </th>

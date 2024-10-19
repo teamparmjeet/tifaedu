@@ -61,16 +61,25 @@ export default function QueryHistory({ initialData }) {
       '3': 'Offline Admission',
       '4': 'Student Enrolled',
       '5': 'Visit',
-      '6': 'Ofline Admission Last Step',
+      '6': 'Offline Admission Last Step',
     };
     return stages[stage] || 'Unknown Stage';
   };
+
   const formatFieldValue = (value) => {
-    if (typeof value !== 'string') return value; // If it's not a string, return as is
-    return value
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    // Check if the value is a user ID and get the corresponding user name
+    const userName = getUserNameById(value);
+    if (userName !== value) return userName; // If it's a user ID, return the user's name
+
+    // If it's a string but not a user ID, format it normally
+    if (typeof value === 'string') {
+      return value
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
+    return value;
   };
 
   if (loading) {
@@ -141,7 +150,9 @@ export default function QueryHistory({ initialData }) {
                         .map((field, i) => (
                           <tr
                             key={i}
-                            className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : 'bg-white'} `}
+                            className={`border-b border-gray-200 ${
+                              i % 2 === 0 ? 'bg-gray-100' : 'bg-white'
+                            } `}
                           >
                             <td className="py-3 px-6 capitalize font-medium">{field}</td>
                             <td className="py-3 px-6 text-red-500">
@@ -169,9 +180,7 @@ export default function QueryHistory({ initialData }) {
                     </tbody>
                   </table>
                 </div>
-
               </div>
-
             ))}
         </div>
       ) : (
