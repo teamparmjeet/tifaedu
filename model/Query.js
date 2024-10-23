@@ -6,6 +6,18 @@ const querySchema = new Schema({
         required: true,
         default: "null"
     },
+    referenceid: {
+        type: String,
+        required: true,
+        default:"null"
+    },
+
+    demo: {
+        type: Boolean,
+        default: false
+      },
+    
+
     studentName: {
         type: String,
         required: true,
@@ -67,5 +79,5 @@ querySchema.pre('save', function (next) {
 });
 
 const QueryModel =
-    mongoose.models.Queries15 || mongoose.model('Queries15', querySchema);
+    mongoose.models.Queries17 || mongoose.model('Queries17', querySchema);
 export default QueryModel;

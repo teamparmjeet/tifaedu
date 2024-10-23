@@ -19,7 +19,7 @@ export default function UpdateQuery6({ query, audit }) {
     const data = {
       queryId: queryid,
       actionby: userid,
-      onlinesubStatus: selectedOption,
+      oflinesubStatus: selectedOption,
       message:message, 
       stage: selectedOption === 'admission' ? 4 : undefined,
     };
@@ -53,6 +53,17 @@ export default function UpdateQuery6({ query, audit }) {
         } else {
           console.error('Error updating query for admission:', queryResponse.statusText);
         }
+      }else if (selectedOption === 'demo') {
+          const queryUpdateData = {
+            id: queryid,
+            demo: true, // Set demo to true
+          };
+          const queryResponse = await axios.patch('/api/queries/update', queryUpdateData);
+          if (queryResponse.status === 200) {
+            console.log('Query updated with demo successfully:', queryResponse.data);
+          } else {
+            console.error('Error updating query for demo:', queryResponse.statusText);
+          }
       } else if (selectedOption === 'not_interested') {
         const queryUpdateData = {
           id: queryid,
@@ -86,6 +97,7 @@ export default function UpdateQuery6({ query, audit }) {
         >
           <option value="" disabled>-- Select Interested Status --</option>
           <option value="admission">Enroll</option>
+          <option value="demo">Demo</option>
           <option value="not_interested">Not Interested</option>
           <option value="response">Response</option>
         </select>

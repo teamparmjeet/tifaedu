@@ -104,7 +104,8 @@ const filteredqueries = sortqueries(
   queries
     .filter(querie =>
       (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       querie.studentContact.phoneNumber.includes(searchTerm)) &&
+      querie.studentContact.phoneNumber.includes(searchTerm) ||
+      querie.referenceid.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterCourse === "" || querie.branch.includes(filterCourse)) &&
       filterByDeadline(querie) // Ensure the deadline filter is applied
     )
@@ -167,7 +168,7 @@ const filteredqueries = sortqueries(
           </span>
           <input
             type="text"
-            placeholder="Search By Student Name and Phone Number"
+            placeholder="Search By Student Name , Reference and Phone Number"
             className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -242,7 +243,7 @@ const filteredqueries = sortqueries(
         )}
 
         {/* Desktop Filter Section */}
-        <div className="hidden lg:flex space-x-3">
+        <div className="hidden lg:flex flex-wrap space-x-3">
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
             value={filterCourse}
@@ -266,6 +267,8 @@ const filteredqueries = sortqueries(
             <option value="dayAfterTomorrow">Day After Tomorrow</option>
             <option value="past">Past Date</option>
           </select>
+
+          
 
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
@@ -345,7 +348,7 @@ const filteredqueries = sortqueries(
                 />
               </th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
-              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
@@ -392,7 +395,7 @@ const filteredqueries = sortqueries(
                       </td>
 
                       <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
-                        {querie.studentName}
+                        {querie.studentName} <span className=' text-xs'>({querie.referenceid})</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">

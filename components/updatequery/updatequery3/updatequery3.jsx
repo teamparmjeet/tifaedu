@@ -22,7 +22,7 @@ export default function UpdateQuery3({ query, audit }) {
     const data = {
       queryId: queryid,
       actionby: session?.user?.name,
-      onlinesubStatus: selectedOption,
+      oflinesubStatus: selectedOption,
       message: message , 
       stage: selectedOption === 'admission' ? 4 : selectedOption === 'ready_visit' ? 5 : undefined, // Update stage based on selection
     };

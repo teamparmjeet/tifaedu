@@ -9,11 +9,13 @@ import { Citylist } from "@/constants/City";
 export default function Page() {
     const [branches, setBranches] = useState([]);
     const [allCourses, setAllCourses] = useState([]); // Store all courses
+    const [referenceData, setReferenceData] = useState([]);
 
     const [adminData, setAdminData] = useState(null);
     const { data: session } = useSession();
     const [formData, setFormData] = useState({
         userid: "",
+        referenceid: "",
         studentName: "",
         studentContact: {
             phoneNumber: "",
@@ -80,7 +82,21 @@ export default function Page() {
     }, [session]);
 
 
+    const fetchReferences = async () => {
+        setLoading(true); // Set fetching state to true
+        try {
+            const response = await axios.get('/api/reference/fetchall/reference');
+            setReferenceData(response.data.fetch);
+        } catch (error) {
+            toast.error("Error fetching reference data");
+        } finally {
+            setLoading(false); // Turn off loading state
+        }
+    };
 
+    useEffect(() => {
+        fetchReferences(); // Fetch all references when the component mounts
+    }, []);
 
 
     useEffect(() => {
@@ -123,6 +139,7 @@ export default function Page() {
         const isFormFilled =
 
             formData.studentName &&
+            formData.referenceid &&
             formData.studentContact.phoneNumber &&
             formData.studentContact.whatsappNumber &&
             formData.studentContact.address &&
@@ -152,6 +169,7 @@ export default function Page() {
                 setFormData({
                     userid: adminData._id,
                     studentName: "",
+                    referenceid:"",
                     studentContact: {
                         phoneNumber: "",
                         whatsappNumber: "",
@@ -298,6 +316,20 @@ export default function Page() {
                                 <option value="" disabled selected>Select Branch</option>
                                 {branches.map((branch, index) => (
                                     <option key={index} value={branch.branch_name}>{branch.branch_name}</option>
+                                ))}
+                            </select>
+
+                        </div>
+
+
+                        <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="referenceid" className="block text-[12px] text-gray-700">
+                                Reference Type
+                            </label>
+                            <select name="referenceid" value={formData.referenceid} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                <option value="" disabled selected>Select Reference</option>
+                                {referenceData.map((data, index) => (
+                                    <option key={index} value={data.referencename}>{data.referencename}</option>
                                 ))}
                             </select>
 

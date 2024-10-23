@@ -21,7 +21,7 @@ export default function UpdateQuery5({ query, audit }) {
     const data = {
       queryId: queryid,
       actionby: session?.user?.name,
-      onlinesubStatus: selectedOption,
+      oflinesubStatus: selectedOption,
       message:  message, 
       stage: selectedOption === 'visited' ? 6 : undefined, // Update stage to 6 if 'visited' is selected
     };
