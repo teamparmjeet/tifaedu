@@ -9,11 +9,17 @@ export default function UpdateQuery3({ query, audit }) {
   const userid = query.userid;
   const [selectedOption, setSelectedOption] = useState('');
   const [message, setMessage] = useState('');
+  const [deadline, setDeadline] = useState('');
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
     setMessage(''); // Reset message when the option changes
   };
+
+  const handleDeadlineChange = (event) => {
+    setDeadline(event.target.value);
+  };
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -25,6 +31,8 @@ export default function UpdateQuery3({ query, audit }) {
       oflinesubStatus: selectedOption,
       message: message , 
       stage: selectedOption === 'admission' ? 4 : selectedOption === 'ready_visit' ? 5 : undefined, // Update stage based on selection
+      deadline: deadline || undefined, // Include deadline if provided
+
     };
 
     // Handle status counts
@@ -83,6 +91,10 @@ export default function UpdateQuery3({ query, audit }) {
     }
   };
 
+
+  const today = new Date().toISOString().split('T')[0];
+
+
   return (
     <form onSubmit={handleSubmit} className="mx-auto bg-white shadow-xl rounded-lg">
       <h3 className="text-xl font-semibold mb-2 text-indigo-700">Select a Status</h3>
@@ -104,7 +116,17 @@ export default function UpdateQuery3({ query, audit }) {
           <option value="ready_visit">Ready for Visit</option>
         </select>
       </div>
-
+      <div className="mb-6 transition-opacity duration-300 ease-in-out">
+        <label htmlFor="deadline" className="block text-lg font-medium text-gray-700 mb-2">Deadline:</label>
+        <input
+          type="date"
+          id="deadline"
+          value={deadline}
+          min={today} // Prevent selection of past dates
+          onChange={handleDeadlineChange}
+          className="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
+        />
+      </div>
   
         <div className="mb-6 transition-opacity duration-300 ease-in-out">
           <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message:</h4>

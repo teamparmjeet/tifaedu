@@ -11,11 +11,14 @@ import { Citylist } from "@/constants/City";
 export default function Page() {
     const [adminData, setAdminData] = useState(null);
     const [allCourses, setAllCourses] = useState([]); // Store all courses
+    const [referenceData, setReferenceData] = useState([]);
 
     const { data: session } = useSession();
     const [formData, setFormData] = useState({
         userid: "",
         studentName: "",
+        referenceid: "",
+
         studentContact: {
             phoneNumber: "",
             whatsappNumber: "",
@@ -80,6 +83,22 @@ export default function Page() {
         fetchData();
     }, []);
 
+    const fetchReferences = async () => {
+        setLoading(true); // Set fetching state to true
+        try {
+            const response = await axios.get('/api/reference/fetchall/reference');
+            setReferenceData(response.data.fetch);
+        } catch (error) {
+            toast.error("Error fetching reference data");
+        } finally {
+            setLoading(false); // Turn off loading state
+        }
+    };
+
+    useEffect(() => {
+        fetchReferences(); // Fetch all references when the component mounts
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -102,6 +121,8 @@ export default function Page() {
     useEffect(() => {
         const isFormFilled =
             formData.studentName &&
+            formData.referenceid &&
+
             formData.studentContact.phoneNumber &&
             formData.studentContact.whatsappNumber &&
             formData.studentContact.address &&
@@ -129,6 +150,8 @@ export default function Page() {
                 window.location.reload();
                 setFormData({
                     userid: adminData._id,
+                    referenceid:"",
+
                     studentName: "",
                     studentContact: {
                         phoneNumber: "",
@@ -271,6 +294,19 @@ export default function Page() {
 
                       
 
+
+                        <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="referenceid" className="block text-[12px] text-gray-700">
+                                Reference Type
+                            </label>
+                            <select name="referenceid" value={formData.referenceid} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                <option value="" disabled selected>Select Reference</option>
+                                {referenceData.map((data, index) => (
+                                    <option key={index} value={data.referencename}>{data.referencename}</option>
+                                ))}
+                            </select>
+
+                        </div>
 
 
                         <div className="col-span-12">

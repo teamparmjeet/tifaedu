@@ -32,10 +32,6 @@ export const PATCH = async (request) => {
             );
         }
 
-        // Calculate tomorrow's date for the deadline
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-
         // Find changes between the existing document and the incoming data
         const changes = {};
         for (const key in data) {
@@ -67,7 +63,7 @@ export const PATCH = async (request) => {
             changes: changes,
         };
 
-        // Push the new history entry to the existing history
+        // Update the fields with the new data and push the latest history entry
         await QueryUpdateModel.updateOne(
             { queryId: data.queryId },
             {
@@ -76,12 +72,18 @@ export const PATCH = async (request) => {
             }
         );
 
+        // Determine the deadline: use the provided one or set to tomorrow's date if not given
+        const deadline = data.deadline ? new Date(data.deadline) : new Date();
+        if (!data.deadline) {
+            deadline.setDate(deadline.getDate() + 1); // Set to tomorrow if no deadline is provided
+        }
+
         // Now update the deadline in the related QueryModel document
         await QueryModel.updateOne(
             { _id: data.queryId }, // Find the related QueryModel document
             {
                 $set: { 
-                    deadline: tomorrow.toISOString(),
+                    deadline: deadline.toISOString(),
                     lastDeadline: new Date().toISOString() 
                 }
             }
@@ -89,7 +91,7 @@ export const PATCH = async (request) => {
 
         return new Response(
             JSON.stringify({
-                message: "Audit updated successfully and deadline set to tomorrow!",
+                message: "Audit updated successfully!",
                 success: true,
                 auditid: data.queryId,
             }),

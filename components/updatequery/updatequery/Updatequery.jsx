@@ -9,6 +9,7 @@ export default function UpdateQuery({ query, audit }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [subOption, setSubOption] = useState('');
   const [message, setMessage] = useState('');
+  const [deadline, setDeadline] = useState('');
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
@@ -20,9 +21,14 @@ export default function UpdateQuery({ query, audit }) {
     setSubOption(event.target.value);
   };
 
+  const handleDeadlineChange = (event) => {
+    setDeadline(event.target.value);
+  };
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     // Prepare data to send to the backend
     const data = {
       queryId: queryid,
@@ -33,12 +39,13 @@ export default function UpdateQuery({ query, audit }) {
       no_connectedsubStatus: selectedOption === 'no_connected' ? subOption : undefined,
       not_liftingsubStatus: selectedOption === 'not_lifting' ? subOption : undefined,
       autoClose: selectedOption === 'wrong_no' ? true : false, // Set autoClose if wrong_no is selected
+      deadline: deadline || undefined, // Include deadline if provided
     };
-  
+
     if (selectedOption === 'connected' && subOption === 'interested') {
       data.stage = 1; // Set stage to 1 when connected and interested
     }
-  
+
     // Safely access and increment status counts
     const statusCountsUpdate = {
       busy: audit?.statusCounts?.busy || 0,
@@ -46,7 +53,7 @@ export default function UpdateQuery({ query, audit }) {
       switch_off: audit?.statusCounts?.switch_off || 0,
       network_error: audit?.statusCounts?.network_error || 0,
     };
-  
+
     // Increment the count based on selectedOption and subOption
     if (selectedOption === 'not_lifting' && subOption === 'busy') {
       statusCountsUpdate.busy += 1;
@@ -57,7 +64,7 @@ export default function UpdateQuery({ query, audit }) {
     } else if (selectedOption === 'no_connected' && subOption === 'network_error') {
       statusCountsUpdate.network_error += 1;
     }
-  
+
     // Check if any count reaches 3, if so, set autoClose to true
     if (
       statusCountsUpdate.busy >= 3 ||
@@ -67,7 +74,7 @@ export default function UpdateQuery({ query, audit }) {
     ) {
       data.autoClose = true; // Set autoClose to true in the data object
     }
-  
+
     // Add the updated statusCounts to the data object
     data.statusCounts = {
       busy: statusCountsUpdate.busy,
@@ -75,14 +82,14 @@ export default function UpdateQuery({ query, audit }) {
       switch_off: statusCountsUpdate.switch_off,
       network_error: statusCountsUpdate.network_error,
     };
-  
+
     try {
       // First API call to /api/audit/update
       const response = await axios.patch('/api/audit/update', data);
-  
+
       if (response.status === 200) {
         console.log('Query updated successfully:', response.data);
-  
+
         // Check if wrong_no was selected or any count reaches 3, then call the second API
         if (
           selectedOption === 'wrong_no' ||
@@ -96,14 +103,14 @@ export default function UpdateQuery({ query, audit }) {
             id: queryid,
             autoclosed: 'close', // Send autoClose: "close" if wrong_no or count reaches 3
           });
-  
+
           if (newApiResponse.status === 200) {
             console.log('Query auto-closed successfully:', newApiResponse.data);
           } else {
             console.error('Error in auto-closing query:', newApiResponse.statusText);
           }
         }
-  
+
         // Optionally reload the page
         window.location.reload();
       } else {
@@ -113,14 +120,14 @@ export default function UpdateQuery({ query, audit }) {
       console.error('Network error:', error);
     }
   };
-  
+  const today = new Date().toISOString().split('T')[0];
   return (
     <form onSubmit={handleSubmit} className="mx-auto bg-white shadow-xl rounded-lg">
       <h3 className="text-xl font-semibold mb-2 text-indigo-700">Select a Status</h3>
 
       <div className="mb-6">
         <label htmlFor="statusSelect" className="block text-lg font-medium text-gray-700 mb-2">
-          Main Status: 
+          Main Status:
         </label>
         <select
           id="statusSelect"
@@ -184,20 +191,30 @@ export default function UpdateQuery({ query, audit }) {
         </div>
       )}
 
-     
-     
-        <div className="mb-6 transition-opacity duration-300 ease-in-out">
-          <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message</h4>
-          <textarea
-            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
-            rows="4"
-            name="message"
-            placeholder="Please describe the issue..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-        </div>
-      
+      <div className="mb-6 transition-opacity duration-300 ease-in-out">
+        <label htmlFor="deadline" className="block text-lg font-medium text-gray-700 mb-2">Deadline:</label>
+        <input
+          type="date"
+          id="deadline"
+          value={deadline}
+          min={today} // Prevent selection of past dates
+          onChange={handleDeadlineChange}
+          className="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
+        />
+      </div>
+
+      <div className="mb-6 transition-opacity duration-300 ease-in-out">
+        <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message</h4>
+        <textarea
+          className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
+          rows="4"
+          name="message"
+          placeholder="Please describe the issue..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+      </div>
+
 
       <button
         type="submit"

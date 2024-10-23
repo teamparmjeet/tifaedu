@@ -8,12 +8,15 @@ export default function UpdateQuery5({ query, audit }) {
   const userid = query.userid;
   const [selectedOption, setSelectedOption] = useState('');
   const [message, setMessage] = useState('');
+  const [deadline, setDeadline] = useState('');
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
     setMessage(''); // Reset message when the option changes
   };
-
+  const handleDeadlineChange = (event) => {
+    setDeadline(event.target.value);
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -24,6 +27,8 @@ export default function UpdateQuery5({ query, audit }) {
       oflinesubStatus: selectedOption,
       message:  message, 
       stage: selectedOption === 'visited' ? 6 : undefined, // Update stage to 6 if 'visited' is selected
+      deadline: deadline || undefined, // Include deadline if provided
+
     };
 
     // Handle status counts
@@ -94,6 +99,7 @@ export default function UpdateQuery5({ query, audit }) {
       console.error('Network error:', error);
     }
   };
+  const today = new Date().toISOString().split('T')[0];
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto bg-white shadow-xl rounded-lg">
@@ -118,7 +124,17 @@ export default function UpdateQuery5({ query, audit }) {
         </select>
       </div>
 
-     
+      <div className="mb-6 transition-opacity duration-300 ease-in-out">
+        <label htmlFor="deadline" className="block text-lg font-medium text-gray-700 mb-2">Deadline:</label>
+        <input
+          type="date"
+          id="deadline"
+          value={deadline}
+          min={today} // Prevent selection of past dates
+          onChange={handleDeadlineChange}
+          className="block w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#29234b] focus:border-[#29234b]"
+        />
+      </div>
         <div className="mb-6 transition-opacity duration-300 ease-in-out">
           <h4 className="text-lg font-semibold mb-3 text-[#29234b]">Message:</h4>
           <textarea
