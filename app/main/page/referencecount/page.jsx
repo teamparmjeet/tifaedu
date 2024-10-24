@@ -90,6 +90,7 @@ export default function Assigned() {
                                 <table className="min-w-full text-xs text-left text-gray-600 font-sans">
                                     <thead className="bg-[#29234b] text-white uppercase">
                                         <tr>
+                                            <th className="px-6 py-4">Sr. No.</th>
                                             <th className="px-6 py-4">Student Name</th>
                                             <th className="px-6 py-4">Reference ID</th>
                                             <th className="px-6 py-4">Deadline</th>
@@ -99,14 +100,14 @@ export default function Assigned() {
                                     <tbody>
                                         {loading ? (
                                             <tr>
-                                                <td colSpan="4" className="px-6 py-4 text-center">
+                                                <td colSpan="5" className="px-6 py-4 text-center">
                                                     <div className="flex items-center justify-center h-full">
                                                         <Loader />
                                                     </div>
                                                 </td>
                                             </tr>
                                         ) : currentQueries.length > 0 ? (
-                                            currentQueries.map((query) => {
+                                            currentQueries.map((query, index) => {
                                                 const deadline = new Date(query.deadline);
                                                 const isToday = deadline.toDateString() === new Date().toDateString();
                                                 const isPastDeadline = deadline < new Date();
@@ -128,6 +129,7 @@ export default function Assigned() {
                                                         className={`border-b cursor-pointer transition-colors duration-200 hover:opacity-90 ${rowClass}`}
                                                         onClick={() => handleRowClick(query._id)}
                                                     >
+                                                        <td className="px-6 py-1 font-semibold">{indexOfFirstQuery + index + 1}</td>
                                                         <td className="px-6 py-1 font-semibold">{query.studentName}</td>
                                                         <td className="px-6 py-1">{query.referenceid}</td>
                                                         <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>
@@ -137,7 +139,7 @@ export default function Assigned() {
                                             })
                                         ) : (
                                             <tr>
-                                                <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                                                <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
                                                     No queries available
                                                 </td>
                                             </tr>
@@ -148,6 +150,7 @@ export default function Assigned() {
 
                             {/* Pagination Controls */}
                             <div className="absolute bottom-0 left-0 right-0 bg-gray-100 py-2 px-4 flex justify-between">
+                                <span className="self-center text-xs">Total Queries: {filteredQueries.length}</span>
                                 <button
                                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-xs"
                                     onClick={() => handlePageChange('prev')}

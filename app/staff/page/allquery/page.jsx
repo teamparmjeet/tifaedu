@@ -352,10 +352,10 @@ const filteredqueries = sortqueries(
                     )
                   }
                   checked={selectedqueries.length === queries.length}
-                />
+                /><span className=' ms-2'>{queries.length}</span>
               </th>
              
-              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
@@ -394,13 +394,13 @@ const filteredqueries = sortqueries(
                           type="checkbox"
                           checked={selectedqueries.includes(querie._id)}
                           onChange={() => handleSelectquerie(querie._id)}
-                        />
+                        /><span className=' ms-2'>{(indexOfFirstquerie + index + 1)}</span>
                       </td>
 
                     
 
                       <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
-                        {querie.studentName}
+                      {querie.studentName} <span className=' text-xs'>({querie.referenceid})</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">

@@ -33,7 +33,7 @@ export default function Assigned() {
   }, []);
 
   const handleRowClick = (id) => {
-    router.push(`/main/page/allquery/${id}`);
+    router.push(`/branch/page/allquery/${id}`);
   };
 
   // Filter the queries based on branch, deadline, and status

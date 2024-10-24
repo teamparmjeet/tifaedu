@@ -133,6 +133,7 @@ export default function Assigned() {
                                 <table className="min-w-full text-xs text-left text-gray-600 font-sans">
                                     <thead className="bg-[#29234b] text-white uppercase">
                                         <tr>
+                                            <th className="px-6 py-4">Sr. No.</th>
                                             <th className="px-6 py-4">Student Name</th>
                                             <th className="px-6 py-4">Branch</th>
                                             <th className="px-6 py-4">Deadline</th>
@@ -177,6 +178,7 @@ export default function Assigned() {
                                                             className={`border-b cursor-pointer transition-colors duration-200 hover:opacity-90 ${rowClass}`}
                                                             onClick={() => handleRowClick(query._id)}
                                                         >
+                                                            <td className="px-6 py-1 font-semibold">{(indexOfFirstQuery + index + 1)}</td>
                                                             <td className="px-6 py-1 font-semibold">{query.studentName}</td>
                                                             <td className="px-6 py-1">{query.branch}</td>
                                                             <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>

@@ -83,7 +83,7 @@ export default function Assigned() {
     }
 
     const handleRowClick = (id) => {
-        router.push(`/main/page/allquery/${id}`);
+        router.push(`/branch/page/allquery/${id}`);
     };
 
     return (

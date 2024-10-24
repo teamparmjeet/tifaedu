@@ -15,6 +15,7 @@ import {
     Download,
     Mail,
     Gauge,
+    ListCollapse
     
 } from 'lucide-react';
 
@@ -24,16 +25,12 @@ export const Menulist = [
         title: "Admission",
         icon: CheckSquare ,
         submenu: [
-            { name: "New Admissions", icon: UserPlus ,href:"/branch/underdevelopment"},
-            { name: "Branch Visits", icon: User ,href:"/branch/underdevelopment"},
-            { name: "Enrolled Students", icon: CheckSquare ,href:"/branch/underdevelopment"},
+            { name: "New Admissions", icon: UserPlus ,href:"/branch/page/addquery"},
+            { name: "Our Demo Count", icon: ListCollapse ,href:"/branch/page/demo"},
+            { name: "Enrolled Students", icon: CheckSquare ,href:"/branch/page/enroll"},
             { name: "Student Interaction History", icon: Book ,href:"/branch/underdevelopment"},
             { name: "Class Scheduling", icon: Calendar ,href:"/branch/underdevelopment"},
-            { name: "Parent-Teacher Communication", icon: MessageSquare ,href:"/branch/underdevelopment"},
-            { name: "Student Groups", icon: Users ,href:"/branch/underdevelopment"},
-            { name: "Behavior Reports", icon: AlertTriangle ,href:"/branch/underdevelopment"},
-            { name: "Health Records", icon: FileText ,href:"/branch/underdevelopment"},
-            { name: "Emergency Contacts", icon: Phone ,href:"/branch/underdevelopment"},
+          
         ],
     }, 
     {

@@ -63,6 +63,7 @@ export default function Importquery() {
             const mappedData = jsonData.map((row) => ({
                 // userid:adminId,
                 studentName: row['studentName'],
+                referenceid: row['referenceid'],
                 phoneNumber: row['phoneNumber'], // Separate phone number
                 whatsappNumber: row['whatsappNumber'], // Separate whatsapp Number number
                 address: row['address'], // Separate address
@@ -82,7 +83,9 @@ export default function Importquery() {
         try {
             const dataToUpload = excelData.map((row) => ({
                 userid: adminId,
+
                 studentName: row.studentName,
+                referenceid:row.referenceid,
                 studentContact: {
                     phoneNumber: row.phoneNumber,
                     whatsappNumber: row.whatsappNumber,
@@ -153,7 +156,7 @@ export default function Importquery() {
                                 <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                                     <thead>
                                     <tr className="bg-gray-200">
-                                            {['studentName', 'phoneNumber','whatsappNumber', 'address','city', 'courseInterest', 'deadline', 'branch', 'notes'].map((key, index) => (
+                                            {['studentName', 'referenceid','phoneNumber','whatsappNumber', 'address','city', 'courseInterest', 'deadline', 'branch', 'notes'].map((key, index) => (
                                                 <th key={index} className="py-3 capitalize px-6 border bg-[#6cb049] text-left text-sm font-medium text-white">
                                                     {key}
                                                 </th>
