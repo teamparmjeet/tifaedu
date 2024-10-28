@@ -61,9 +61,9 @@ export default function AssignedQuery({ initialData, refreshData }) {
             const auditResponse = await axios.patch('/api/audit/update', {
                 queryId: initialData._id,
                 message,
-                assignedTo,                       
-                assignedBy: session?.user?.name, 
-              
+                assignedTo,
+                assignedBy: session?.user?.name,
+
             });
 
             if (queryResponse.status === 200 && auditResponse.status === 200) {
@@ -108,29 +108,31 @@ export default function AssignedQuery({ initialData, refreshData }) {
 
     return (
         <div>
-            <div className="p-2 border mx-auto my-4 bg-white max-w-sm">
+            <div className=" mx-auto bg-white max-w-sm mb-1">
+
+
+                <button
+                    onClick={() => setIsEditing(true)}
+                    className="bg-[#6cb049]   hover:bg-[#5aa43f] mb-2  w-full py-1 rounded-md text-white"
+                >
+                    Assign
+                </button>
+
                 {assignedUserDetails ? (
                     <div>
-                        <p className="text-sm">
-                            <span className="font-semibold">Assigned to:</span> {assignedUserDetails.name || 'No user assigned'}
+                        <p className="text-sm text-gray-800 bg-gray-200 px-1 rounded-md">
+                            <span className="font-semibold ">Assigned to:</span> {assignedUserDetails.name || 'No user assigned'}
                         </p>
-                        <p className="text-sm">
+                        {/* <p className="text-sm">
                             <span className="font-semibold">Branch:</span> {assignedUserDetails.branch || 'N/A'}
                         </p>
                         <p className="text-sm">
                             <span className="font-semibold">Role:</span> {assignedUserDetails.usertype === "0" ? "Admin" : assignedUserDetails.usertype === "1" ? "Manager" : "Staff"}
-                        </p>
+                        </p> */}
                     </div>
                 ) : (
-                    <p className="text-lg font-medium text-gray-500">No user assigned</p>
+                    <p className="text-sm  text-gray-500">No Staff assigned</p>
                 )}
-
-                <button
-                    onClick={() => setIsEditing(true)}
-                    className="mt-3 px-3 py-1 bg-[#6cb049] text-white rounded-md text-sm hover:bg-[#5aa43f] transition duration-200"
-                >
-                    Assign
-                </button>
             </div>
 
             {isEditing && (

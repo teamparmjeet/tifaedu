@@ -7,14 +7,11 @@ import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lu
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
-
-
 export default function AllQuery() {
-  const [queries, setqueries] = useState([]);
+  const [queries, setQueries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
-  const [adminData, setAdminData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedqueries, setSelectedqueries] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
@@ -22,14 +19,32 @@ export default function AllQuery() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [user, setuser] = useState([]);
   const [deadlineFilter, setDeadlineFilter] = useState(""); // State for deadline filter
+  const [adminData, setAdminData] = useState(null);
   const { data: session } = useSession();
+
+
+
+  useEffect(() => {
+    const fetchuserData = async () => {
+      try {
+        const response = await axios.get('/api/admin/fetchall/admin');
+        setuser(response.data.fetch);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchuserData();
+  }, []);
+
+
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const response = await axios.get(
-          `/api/admin/find-admin-byemail/${session?.user?.email}`
-        );
-        setAdminData(response.data._id);
+        const response = await axios.get(`/api/admin/find-admin-byemail/${session?.user?.email}`);
+        setAdminData(response.data); // Make sure response.data contains branch and _id
       } catch (err) {
         setError(err.message);
       } finally {
@@ -41,14 +56,34 @@ export default function AllQuery() {
   }, [session]);
 
   useEffect(() => {
-    // Fetch queries data once the adminData is available
     const fetchQueryData = async () => {
       if (adminData) {
         try {
           setLoading(true);
+          const branch = adminData?.branch;
+          const userid = adminData?._id;
+
+          if (!branch || !userid) {
+            console.error("Branch or User ID is missing in adminData");
+            return;
+          }
+
           const autoclosedStatus = 'open'; // or 'close', based on your logic
-          const response = await axios.get(`/api/queries/fetchall-byuser/${adminData}?autoclosed=${autoclosedStatus}`);
-          setqueries(response.data.fetch);
+          const response = await axios.get(
+            `/api/queries/fetchall-bybranch/${branch}?autoclosed=${autoclosedStatus}&_id=${userid}`
+          );
+
+          // Get today's date in YYYY-MM-DD format
+          const today = new Date();
+          const todayString = today.toISOString().split('T')[0];
+    
+          // Filter queries where the deadline is today or in the past
+          const filteredQueries = response.data.fetch.filter(query => {
+            const queryDeadline = new Date(query.deadline).toISOString().split('T')[0];
+            return queryDeadline <= todayString; // Compare dates as strings
+          });
+    
+          setQueries(filteredQueries);
         } catch (error) {
           console.error('Error fetching query data:', error);
         } finally {
@@ -60,66 +95,64 @@ export default function AllQuery() {
     fetchQueryData();
   }, [adminData]);
 
+
   const router = useRouter();
   const handleRowClick = (id) => {
-    router.push(`/staff/page/allquery/${id}`);
+    router.push(`/branch/page/allquery/${id}`);
   };
   const toggleFilterPopup = () => {
     setIsFilterOpen(!isFilterOpen);
   };
+// Sort queries based on selected order
+const sortqueries = (queries) => {
+  // Sort by 'newest' or 'oldest'
+  const sortedByCreatedDate = queries.sort((a, b) => {
+    return sortOrder === "newest"
+      ? new Date(b.createdAt) - new Date(a.createdAt)
+      : new Date(a.createdAt) - new Date(b.createdAt);
+  });
 
-  // Sort queries based on selected order
-  const sortqueries = (queries) => {
-    // Sort by 'newest' or 'oldest'
-    const sortedByCreatedDate = queries.sort((a, b) => {
-      return sortOrder === "newest"
-        ? new Date(b.createdAt) - new Date(a.createdAt)
-        : new Date(a.createdAt) - new Date(b.createdAt);
-    });
+  // If 'newest' is selected, sort by deadline
+  if (sortOrder === "newest") {
+    return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+  }
 
-    // If 'newest' is selected, sort by deadline
-    if (sortOrder === "newest") {
-      return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-    }
+  return sortedByCreatedDate;
+};
 
-    return sortedByCreatedDate;
-  };
+// Filter queries based on course and search term
+const filterByDeadline = (querie) => {
+  const currentDate = new Date();
+  const querieDeadline = new Date(querie.deadline);
 
-  // Filter queries based on course and search term
-  const filterByDeadline = (querie) => {
-    const currentDate = new Date();
-    const querieDeadline = new Date(querie.deadline);
+  switch (deadlineFilter) {
+    case "today":
+      return querieDeadline.toDateString() === currentDate.toDateString();
+    case "tomorrow":
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(currentDate.getDate() + 1);
+      return querieDeadline.toDateString() === tomorrow.toDateString();
+    case "dayAfterTomorrow":
+      const dayAfterTomorrow = new Date(currentDate);
+      dayAfterTomorrow.setDate(currentDate.getDate() + 2);
+      return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
+    case "past":
+      return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
+    default:
+      return true; // 'All' will display all queries
+  }
+};
 
-    switch (deadlineFilter) {
-      case "today":
-        return querieDeadline.toDateString() === currentDate.toDateString();
-      case "tomorrow":
-        const tomorrow = new Date(currentDate);
-        tomorrow.setDate(currentDate.getDate() + 1);
-        return querieDeadline.toDateString() === tomorrow.toDateString();
-      case "dayAfterTomorrow":
-        const dayAfterTomorrow = new Date(currentDate);
-        dayAfterTomorrow.setDate(currentDate.getDate() + 2);
-        return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
-      case "past":
-        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
-      default:
-        return true; // 'All' will display all queries
-    }
-  };
-
-  // Apply filters and sort queries
-  const filteredqueries = sortqueries(
-    queries
-      .filter(querie =>
-        (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          querie.studentContact.phoneNumber.includes(searchTerm)) &&
-        (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-        filterByDeadline(querie) // Ensure the deadline filter is applied
-      )
-  );
-
-
+// Apply filters and sort queries
+const filteredqueries = sortqueries(
+  queries
+    .filter(querie =>
+      (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       querie.studentContact.phoneNumber.includes(searchTerm)) &&
+      (filterCourse === "" || querie.branch.includes(filterCourse)) &&
+      filterByDeadline(querie) // Ensure the deadline filter is applied
+    )
+);
 
 
   // Pagination logic
@@ -152,7 +185,7 @@ export default function AllQuery() {
         });
 
         // Filter out the deleted branches from the state
-        setqueries(queries.filter(querie => !selectedqueries.includes(querie._id)));
+        setQueries(queries.filter(querie => !selectedqueries.includes(querie._id)));
 
         // Clear the selected branches after deletion
         setSelectedqueries([]);
@@ -228,12 +261,12 @@ export default function AllQuery() {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <Link href={'/staff/page/importquery'}>
+                <Link href={'/branch/page/importquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
                     <CirclePlus size={16} className='me-1' /> Import Query
                   </button>
                 </Link>
-                <Link href={'/staff/page/addquery'}>
+                <Link href={'/branch/page/addquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
                     <CirclePlus size={16} className='me-1' /> Add Query
                   </button>
@@ -286,13 +319,13 @@ export default function AllQuery() {
             <option value="oldest">Oldest</option>
           </select>
 
-          <Link href={'/staff/page/importquery'}>
+          <Link href={'/branch/page/importquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Import Query
             </button>
           </Link>
 
-          <Link href={'/staff/page/addquery'}>
+          <Link href={'/branch/page/addquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Add Query
             </button>
@@ -365,8 +398,8 @@ export default function AllQuery() {
                   checked={selectedqueries.length === queries.length}
                 />
               </th>
-
-              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
+              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
@@ -408,10 +441,12 @@ export default function AllQuery() {
                         /><span className=' ms-2'>{(index + 1)}</span>
                       </td>
 
-
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
+                        {matchedUser ? matchedUser.name : 'Tifa Admin'}
+                      </td>
 
                       <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
-                        {querie.studentName} <span className=' text-xs'>({querie.referenceid})</span>
+                        {querie.studentName}
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
@@ -437,7 +472,7 @@ export default function AllQuery() {
                               ✖️ Today Update
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2  text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
+                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
                               ✔️ Checked
                             </span>
                           )
@@ -502,5 +537,3 @@ export default function AllQuery() {
 //     </div>
 //   );
 // };
-
-

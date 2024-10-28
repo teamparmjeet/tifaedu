@@ -73,18 +73,24 @@ export default function Header() {
                                                     {(openSubmenu === item.id && item.submenu) && (
                                                         <ul className='absolute lg:w-80 top-100 left-0  bg-white shadow p-2 rounded-lg z-50'>
                                                             {item.submenu.map((submenuItem, index) => (
-                                                                <Link  key={index} href={submenuItem.href}>
-                                                                <li className='py-2 px-3 hover:bg-[#6cb049] flex items-center gap-x-2 text-sm text-gray-700 hover:text-white duration-150 cursor-pointer rounded-md'>
-                                                                    <submenuItem.icon size={17} /> {submenuItem.name}
-                                                                </li>
+                                                                <Link key={index} href={submenuItem.href}>
+                                                                    <li className='py-2 px-3 hover:bg-[#6cb049] flex items-center gap-x-2 text-sm text-gray-700 hover:text-white duration-150 cursor-pointer rounded-md'>
+                                                                        <submenuItem.icon size={17} /> {submenuItem.name}
+                                                                    </li>
                                                                 </Link>
                                                             ))}
                                                         </ul>
                                                     )}
                                                 </li>
                                             ))}
+                                            <Link href="/branch/page/today">
+                                                <li
+                                                    className='cursor-pointer hover:bg-gray-100 text-[14px] text-gray-700 rounded-md px-4 py-2 duration-150'>
+                                                    Today Follow Up
+                                                </li>
+                                            </Link>
                                         </ul>
-                                     
+
                                     </div>
                                 </div>
 
@@ -94,7 +100,7 @@ export default function Header() {
 
                             <div className='flex items-center justify-end gap-1 lg:gap-1'>
 
-                                <div  className='sm:block hidden'><Smallbtn icon={Settings} href="/branch/page/profile" /></div>
+                                <div className='sm:block hidden'><Smallbtn icon={Settings} href="/branch/page/profile" /></div>
                                 <div onClick={toggleNotification}>
                                     <Smallbtn icon={Bell} href="javascript:void(0)" />
                                 </div>
@@ -109,9 +115,9 @@ export default function Header() {
                                 )}
                                 <div className='sm:block hidden'>
                                     <Link href="/branch/page/addquery">
-                                    <Btn1 title="New Query" />
+                                        <Btn1 title="New Query" />
                                     </Link>
-                                    </div>
+                                </div>
                                 <div><Profilepic /></div>
                             </div>
                         </div>

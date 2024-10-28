@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 export default function UpdateQuery6({ query, audit }) {
   const queryid = query._id;
@@ -7,6 +8,7 @@ export default function UpdateQuery6({ query, audit }) {
   const [selectedOption, setSelectedOption] = useState('');
   const [message, setMessage] = useState('');
   const [deadline, setDeadline] = useState('');
+  const router = useRouter();
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
@@ -41,7 +43,9 @@ export default function UpdateQuery6({ query, audit }) {
       const auditResponse = await axios.patch('/api/audit/update', data);
       if (auditResponse.status === 200) {
         console.log('Audit updated successfully:', auditResponse.data);
-        window.location.reload();
+        router.push("./")
+
+        // window.location.reload();
       } else {
         console.error('Error updating audit:', auditResponse.statusText);
       }

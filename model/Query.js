@@ -9,14 +9,14 @@ const querySchema = new Schema({
     referenceid: {
         type: String,
         required: true,
-        default:"null"
+        default: "null"
     },
 
     demo: {
         type: Boolean,
         default: false
-      },
-    
+    },
+
 
     studentName: {
         type: String,
@@ -28,6 +28,36 @@ const querySchema = new Schema({
         address: { type: String, required: true },
         city: { type: String, required: true },
     },
+
+
+
+    // New ---
+    qualification: {
+        type: String,
+        required: true,
+    },
+    profession: {
+        type: String,
+        enum: ["Student", "Working"],
+        required: true,
+    },
+    professiontype: {
+        type: String,
+        required: true,
+        default: "null"
+
+    },
+
+    reference_name: {
+        type: String,
+        required: true,
+        default: "null"
+    },
+    // ---
+
+
+
+
     courseInterest: {
         type: String,
         required: true,
@@ -79,5 +109,5 @@ querySchema.pre('save', function (next) {
 });
 
 const QueryModel =
-    mongoose.models.Queries17 || mongoose.model('Queries17', querySchema);
+    mongoose.models.Queries20 || mongoose.model('Queries20', querySchema);
 export default QueryModel;

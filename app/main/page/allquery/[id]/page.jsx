@@ -50,7 +50,7 @@ export default function Page({ params }) {
         if (query) {
             setDataLoaded(true);
         }
-    }, [query, ]);
+    }, [query,]);
 
     // Find the course name based on the course ID
     useEffect(() => {
@@ -81,20 +81,22 @@ export default function Page({ params }) {
             {/* Left Sidebar */}
             <div className="col-span-1 bg-white shadow-lg rounded-lg p-6">
                 <div className="sticky top-5">
-                  
+                    <div className="flex flex-col">
                         <button
                             onClick={() => setIsModalOpen(true)}
-                            className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white"
+                            className="mb-1 bg-[#29234b] w-full py-1 rounded-md text-white transition duration-300 ease-in-out hover:bg-[#3a2b6f] focus:outline-none focus:ring-2 focus:ring-[#ffbe98] focus:ring-opacity-50"
                         >
                             Update
                         </button>
-                    
+
+                        <AssignedQuery refreshData={fetchBranchData} initialData={query} />
+                    </div>
 
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
                         {query.studentName}
                     </h1>
                     <div className="flex flex-col text-sm text-gray-700">
-                    <Link
+                        <Link
                             href={`tel:${query.studentContact.phoneNumber}`}
                             title={`Call ${query.studentName} at ${query.studentContact.phoneNumber}`}
                             className="flex items-center gap-x-2 p-0.5 my-1 rounded-lg hover:bg-gray-100 transition duration-200"
@@ -126,7 +128,8 @@ export default function Page({ params }) {
                         </p>
                     </div>
                     <div className="mt-4">
-                        <AssignedQuery refreshData={fetchBranchData} initialData={query} />
+                        {/* <AssignedQuery refreshData={fetchBranchData} initialData={query} /> */}
+
                     </div>
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>

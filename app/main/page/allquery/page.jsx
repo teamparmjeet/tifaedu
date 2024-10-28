@@ -60,66 +60,66 @@ export default function AllQuery() {
   };
 
   // Sort queries based on selected order
-const sortqueries = (queries) => {
-  // Sort by 'newest' or 'oldest'
-  const sortedByCreatedDate = queries.sort((a, b) => {
-    return sortOrder === "newest"
-      ? new Date(b.createdAt) - new Date(a.createdAt)
-      : new Date(a.createdAt) - new Date(b.createdAt);
-  });
+  const sortqueries = (queries) => {
+    // Sort by 'newest' or 'oldest'
+    const sortedByCreatedDate = queries.sort((a, b) => {
+      return sortOrder === "newest"
+        ? new Date(b.createdAt) - new Date(a.createdAt)
+        : new Date(a.createdAt) - new Date(b.createdAt);
+    });
 
-  // If 'newest' is selected, sort by deadline
-  if (sortOrder === "newest") {
-    return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-  }
+    // If 'newest' is selected, sort by deadline
+    if (sortOrder === "newest") {
+      return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+    }
 
-  return sortedByCreatedDate;
-};
+    return sortedByCreatedDate;
+  };
 
-// Filter queries based on course and search term
-const filterByDeadline = (querie) => {
-  const currentDate = new Date();
-  const querieDeadline = new Date(querie.deadline);
+  // Filter queries based on course and search term
+  const filterByDeadline = (querie) => {
+    const currentDate = new Date();
+    const querieDeadline = new Date(querie.deadline);
 
-  switch (deadlineFilter) {
-    case "today":
-      return querieDeadline.toDateString() === currentDate.toDateString();
-    case "tomorrow":
-      const tomorrow = new Date(currentDate);
-      tomorrow.setDate(currentDate.getDate() + 1);
-      return querieDeadline.toDateString() === tomorrow.toDateString();
-    case "dayAfterTomorrow":
-      const dayAfterTomorrow = new Date(currentDate);
-      dayAfterTomorrow.setDate(currentDate.getDate() + 2);
-      return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
-    case "past":
-      return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
-    default:
-      return true; // 'All' will display all queries
-  }
-};
+    switch (deadlineFilter) {
+      case "today":
+        return querieDeadline.toDateString() === currentDate.toDateString();
+      case "tomorrow":
+        const tomorrow = new Date(currentDate);
+        tomorrow.setDate(currentDate.getDate() + 1);
+        return querieDeadline.toDateString() === tomorrow.toDateString();
+      case "dayAfterTomorrow":
+        const dayAfterTomorrow = new Date(currentDate);
+        dayAfterTomorrow.setDate(currentDate.getDate() + 2);
+        return querieDeadline.toDateString() === dayAfterTomorrow.toDateString();
+      case "past":
+        return querieDeadline < new Date(currentDate.setHours(0, 0, 0, 0));
+      default:
+        return true; // 'All' will display all queries
+    }
+  };
 
-// Apply filters and sort queries
-const filteredqueries = sortqueries(
-  queries
-    .filter(querie =>
-      (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      querie.studentContact.phoneNumber.includes(searchTerm) ||
-      querie.referenceid.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-      filterByDeadline(querie) // Ensure the deadline filter is applied
-    )
-);
+  // Apply filters and sort queries
+  const filteredqueries = sortqueries(
+    queries
+      .filter(querie =>
+        (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          querie.studentContact.phoneNumber.includes(searchTerm) ||
+          querie.referenceid.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (filterCourse === "" || querie.branch.includes(filterCourse)) &&
+        filterByDeadline(querie) // Ensure the deadline filter is applied
+      )
+  );
 
 
 
   // Pagination logic
-  const indexOfLastquerie = currentPage * queriesPerPage;
-  const indexOfFirstquerie = indexOfLastquerie - queriesPerPage;
-  const currentqueries = filteredqueries.slice(indexOfFirstquerie, indexOfLastquerie);
-  const totalPages = Math.ceil(filteredqueries.length / queriesPerPage);
+  // const indexOfLastquerie = currentPage * queriesPerPage;
+  // const indexOfFirstquerie = indexOfLastquerie - queriesPerPage;
+  // const currentqueries = filteredqueries.slice(indexOfFirstquerie, indexOfLastquerie);
+  // const totalPages = Math.ceil(filteredqueries.length / queriesPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Handle multi-select for bulk actions
   const handleSelectquerie = (id) => {
@@ -268,7 +268,7 @@ const filteredqueries = sortqueries(
             <option value="past">Past Date</option>
           </select>
 
-          
+
 
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
@@ -301,36 +301,48 @@ const filteredqueries = sortqueries(
         </div>
 
       </div>
-      <div className="flex flex-wrap gap-4 mt-2 text-sm py-1">
+      <div className="flex flex-wrap justify-between gap-4 mt-2 text-sm py-1">
+
+
+        <div>
+          <div className="flex items-center gap-1 bg-gray-200 px-2 rounded-md">
+            <span className="">Total Queries =</span>
+            <span className=" font-semibold">{queries.length}</span>
+          </div>
+        </div>
+
         {/* Legend Item */}
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full animate-blink"></span>
-          <span className="text-gray-600">Past Due</span>
-        </div>
+        <div className=' flex flex-wrap gap-4'>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full animate-blink"></span>
+            <span className="text-gray-600">Past Due</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-red-500"></span>
-          <span className="text-gray-600">Due Today</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-red-500"></span>
+            <span className="text-gray-600">Due Today</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
-          <span className="text-gray-600">Due Tomorrow</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
+            <span className="text-gray-600">Due Tomorrow</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
-          <span className="text-gray-600">Due Day After Tomorrow</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
+            <span className="text-gray-600">Due Day After Tomorrow</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
-          <span className="text-gray-600">Enrolled</span>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
+            <span className="text-gray-600">Enrolled</span>
+          </div>
         </div>
       </div>
 
       {/* querie Table */}
       <div className="relative overflow-x-auto shadow-md  bg-white   border border-gray-200">
+
         <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
           <thead className="bg-[#29234b] text-white uppercase">
             <tr>
@@ -345,7 +357,7 @@ const filteredqueries = sortqueries(
                     )
                   }
                   checked={selectedqueries.length === queries.length}
-                /><span className=' ms-2'>{queries.length}</span>
+                />
               </th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
@@ -364,8 +376,8 @@ const filteredqueries = sortqueries(
                   </div>
                 </td>
               </tr>
-            ) : currentqueries.length > 0 ? (
-              currentqueries.map((querie, index) => {
+            ) : filteredqueries.length > 0 ? (
+              filteredqueries.map((querie, index) => {
                 // Find the user that matches the querie.userid
                 const matchedUser = user.find((u) => u._id === querie.userid);
 
@@ -382,13 +394,13 @@ const filteredqueries = sortqueries(
                                   ''
                         }`}
                     >
-                      
+
                       <td className="px-4 py-2 relative">
                         <input
                           type="checkbox"
                           checked={selectedqueries.includes(querie._id)}
                           onChange={() => handleSelectquerie(querie._id)}
-                        /><span className=' ms-2'>{(indexOfFirstquerie + index + 1)}</span>
+                        /><span className=' ms-2'>{(index + 1)}</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
@@ -451,39 +463,39 @@ const filteredqueries = sortqueries(
           </tbody>
         </table>
 
-        {/* Pagination */}
+        {/* Pagination
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           paginate={paginate}
-        />
+        /> */}
       </div>
     </div>
   );
 }
 
-const Pagination = ({ currentPage, totalPages, paginate }) => {
-  return (
-    <div className="flex justify-center my-4">
-      <button
-        onClick={() => paginate(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === 1 ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowLeft size={18} />
-      </button>
+// const Pagination = ({ currentPage, totalPages, paginate }) => {
+//   return (
+//     <div className="flex justify-center my-4">
+//       <button
+//         onClick={() => paginate(currentPage - 1)}
+//         disabled={currentPage === 1}
+//         className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === 1 ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
+//       >
+//         <ArrowLeft size={18} />
+//       </button>
 
-      <span className="px-3 py-1 mx-1 text-sm border rounded bg-gray-200">
-        Page {currentPage} of {totalPages}
-      </span>
+//       <span className="px-3 py-1 mx-1 text-sm border rounded bg-gray-200">
+//         Page {currentPage} of {totalPages}
+//       </span>
 
-      <button
-        onClick={() => paginate(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowRight size={18} />
-      </button>
-    </div>
-  );
-};
+//       <button
+//         onClick={() => paginate(currentPage + 1)}
+//         disabled={currentPage === totalPages}
+//         className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
+//       >
+//         <ArrowRight size={18} />
+//       </button>
+//     </div>
+//   );
+// };

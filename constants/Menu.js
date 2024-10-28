@@ -51,12 +51,12 @@ export const Menulist = [
             { name: "Branch Performance", icon: Gauge,href:"/main/page/performance" }
         ],
     },
-    {
-        id: "5",
-        title: "Communication",
-        icon: Mail,
-        submenu: [
-            { name: "Email Communication", icon: Mail,href:"/main/underdevelopment" },
-        ],
-    },
+    // {
+    //     id: "5",
+    //     title: "Communication",
+    //     icon: Mail,
+    //     submenu: [
+    //         { name: "Email Communication", icon: Mail,href:"/main/underdevelopment" },
+    //     ],
+    // },
 ];

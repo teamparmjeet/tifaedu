@@ -112,15 +112,15 @@ export default function Page({ params }) {
                         </button>
                     ) : (
                         <p className="bg-red-300 p-1 rounded-md text-white text-sm mb-2">
-                           You do not have permission to update this query.
+                            You do not have permission to update this query.
                         </p>
                     )}
-
+                    <AssignedQuery refreshData={fetchBranchData} initialData={query} />
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
                         {query.studentName}
                     </h1>
                     <div className="flex flex-col text-sm text-gray-700">
-                    <Link
+                        <Link
                             href={`tel:${query.studentContact.phoneNumber}`}
                             title={`Call ${query.studentName} at ${query.studentContact.phoneNumber}`}
                             className="flex items-center gap-x-2 p-0.5 my-1 rounded-lg hover:bg-gray-100 transition duration-200"
@@ -151,9 +151,9 @@ export default function Page({ params }) {
                             {new Date(query.deadline).toLocaleDateString("en-GB")}
                         </p>
                     </div>
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                         <AssignedQuery refreshData={fetchBranchData} initialData={query} />
-                    </div>
+                    </div> */}
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
                         <p className="text-sm text-gray-700">{courseName}</p> {/* Show course name here */}

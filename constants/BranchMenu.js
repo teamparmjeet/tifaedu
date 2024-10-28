@@ -44,12 +44,12 @@ export const Menulist = [
             { name: "Branch Performance", icon: Gauge,href:"/branch/page/performance" }
         ],
     },
-    {
-        id: "5",
-        title: "Communication",
-        icon: Mail,
-        submenu: [
-            { name: "Email Communication", icon: Mail,href:"/branch/underdevelopment" },
-        ],
-    },
+    // {
+    //     id: "5",
+    //     title: "Communication",
+    //     icon: Mail,
+    //     submenu: [
+    //         { name: "Email Communication", icon: Mail,href:"/branch/underdevelopment" },
+    //     ],
+    // },
 ];

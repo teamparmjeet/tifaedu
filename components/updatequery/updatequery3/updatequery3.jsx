@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function UpdateQuery3({ query, audit }) {
   const { data: session } = useSession();
@@ -15,6 +16,7 @@ export default function UpdateQuery3({ query, audit }) {
     setSelectedOption(event.target.value);
     setMessage(''); // Reset message when the option changes
   };
+  const router = useRouter();
 
   const handleDeadlineChange = (event) => {
     setDeadline(event.target.value);
@@ -53,7 +55,9 @@ export default function UpdateQuery3({ query, audit }) {
       const auditResponse = await axios.patch('/api/audit/update', data);
       if (auditResponse.status === 200) {
         console.log('Audit updated successfully:', auditResponse.data);
-        window.location.reload();
+        router.push("./")
+
+        // window.location.reload();
       } else {
         console.error('Error updating audit:', auditResponse.statusText);
       }

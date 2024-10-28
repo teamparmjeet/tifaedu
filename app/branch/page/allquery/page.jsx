@@ -146,12 +146,12 @@ const filteredqueries = sortqueries(
 
 
   // Pagination logic
-  const indexOfLastquerie = currentPage * queriesPerPage;
-  const indexOfFirstquerie = indexOfLastquerie - queriesPerPage;
-  const currentqueries = filteredqueries.slice(indexOfFirstquerie, indexOfLastquerie);
-  const totalPages = Math.ceil(filteredqueries.length / queriesPerPage);
+  // const indexOfLastquerie = currentPage * queriesPerPage;
+  // const indexOfFirstquerie = indexOfLastquerie - queriesPerPage;
+  // const currentqueries = filteredqueries.slice(indexOfFirstquerie, indexOfLastquerie);
+  // const totalPages = Math.ceil(filteredqueries.length / queriesPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Handle multi-select for bulk actions
   const handleSelectquerie = (id) => {
@@ -331,31 +331,42 @@ const filteredqueries = sortqueries(
         </div>
 
       </div>
-      <div className="flex flex-wrap gap-4 mt-2 text-sm py-1">
+      <div className="flex flex-wrap justify-between gap-4 mt-2 text-sm py-1">
+
+
+        <div>
+          <div className="flex items-center gap-1 bg-gray-200 px-2 rounded-md">
+            <span className="">Total Queries =</span>
+            <span className=" font-semibold">{queries.length}</span>
+          </div>
+        </div>
+
         {/* Legend Item */}
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full animate-blink"></span>
-          <span className="text-gray-600">Past Due</span>
-        </div>
+        <div className=' flex flex-wrap gap-4'>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full animate-blink"></span>
+            <span className="text-gray-600">Past Due</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-red-500"></span>
-          <span className="text-gray-600">Due Today</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-red-500"></span>
+            <span className="text-gray-600">Due Today</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
-          <span className="text-gray-600">Due Tomorrow</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#fcccba]"></span>
+            <span className="text-gray-600">Due Tomorrow</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
-          <span className="text-gray-600">Due Day After Tomorrow</span>
-        </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#ffe9bf]"></span>
+            <span className="text-gray-600">Due Day After Tomorrow</span>
+          </div>
 
-        <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
-          <span className="text-gray-600">Enrolled</span>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#6cb049]"></span>
+            <span className="text-gray-600">Enrolled</span>
+          </div>
         </div>
       </div>
 
@@ -375,7 +386,7 @@ const filteredqueries = sortqueries(
                     )
                   }
                   checked={selectedqueries.length === queries.length}
-                /><span className=' ms-2'>{queries.length}</span>
+                />
               </th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
@@ -394,8 +405,8 @@ const filteredqueries = sortqueries(
                   </div>
                 </td>
               </tr>
-            ) : currentqueries.length > 0 ? (
-              currentqueries.map((querie, index) => {
+            ) : filteredqueries.length > 0 ? (
+              filteredqueries.map((querie, index) => {
                 // Find the user that matches the querie.userid
                 const matchedUser = user.find((u) => u._id === querie.userid);
 
@@ -417,7 +428,7 @@ const filteredqueries = sortqueries(
                           type="checkbox"
                           checked={selectedqueries.includes(querie._id)}
                           onChange={() => handleSelectquerie(querie._id)}
-                        /><span className=' ms-2'>{(indexOfFirstquerie + index + 1)}</span>
+                        /><span className=' ms-2'>{(index + 1)}</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
@@ -481,38 +492,38 @@ const filteredqueries = sortqueries(
         </table>
 
         {/* Pagination */}
-        <Pagination
+        {/* <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           paginate={paginate}
-        />
+        /> */}
       </div>
     </div>
   );
 }
 
-const Pagination = ({ currentPage, totalPages, paginate }) => {
-  return (
-    <div className="flex justify-center my-4">
-      <button
-        onClick={() => paginate(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === 1 ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowLeft size={18} />
-      </button>
+// const Pagination = ({ currentPage, totalPages, paginate }) => {
+//   return (
+//     <div className="flex justify-center my-4">
+//       <button
+//         onClick={() => paginate(currentPage - 1)}
+//         disabled={currentPage === 1}
+//         className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === 1 ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
+//       >
+//         <ArrowLeft size={18} />
+//       </button>
 
-      <span className="px-3 py-1 mx-1 text-sm border rounded bg-gray-200">
-        Page {currentPage} of {totalPages}
-      </span>
+//       <span className="px-3 py-1 mx-1 text-sm border rounded bg-gray-200">
+//         Page {currentPage} of {totalPages}
+//       </span>
 
-      <button
-        onClick={() => paginate(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
-      >
-        <ArrowRight size={18} />
-      </button>
-    </div>
-  );
-};
+//       <button
+//         onClick={() => paginate(currentPage + 1)}
+//         disabled={currentPage === totalPages}
+//         className={`px-3 py-1 mx-1 text-sm border rounded ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-200' : 'bg-[#6cb049] text-white'}`}
+//       >
+//         <ArrowRight size={18} />
+//       </button>
+//     </div>
+//   );
+// };

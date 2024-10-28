@@ -5,16 +5,12 @@ import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Search, Trash2, CirclePlus, Filter, X } from "lucide-react";
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
-
-
 
 export default function AllQuery() {
   const [queries, setqueries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [queriesPerPage] = useState(8);
-  const [adminData, setAdminData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedqueries, setSelectedqueries] = useState([]);
   const [sortOrder, setSortOrder] = useState("newest");
@@ -22,47 +18,54 @@ export default function AllQuery() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [user, setuser] = useState([]);
   const [deadlineFilter, setDeadlineFilter] = useState(""); // State for deadline filter
-  const { data: session } = useSession();
+
+
+
   useEffect(() => {
-    const fetchAdminData = async () => {
+    const fetchuserData = async () => {
       try {
-        const response = await axios.get(
-          `/api/admin/find-admin-byemail/${session?.user?.email}`
-        );
-        setAdminData(response.data._id);
-      } catch (err) {
-        setError(err.message);
+        const response = await axios.get('/api/admin/fetchall/admin');
+        setuser(response.data.fetch);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (session?.user?.email) fetchAdminData();
-  }, [session]);
+    fetchuserData();
+  }, []);
 
   useEffect(() => {
-    // Fetch queries data once the adminData is available
-    const fetchQueryData = async () => {
-      if (adminData) {
-        try {
-          setLoading(true);
-          const autoclosedStatus = 'open'; // or 'close', based on your logic
-          const response = await axios.get(`/api/queries/fetchall-byuser/${adminData}?autoclosed=${autoclosedStatus}`);
-          setqueries(response.data.fetch);
-        } catch (error) {
-          console.error('Error fetching query data:', error);
-        } finally {
-          setLoading(false);
-        }
+    const fetchquerieData = async () => {
+      try {
+        const response = await axios.get('/api/queries/fetchallbytype/open');
+        
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        const todayString = today.toISOString().split('T')[0];
+  
+        // Filter queries where the deadline is today or in the past
+        const filteredQueries = response.data.fetch.filter(query => {
+          const queryDeadline = new Date(query.deadline).toISOString().split('T')[0];
+          return queryDeadline <= todayString; // Compare dates as strings
+        });
+  
+        setqueries(filteredQueries);
+      } catch (error) {
+        console.error('Error fetching querie data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchQueryData();
-  }, [adminData]);
+  
+    fetchquerieData();
+  }, []);
+  
 
   const router = useRouter();
   const handleRowClick = (id) => {
-    router.push(`/staff/page/allquery/${id}`);
+    router.push(`/main/page/allquery/${id}`);
   };
   const toggleFilterPopup = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -113,12 +116,12 @@ export default function AllQuery() {
     queries
       .filter(querie =>
         (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          querie.studentContact.phoneNumber.includes(searchTerm)) &&
+          querie.studentContact.phoneNumber.includes(searchTerm) ||
+          querie.referenceid.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (filterCourse === "" || querie.branch.includes(filterCourse)) &&
         filterByDeadline(querie) // Ensure the deadline filter is applied
       )
   );
-
 
 
 
@@ -177,7 +180,7 @@ export default function AllQuery() {
           </span>
           <input
             type="text"
-            placeholder="Search By Student Name and Phone Number"
+            placeholder="Search By Student Name , Reference and Phone Number"
             className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -228,12 +231,12 @@ export default function AllQuery() {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <Link href={'/staff/page/importquery'}>
+                <Link href={'/main/page/importquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
                     <CirclePlus size={16} className='me-1' /> Import Query
                   </button>
                 </Link>
-                <Link href={'/staff/page/addquery'}>
+                <Link href={'/main/page/addquery'}>
                   <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2">
                     <CirclePlus size={16} className='me-1' /> Add Query
                   </button>
@@ -252,7 +255,7 @@ export default function AllQuery() {
         )}
 
         {/* Desktop Filter Section */}
-        <div className="hidden lg:flex space-x-3">
+        <div className="hidden lg:flex flex-wrap space-x-3">
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
             value={filterCourse}
@@ -277,6 +280,8 @@ export default function AllQuery() {
             <option value="past">Past Date</option>
           </select>
 
+
+
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
             value={sortOrder}
@@ -286,13 +291,13 @@ export default function AllQuery() {
             <option value="oldest">Oldest</option>
           </select>
 
-          <Link href={'/staff/page/importquery'}>
+          <Link href={'/main/page/importquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Import Query
             </button>
           </Link>
 
-          <Link href={'/staff/page/addquery'}>
+          <Link href={'/main/page/addquery'}>
             <button className="bg-[#29234b] rounded-md flex items-center text-white text-sm px-4 py-2 ">
               <CirclePlus size={16} className='me-1' /> Add Query
             </button>
@@ -349,6 +354,7 @@ export default function AllQuery() {
 
       {/* querie Table */}
       <div className="relative overflow-x-auto shadow-md  bg-white   border border-gray-200">
+
         <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
           <thead className="bg-[#29234b] text-white uppercase">
             <tr>
@@ -365,7 +371,7 @@ export default function AllQuery() {
                   checked={selectedqueries.length === queries.length}
                 />
               </th>
-
+              <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
               <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
@@ -400,6 +406,7 @@ export default function AllQuery() {
                                   ''
                         }`}
                     >
+
                       <td className="px-4 py-2 relative">
                         <input
                           type="checkbox"
@@ -408,7 +415,9 @@ export default function AllQuery() {
                         /><span className=' ms-2'>{(index + 1)}</span>
                       </td>
 
-
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
+                        {matchedUser ? matchedUser.name : 'Tifa Admin'}
+                      </td>
 
                       <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
                         {querie.studentName} <span className=' text-xs'>({querie.referenceid})</span>
@@ -437,7 +446,7 @@ export default function AllQuery() {
                               ✖️ Today Update
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-2  text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
+                            <span className="inline-flex items-center px-2 text-[10px] font-semibold text-green-600 bg-green-200 rounded-full shadow-md">
                               ✔️ Checked
                             </span>
                           )
@@ -466,8 +475,8 @@ export default function AllQuery() {
           </tbody>
         </table>
 
-        {/* Pagination */}
-        {/* <Pagination
+        {/* Pagination
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           paginate={paginate}
@@ -502,5 +511,3 @@ export default function AllQuery() {
 //     </div>
 //   );
 // };
-
-

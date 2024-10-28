@@ -48,7 +48,17 @@ export default function AllQuery() {
           setLoading(true);
           const autoclosedStatus = 'open'; // or 'close', based on your logic
           const response = await axios.get(`/api/queries/fetchall-byuser/${adminData}?autoclosed=${autoclosedStatus}`);
-          setqueries(response.data.fetch);
+           // Get today's date in YYYY-MM-DD format
+           const today = new Date();
+           const todayString = today.toISOString().split('T')[0];
+     
+           // Filter queries where the deadline is today or in the past
+           const filteredQueries = response.data.fetch.filter(query => {
+             const queryDeadline = new Date(query.deadline).toISOString().split('T')[0];
+             return queryDeadline <= todayString; // Compare dates as strings
+           });
+     
+           setqueries(filteredQueries);
         } catch (error) {
           console.error('Error fetching query data:', error);
         } finally {

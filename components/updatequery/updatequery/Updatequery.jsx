@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-
+import { useRouter } from 'next/navigation';
 export default function UpdateQuery({ query, audit }) {
   const { data: session } = useSession();
   const queryid = query._id;
@@ -10,7 +10,7 @@ export default function UpdateQuery({ query, audit }) {
   const [subOption, setSubOption] = useState('');
   const [message, setMessage] = useState('');
   const [deadline, setDeadline] = useState('');
-
+  const router = useRouter();
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
     setSubOption('');
@@ -111,8 +111,9 @@ export default function UpdateQuery({ query, audit }) {
           }
         }
 
-        // Optionally reload the page
-        window.location.reload();
+       
+        router.push("./")
+        // window.location.reload();
       } else {
         console.error('Error updating query:', response.statusText);
       }
