@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from './component/Header';
 import Sidebar from './component/Sidebar';
 import { useState, useEffect } from "react";
+import { usePathname } from 'next/navigation';
 
 const roboto = Roboto({
   weight: '400',
@@ -13,11 +14,34 @@ const roboto = Roboto({
 export default function BranchLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
 
+  useEffect(() => {
+    const handleResize = () => {
+      const isLargeScreen = window.innerWidth >= 1024;
+      // setIsLgScreen(isLargeScreen);
+      setIsSidebarOpen(isLargeScreen && pathname !== "/branch/page/allquery"); // Sidebar open by default on large screens, closed on /allquery
+    };
+
+    // Initial check on component mount
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, [pathname]);
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
+  useEffect(() => {
+    // Automatically close sidebar when on "/branch/page/allquery"
+    if (pathname === "/branch/page/allquery") {
+      setIsSidebarOpen(false);
+      // setIsLgScreen(true)
+    }
+  }, [pathname]);
   const handleSidebarToggle = (isOpen) => {
     setIsSidebarOpen(isOpen);
   };

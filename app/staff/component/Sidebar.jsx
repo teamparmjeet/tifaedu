@@ -1,21 +1,21 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Menu, X, CopyPlus, ListTodo, Rocket, Gauge,  LayoutDashboard, Users, LayoutList, Trash2,  FileLineChart } from "lucide-react";
-import { Menulist } from "@/constants/StaffMenu";
+import { Menu, X, CopyPlus, ListTodo, Rocket, Gauge, LayoutDashboard, Users, LayoutList, Trash2, FileLineChart } from "lucide-react";
+import { Menulist } from "@/constants/Menu";
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
 
 export default function Sidebar({ onToggleSidebar }) {
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [isLgScreen, setIsLgScreen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default to true on large screens
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
     const handleResize = () => {
       const isLargeScreen = window.innerWidth >= 1024;
       setIsLgScreen(isLargeScreen);
-      setIsSidebarOpen(isLargeScreen); // Sidebar open by default on large screens, closed on smaller
+      setIsSidebarOpen(isLargeScreen && pathname !== "/staff/page/allquery"); // Sidebar open by default on large screens, closed on /allquery
     };
 
     // Initial check on component mount
@@ -26,7 +26,15 @@ export default function Sidebar({ onToggleSidebar }) {
 
     // Cleanup listener on component unmount
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [pathname]);
+
+  useEffect(() => {
+    // Automatically close sidebar when on "/staff/page/allquery"
+    if (pathname === "/staff/page/allquery") {
+      setIsSidebarOpen(false);
+      setIsLgScreen(true)
+    }
+  }, [pathname]);
 
   const handleClick = (id) => {
     setOpenSubmenu(openSubmenu === id ? null : id);
