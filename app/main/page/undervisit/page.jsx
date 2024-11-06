@@ -11,6 +11,7 @@ export default function Assigned() {
     const [loading, setLoading] = useState(true);
     const [selectedDeadline, setSelectedDeadline] = useState('All');
     const [selectedEnrollStatus, setSelectedEnrollStatus] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -36,23 +37,36 @@ export default function Assigned() {
     const handleRowClick = (id) => {
         router.push(`/main/page/allquery/${id}`);
     };
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
 
+  
     // Updated filter logic for grade
     const filteredQueries = queries.filter(query => {
         const matchesGrade = selectedGrade === 'Null' || query.grade === selectedGrade;
         const queryDeadline = new Date(query.deadline);
-
+        
         const matchesDeadline = selectedDeadline === 'All' ||
             (selectedDeadline === 'Today' && queryDeadline.toDateString() === new Date().toDateString()) ||
             (selectedDeadline === 'Tomorrow' && queryDeadline.toDateString() === new Date(Date.now() + 86400000).toDateString()) ||
             (selectedDeadline === 'Past' && queryDeadline < new Date() && queryDeadline.toDateString() !== new Date().toDateString());
-
+    
         const matchesEnrollStatus = selectedEnrollStatus === 'All' ||
             (selectedEnrollStatus === 'Enroll' && query.addmission) ||
             (selectedEnrollStatus === 'Pending' && !query.addmission);
-
-        return matchesGrade && matchesDeadline && matchesEnrollStatus;
+    
+        // Check if any of the student-related fields match the searchTerm
+        const matchesSearchTerm =
+            query.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            query.studentContact.phoneNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            query.studentContact.city.toLowerCase().includes(searchTerm.toLowerCase());
+    
+        // Combine all the conditions
+        return matchesGrade && matchesDeadline && matchesEnrollStatus && matchesSearchTerm;
     });
+    
 
     const sortedQueries = filteredQueries.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
@@ -110,36 +124,51 @@ export default function Assigned() {
                                                 </td>
                                             </tr>
                                         ) : currentQueries.length > 0 ? (
-                                            currentQueries.map((query, index) => {
-                                                const deadline = new Date(query.deadline);
-                                                const isToday = deadline.toDateString() === new Date().toDateString();
-                                                const isPastDeadline = deadline < new Date();
-                                                const isIn24Hours = deadline.toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString();
-                                                const isIn48Hours = deadline.toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString();
+                                            currentQueries
+                                                .sort((a, b) => {
+                                                    const gradeOrder = { 'A': 1, 'B': 2, 'C': 3, 'D': 4, 'F': 5 };
+                                                    return gradeOrder[a.grade] - gradeOrder[b.grade];
+                                                })
+                                                .map((query, index) => {
+                                                    const deadline = new Date(query.deadline);
+                                                    const isToday = deadline.toDateString() === new Date().toDateString();
+                                                    const isPastDeadline = deadline < new Date();
+                                                    const isIn24Hours = deadline.toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString();
+                                                    const isIn48Hours = deadline.toDateString() === new Date(Date.now() + 48 * 60 * 60 * 1000).toDateString();
 
-                                                // Define the row class based on conditions
-                                                const rowClass = query.addmission
-                                                    ? 'bg-[#6cb049] text-white'
-                                                    : isToday ? 'bg-red-500 text-white'
-                                                        : isPastDeadline ? 'bg-gray-800 text-white animate-blink'
-                                                            : isIn24Hours ? 'bg-[#fcccba] text-black'
-                                                                : isIn48Hours ? 'bg-[#ffe9bf] text-black'
-                                                                    : '';
+                                                    // Define the row class based on conditions
+                                                    const rowClass = query.addmission
+                                                        ? 'bg-[#6cb049] text-white'
+                                                        : query.grade === 'A'
+                                                            ? 'bg-yellow-400 text-black'
+                                                            : query.grade === 'B'
+                                                                ? 'bg-blue-800 text-white'
+                                                                : query.grade === 'C'
+                                                                    ? 'bg-blue-500 text-white'
+                                                                    : isToday
+                                                                        ? 'bg-red-500 text-white'
+                                                                        : isPastDeadline
+                                                                            ? 'bg-gray-800 text-white animate-blink'
+                                                                            : isIn24Hours
+                                                                                ? 'bg-[#fcccba] text-black'
+                                                                                : isIn48Hours
+                                                                                    ? 'bg-[#ffe9bf] text-black'
+                                                                                    : '';
 
-                                                return (
-                                                    <tr
-                                                        key={query._id}
-                                                        className={`border-b cursor-pointer transition-colors duration-200 hover:opacity-90 ${rowClass}`}
-                                                        onClick={() => handleRowClick(query._id)}
-                                                    >
-                                                        <td className="px-6 py-1 font-semibold">{indexOfFirstQuery + index + 1}</td>
-                                                        <td className="px-6 py-1 font-semibold">{query.studentName}</td>
-                                                        <td className="px-6 py-1">{query.grade}</td>
-                                                        <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>
-                                                        <td className="px-6 py-1">{query.addmission ? 'Enroll' : 'Pending'}</td>
-                                                    </tr>
-                                                );
-                                            })
+                                                    return (
+                                                        <tr
+                                                            key={query._id}
+                                                            className={`border-b cursor-pointer transition-colors duration-200 hover:opacity-90 ${rowClass}`}
+                                                            onClick={() => handleRowClick(query._id)}
+                                                        >
+                                                            <td className="px-6 py-1 font-semibold">{indexOfFirstQuery + index + 1}</td>
+                                                            <td className="px-6 py-1 font-semibold">{query.studentName}</td>
+                                                            <td className="px-6 py-1">{query.grade}</td>
+                                                            <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>
+                                                            <td className="px-6 py-1">{query.addmission ? 'Enroll' : 'Pending'}</td>
+                                                        </tr>
+                                                    );
+                                                })
                                         ) : (
                                             <tr>
                                                 <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
@@ -150,6 +179,7 @@ export default function Assigned() {
                                     </tbody>
                                 </table>
                             </div>
+
 
                             {/* Pagination Controls */}
                             <div className="absolute bottom-0 left-0 right-0 bg-gray-100 py-2 px-4 flex justify-between">
@@ -213,18 +243,15 @@ export default function Assigned() {
                         </select>
                     </div>
 
-                    {/* Admission Status Filter */}
-                    <div className="shadow-lg rounded-lg bg-white p-4">
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Status</h3>
-                        <select
-                            className="w-full py-2 px-3 bg-gray-100 rounded"
-                            value={selectedEnrollStatus}
-                            onChange={(e) => setSelectedEnrollStatus(e.target.value)}
-                        >
-                            <option value="All">All</option>
-                            <option value="Enroll">Enroll</option>
-                            <option value="Pending">Pending</option>
-                        </select>
+                    <div className="shadow-lg rounded-lg bg-white p-6">
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Search by Name , Contact Number or City</h3>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            placeholder="Search by Name , Contact Number or City"
+                            className="w-full px-3 border border-gray-300 rounded focus:outline-none focus:ring-1 transition duration-200 ease-in-out"
+                        />
                     </div>
                 </div>
             </div>
