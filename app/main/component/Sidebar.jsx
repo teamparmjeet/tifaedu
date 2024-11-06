@@ -109,35 +109,35 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
               </Link>
 
-
-              <li
-                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-              >
-                <ListTodo size={18} />
-                Assigned Query
-              </li>
-
-              <li
-                className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                  }`}
-              >
-                <Rocket size={18} />
-                Important Queries
-              </li>
-
-              <Link href="/main/page/staff">
+              <Link href="/main/page/undervisit">
                 <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/staff") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
-                    }`}>
-                  <Users size={18} />
-                  Team
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  <ListTodo size={18} />
+                  Under Visit Querys
                 </li>
-              </Link>
-              <li className="cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md hover:bg-gray-100 text-gray-700">
-                <Gauge size={18} />
-                Daily Report
-              </li>
+                </Link>
+                <li
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                    }`}
+                >
+                  <Rocket size={18} />
+                  Important Queries
+                </li>
+
+                <Link href="/main/page/staff">
+                  <li
+                    className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/staff") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                      }`}>
+                    <Users size={18} />
+                    Team
+                  </li>
+                </Link>
+                <li className="cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md hover:bg-gray-100 text-gray-700">
+                  <Gauge size={18} />
+                  Daily Report
+                </li>
             </ul>
 
             <ul className="flex h-full flex-col relative xl:hidden overflow-y-auto" style={{ maxHeight: "calc(100vh - 120px)" }}>

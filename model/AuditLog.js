@@ -6,6 +6,13 @@ const QueryUpdateSchema = new Schema({
     required: true
   },
 
+  grade: {
+    type: String,
+    enum: ['A', 'B', 'C', 'Null'],
+    default: 'Null',
+    required: true
+  },
+
   actionby: {
     type: String,
     default: "null",
@@ -63,8 +70,8 @@ const QueryUpdateSchema = new Schema({
 
   message: {
     type: String,
-    default:"null",
-    required:true
+    default: "null",
+    required: true
   },
 
   stage: {
@@ -87,19 +94,19 @@ const QueryUpdateSchema = new Schema({
 
   history: [
     {
-        action: String,
-        stage: String,
-        actionBy: String,
-        actionDate: { type: Date, default: Date.now },
-        changes: {
-            type: Map,
-            of: {
-                oldValue: Schema.Types.Mixed,
-                newValue: Schema.Types.Mixed,
-            },
+      action: String,
+      stage: String,
+      actionBy: String,
+      actionDate: { type: Date, default: Date.now },
+      changes: {
+        type: Map,
+        of: {
+          oldValue: Schema.Types.Mixed,
+          newValue: Schema.Types.Mixed,
         },
+      },
     },
-],
+  ],
 
   wrongNo: {
     type: Boolean,
@@ -108,11 +115,11 @@ const QueryUpdateSchema = new Schema({
 
   autoClose: {
     type: Boolean,
-    default: false 
+    default: false
   }
 }, { timestamps: true });
 
 
-const QueryUpdateModel = mongoose.models.Queryupdate9 || mongoose.model('Queryupdate9', QueryUpdateSchema);
+const QueryUpdateModel = mongoose.models.Queryupdate10 || mongoose.model('Queryupdate10', QueryUpdateSchema);
 
 export default QueryUpdateModel;
