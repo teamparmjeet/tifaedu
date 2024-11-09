@@ -575,7 +575,7 @@ export default function Page() {
 
                                 <div className="sm:col-span-6 col-span-12">
                                     <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">
-                                        Status
+                                        Status <span className=" text-xs bg-blue-200 px-2 rounded-md text-white">Only fill out if you are calling the user.</span>
                                     </label>
                                     <select
                                         id="interestStatus"
