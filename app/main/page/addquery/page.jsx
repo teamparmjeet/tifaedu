@@ -248,6 +248,28 @@ export default function Page() {
 
                 {/* {error && <div className="text-red-500">{error}</div>}
                 {success && <div className="text-green-500">{success}</div>} */}
+                {formData.referenceid === 'Online' && (
+                    <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded-md shadow-md  inline-block animate-bounce">
+                        <div className="flex items-center">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6 mr-2 text-blue-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 16h-1v-4h-1m-1-4h.01M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7m16-5h-6m-6 5h.01M12 8v4m0 4h.01m-6-8h6m-6 4h6"
+                                />
+                            </svg>
+                            <p className="font-semibold">Online Admission Form</p>
+                        </div>
+
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="px-5 py-3 space-y-3">
                     <div className="grid grid-cols-12 gap-4">
