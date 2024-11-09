@@ -23,7 +23,8 @@ export async function POST(req, res) {
 
         return Response.json({
             message: "Query and Audit Log Added Successfully",
-            success: true 
+            success: true,
+            queryId: newQuery._id 
         }, { status: 200 });
 
     } catch (error) {

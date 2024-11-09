@@ -35,11 +35,11 @@ export default function Page() {
         qualification: "",
         profession: "",
         professiontype: "null",
-        reference_name: "null"
-
-
+        reference_name: "null",
+        addmission: false,
+        autoclosed: "open"
     });
-
+    const [interestStatus, setInterestStatus] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -194,6 +194,17 @@ export default function Page() {
 
 
 
+    const handleInterestChange = (e) => {
+        const selectedStatus = e.target.value;
+        setInterestStatus(selectedStatus);
+
+        // Update formData based on the selected status
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            addmission: selectedStatus === "admission",
+            autoclosed: selectedStatus === "not_interested" || selectedStatus === "wrong_no" ? "close" : "open"
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -202,12 +213,45 @@ export default function Page() {
         setSuccess("");
 
         try {
-
+            // First API call to add the query
             const response = await axios.post("/api/queries/add", formData);
+
             if (response.status === 200) {
+                const { queryId } = response.data;
                 setSuccess("Query successfully Added!");
-                toast.success("Query successfully Added!")
-                // window.location.reload();
+                toast.success("Query successfully Added!");
+
+                // Check if audit API call is required based on the selected interest status
+                if (["not_connected", "not_lifting", "wrong_no"].includes(interestStatus)) {
+                    // Run the audit API call
+                    await axios.patch("/api/audit/update", { queryId, connectionStatus: interestStatus });
+                }
+                if (interestStatus === "ready_visit") {
+                    await axios.patch("/api/audit/update", { queryId, stage: 5 });
+                }
+                // Now check if the query needs to be auto-closed based on additional criteria
+                if (
+                    interestStatus === 'wrong_no' ||  // Check if the status is 'wrong_no'
+                    formData.suboption === 'not_interested' ||  // Check if the subOption is 'not_interested'
+                    statusCountsUpdate.busy >= 3 ||  // Check if the busy count reaches 3
+                    statusCountsUpdate.call_back >= 3 ||  // Check if the call_back count reaches 3
+                    statusCountsUpdate.switch_off >= 3 ||  // Check if the switch_off count reaches 3
+                    statusCountsUpdate.network_error >= 3  // Check if the network_error count reaches 3
+                ) {
+                    // Second API call to auto-close the query if conditions are met
+                    const newApiResponse = await axios.patch('/api/queries/update', {
+                        id: queryId,
+                        autoclosed: 'close', // Close the query if conditions are met
+                    });
+
+                    if (newApiResponse.status === 200) {
+                        console.log('Query auto-closed successfully:', newApiResponse.data);
+                    } else {
+                        console.error('Error in auto-closing query:', newApiResponse.statusText);
+                    }
+                }
+
+                // Reset form data after successful submission
                 setFormData({
                     userid: adminData._id,
                     studentName: "",
@@ -223,19 +267,21 @@ export default function Page() {
                     deadline: "",
                     branch: "",
                     notes: "",
-
                     qualification: "",
                     profession: "",
                     professiontype: "",
-                    reference_name: ""
+                    reference_name: "",
                 });
             }
         } catch (err) {
             setError("Failed to Add Query. Please try again.");
+            console.error("Error adding query:", err);
         } finally {
             setLoading(false);
+            window.location.reload();
         }
     };
+
 
     return (
         <div className="container lg:w-[90%] mx-auto py-5">
@@ -527,7 +573,25 @@ export default function Page() {
 
                                 </div>
 
-
+                                <div className="sm:col-span-6 col-span-12">
+                                    <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">
+                                        Status
+                                    </label>
+                                    <select
+                                        id="interestStatus"
+                                        value={interestStatus}
+                                        onChange={handleInterestChange}
+                                        className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                                    >
+                                        <option value="" disabled>Select Interest Status</option>
+                                        <option value="admission">Enrolled</option>
+                                        <option value="not_interested">Not Interested</option>
+                                        <option value="ready_visit">Ready for Visit</option>
+                                        <option value="not_connected">Not Connected</option>
+                                        <option value="not_lifting">Not Lifting</option>
+                                        <option value="wrong_no">Wrong Number</option>
+                                    </select>
+                                </div>
 
 
                                 <div className="col-span-12">
@@ -546,27 +610,26 @@ export default function Page() {
 
                             </>
                         ) : (
-                            <div className="col-span-12">
-                                <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">Interest Status</label>
-                                <select
-                                    name="interestStatus"
-                                    value={formData.interestStatus}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            interestStatus: e.target.value,
-                                        })
-                                    }
-                                    className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-                                >
-                                    <option value="" disabled selected>Select Interest Status</option>
-                                    <option value="Interested">Interested</option>
-                                    <option value="Not Interested">Not Interested</option>
-                                    <option value="no_connected">No Connected</option>
-                                    <option value="not_lifting">Not Lifting</option>
-                                    <option value="wrong_no">Wrong Number</option>
-                                </select>
-                            </div>
+                            <div className="sm:col-span-6 col-span-12">
+                                    <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">
+                                        Status
+                                    </label>
+                                    <select
+                                        id="interestStatus"
+                                        value={interestStatus}
+                                        onChange={handleInterestChange}
+                                        className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                                    >
+                                        <option value="" disabled>Select Interest Status</option>
+                                        <option value="Interested">Interested</option>
+                                        <option value="admission">Enrolled</option>
+                                        <option value="not_interested">Not Interested</option>
+                                        <option value="ready_visit">Ready for Visit</option>
+                                        <option value="not_connected">Not Connected</option>
+                                        <option value="not_lifting">Not Lifting</option>
+                                        <option value="wrong_no">Wrong Number</option>
+                                    </select>
+                                </div>
                         )}
 
                     </div>
