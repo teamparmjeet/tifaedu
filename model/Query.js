@@ -3,15 +3,19 @@ import mongoose, { Schema } from "mongoose";
 const querySchema = new Schema({
     userid: {
         type: String,
-        required: true,
+        
         default: "null"
     },
     referenceid: {
         type: String,
-        required: true,
+        
         default: "null"
     },
-
+    suboption: {
+        type: String,
+        
+        default: "null"
+    },
     demo: {
         type: Boolean,
         default: false
@@ -20,13 +24,13 @@ const querySchema = new Schema({
 
     studentName: {
         type: String,
-        required: true,
+        
     },
     studentContact: {
-        phoneNumber: { type: String, required: true },
-        whatsappNumber: { type: String, required: true },
-        address: { type: String, required: true },
-        city: { type: String, required: true },
+        phoneNumber: { type: String,  default: "Not_Provided" },
+        whatsappNumber: { type: String,  default: "Not_Provided" },
+        address: { type: String,  default: "Not_Provided" },
+        city: { type: String,  default: "Not_Provided" },
     },
 
 
@@ -34,23 +38,23 @@ const querySchema = new Schema({
     // New ---
     qualification: {
         type: String,
-        required: true,
+        
+        default: "Not_Provided"
     },
     profession: {
         type: String,
-        enum: ["Student", "Working"],
-        required: true,
+       
     },
     professiontype: {
         type: String,
-        required: true,
+        
         default: "null"
 
     },
 
     reference_name: {
         type: String,
-        required: true,
+        
         default: "null"
     },
     // ---
@@ -60,24 +64,27 @@ const querySchema = new Schema({
 
     courseInterest: {
         type: String,
-        required: true,
+        
+        default: "Not_Provided"
     },
     deadline: {
         type: String,
-        required: true
+        
+        default: "Not_Provided"
     },
     lastDeadline: {
         type: String,
+        default: "Not_Provided"
     },
 
     assignedTo: {
         type: String,
         default: "Not-Assigned",
-        required: true,
+        
     },
     branch: {
         type: String,
-        required: true,
+        default: "Not_Provided"
     },
 
     autoclosed: {
@@ -94,7 +101,7 @@ const querySchema = new Schema({
     },
     defaultdata: {
         type: String,
-        required: true,
+        
         default: "query"
     }
 }, { timestamps: true });
@@ -109,5 +116,5 @@ querySchema.pre('save', function (next) {
 });
 
 const QueryModel =
-    mongoose.models.Queries20 || mongoose.model('Queries20', querySchema);
+    mongoose.models.Queries25 || mongoose.model('Queries25', querySchema);
 export default QueryModel;

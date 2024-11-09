@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Loader from '@/components/Loader/Loader';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function UnderVisit() {
     // Updated state variable for grade filtering
@@ -12,17 +13,38 @@ export default function UnderVisit() {
     const [selectedDeadline, setSelectedDeadline] = useState('All');
     const [selectedEnrollStatus, setSelectedEnrollStatus] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const { data: session } = useSession();
+    const [adminData, setAdminData] = useState(null);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const router = useRouter();
 
+
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+          try {
+            const response = await axios.get(`/api/admin/find-admin-byemail/${session?.user?.email}`);
+            setAdminData(response.data.branch); // Make sure response.data contains branch and _id
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        if (session?.user?.email) fetchAdminData();
+      }, [session]);
+
+
+
     useEffect(() => {
         const fetchQueryData = async () => {
             try {
                 setLoading(true);
-                const { data } = await axios.get(`/api/queries/fetchgrade/query`);
+                const { data } = await axios.get(`/api/queries/fetchgrade-bybranch/${adminData}`);
                 setQueries(data.queries);
             } catch (error) {
                 console.error('Error fetching query data:', error);
@@ -208,7 +230,7 @@ export default function UnderVisit() {
                 <div className="w-full lg:w-1/3 space-y-6">
                     {/* Grade Filter */}
                     <div className="shadow-lg rounded-lg bg-white p-4">
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Grade</h3>
+                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Grade</h3>{adminData}
                         <div className="space-y-2">
                             {gradeOptions.map((grade) => (
                                 <button
