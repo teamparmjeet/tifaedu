@@ -286,7 +286,10 @@ export default function Page() {
     return (
         <div className="container lg:w-[90%] mx-auto py-5">
             <Toaster />
-            <div className="bg-white shadow-lg   overflow-hidden border border-gray-200">
+            <div
+                className={`${formData.referenceid === 'Online' ? 'bg-blue-100' : 'bg-white'
+                    } shadow-lg overflow-hidden border border-gray-200`}
+            >
                 <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
                     <h1 className="text-lg font-bold">Add New Query</h1>
                 </div>
@@ -410,7 +413,7 @@ export default function Page() {
                             />
                         </div>
 
-                        {formData.referenceid !== 'Online' || formData.interestStatus === 'Interested' ? (
+                        {formData.referenceid !== 'Online' || interestStatus === 'Interested' ? (
                             <>
 
 
@@ -611,25 +614,25 @@ export default function Page() {
                             </>
                         ) : (
                             <div className="sm:col-span-6 col-span-12">
-                                    <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">
-                                        Status
-                                    </label>
-                                    <select
-                                        id="interestStatus"
-                                        value={interestStatus}
-                                        onChange={handleInterestChange}
-                                        className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
-                                    >
-                                        <option value="" disabled>Select Interest Status</option>
-                                        <option value="Interested">Interested</option>
-                                        <option value="admission">Enrolled</option>
-                                        <option value="not_interested">Not Interested</option>
-                                        <option value="ready_visit">Ready for Visit</option>
-                                        <option value="not_connected">Not Connected</option>
-                                        <option value="not_lifting">Not Lifting</option>
-                                        <option value="wrong_no">Wrong Number</option>
-                                    </select>
-                                </div>
+                                <label htmlFor="interestStatus" className="block text-[15px] text-gray-700">
+                                    Status
+                                </label>
+                                <select
+                                    id="interestStatus"
+                                    value={interestStatus}
+                                    onChange={handleInterestChange}
+                                    className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                                >
+                                    <option value="" disabled>Select Interest Status</option>
+                                    <option value="Interested">Interested</option>
+                                    <option value="admission">Enrolled</option>
+                                    <option value="not_interested">Not Interested</option>
+                                    <option value="ready_visit">Ready for Visit</option>
+                                    <option value="not_connected">Not Connected</option>
+                                    <option value="not_lifting">Not Lifting</option>
+                                    <option value="wrong_no">Wrong Number</option>
+                                </select>
+                            </div>
                         )}
 
                     </div>
