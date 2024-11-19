@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -53,6 +53,17 @@ export default function Page() {
     const sessionEnd = new Date(currentYear + 1, 2, 31); // March 31 of the next year
     const formatDate = (date) => date.toISOString().split('T')[0];
 
+    const inputRefs = useRef([]);
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission on Enter
+            const nextInput = inputRefs.current[index + 1];
+            if (nextInput) {
+                nextInput.focus();
+            }
+        }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -334,7 +345,8 @@ export default function Page() {
                             <label htmlFor="referenceid" className="block text-[15px] text-gray-700">
                                 Reference Type
                             </label>
-                            <select name="referenceid" value={formData.referenceid} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                            <select name="referenceid" ref={(el) => (inputRefs.current[0] = el)} // Assign ref
+                                onKeyDown={(e) => handleKeyDown(e, 0)} value={formData.referenceid} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                 <option value="" disabled selected>Select Reference</option>
                                 {referenceData.map((data, index) => (
                                     <option key={index} value={data.referencename}>{data.referencename}</option>
@@ -397,6 +409,8 @@ export default function Page() {
                                 placeholder="Enter Student Name"
                                 value={formData.studentName}
                                 onChange={handleChange}
+                                ref={(el) => (inputRefs.current[1] = el)} // Assign ref
+                                onKeyDown={(e) => handleKeyDown(e, 1)}
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
                         </div>
@@ -413,6 +427,8 @@ export default function Page() {
                                         value="Male"
                                         checked={formData.gender === "Male"}
                                         onChange={handleChange}
+                                        ref={(el) => (inputRefs.current[2] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 2)}
                                         className="h-4 w-4 text-[#6cb049] border-gray-300 focus:ring-[#6cb049]"
                                     />
                                     <span className="ml-2 text-sm">Male</span>
@@ -449,6 +465,10 @@ export default function Page() {
                             <PhoneInput
                                 country={"in"}
                                 value={formData.studentContact.phoneNumber}
+                                inputProps={{
+                                    ref: (el) => (inputRefs.current[3] = el), // Assign ref
+                                    onKeyDown: (e) => handleKeyDown(e, 3),
+                                }}
                                 onChange={(phone) =>
                                     setFormData({
                                         ...formData,
@@ -468,6 +488,10 @@ export default function Page() {
                                     <PhoneInput
                                         country={"in"}
                                         value={formData.studentContact.whatsappNumber}
+                                        inputProps={{
+                                            ref: (el) => (inputRefs.current[4] = el), // Assign ref
+                                            onKeyDown: (e) => handleKeyDown(e, 4),
+                                        }}
                                         onChange={(phone) =>
                                             setFormData({
                                                 ...formData,
@@ -488,6 +512,8 @@ export default function Page() {
                                         name="qualification"
                                         placeholder="Enter Qualification"
                                         value={formData.qualification}
+                                        ref={(el) => (inputRefs.current[5] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 5)}
                                         onChange={handleChange}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     />
@@ -502,6 +528,8 @@ export default function Page() {
                                         name="profession"
                                         value={formData.profession}
                                         onChange={handleChange}
+                                        ref={(el) => (inputRefs.current[6] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 6)}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     >
                                         <option value="" disabled>Select Profession</option>
@@ -533,7 +561,8 @@ export default function Page() {
                                     <label htmlFor="courseInterest" className="block text-[15px] text-gray-700">
                                         Course Interest
                                     </label>
-                                    <select name="courseInterest" value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                    <select name="courseInterest"  ref={(el) => (inputRefs.current[7] = el)} // Assign ref
+                                    onKeyDown={(e) => handleKeyDown(e, 7)} value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                         <option value="" disabled selected>Select Course</option>
                                         {allCourses.map((allCourses, index) => (
                                             <option key={index} value={allCourses._id}>{allCourses.course_name}</option>
@@ -547,7 +576,8 @@ export default function Page() {
                                         <label htmlFor="city" className="block text-[15px] text-gray-700">
                                             City
                                         </label>
-                                        <select name="studentContact.city" value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[8] = el)} // Assign ref
+                                    onKeyDown={(e) => handleKeyDown(e, 8)} value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                             <option value="" disabled selected>Select City</option>
                                             <option value="Jaipur" >Jaipur</option>
                                             <option value="Out of Jaipur" >Out of Jaipur</option>
@@ -562,7 +592,8 @@ export default function Page() {
                                         <label htmlFor="city" className="block text-[15px] text-gray-700">
                                             City
                                         </label>
-                                        <select name="studentContact.city" value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[9] = el)} // Assign ref
+                                    onKeyDown={(e) => handleKeyDown(e, 9)}  value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                             <option value="" disabled selected>Select City</option>
                                             {Citylist.map((stateItem, index) =>
                                                 stateItem.cities.map((city, cityIndex) => (
@@ -584,6 +615,8 @@ export default function Page() {
                                     <Address
                                         value={formData.studentContact.address}
                                         onChange={handleChange}
+                                        ref={(el) => (inputRefs.current[9] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 9)}
                                     />
                                 </div>
 
@@ -600,6 +633,8 @@ export default function Page() {
                                             onChange={handleChange}
                                             min={formatDate(sessionStart)}
                                             max={formatDate(sessionEnd)}
+                                            ref={(el) => (inputRefs.current[10] = el)} // Assign ref
+                                            onKeyDown={(e) => handleKeyDown(e, 10)}
                                             className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                         />
                                         <span className="absolute top-0 left-0  bottom-0 flex items-center justify-center px-2 py-2 text-gray-500 bg-white border border-r-0  text-sm">
@@ -613,7 +648,8 @@ export default function Page() {
                                     <label htmlFor="branch" className="block text-[15px] text-gray-700">
                                         Branch
                                     </label>
-                                    <select name="branch" value={formData.branch} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                    <select name="branch"  ref={(el) => (inputRefs.current[11] = el)} // Assign ref
+                                    onKeyDown={(e) => handleKeyDown(e, 11)} value={formData.branch} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                         <option value="" disabled selected>Select Branch</option>
                                         {branches.map((branch, index) => (
                                             <option key={index} value={branch.branch_name}>{branch.branch_name}</option>
@@ -630,6 +666,8 @@ export default function Page() {
                                         id="interestStatus"
                                         value={interestStatus}
                                         onChange={handleInterestChange}
+                                        ref={(el) => (inputRefs.current[12] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 12)}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     >
                                         <option value="" disabled>Select Interest Status</option>
@@ -652,6 +690,8 @@ export default function Page() {
                                         name="notes"
                                         placeholder="Write Note"
                                         value={formData.notes}
+                                        ref={(el) => (inputRefs.current[13] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 13)}
                                         onChange={handleChange}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     />

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Input from '@/components/input/Input';
 import toast, { Toaster } from 'react-hot-toast';
@@ -19,6 +19,10 @@ export default function Page() {
     });
     const [loading, setLoading] = useState(false);
     const [branchLoading, setBranchLoading] = useState(true);
+
+
+    const inputRefs = useRef([]);
+
 
     useEffect(() => {
         const fetchBranchData = async () => {
@@ -49,6 +53,18 @@ export default function Page() {
             mobile
         });
     };
+
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent form submission on Enter
+            const nextInput = inputRefs.current[index + 1];
+            if (nextInput) {
+                nextInput.focus();
+            }
+        }
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -89,6 +105,8 @@ export default function Page() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
+                                    ref={(el) => (inputRefs.current[0] = el)} // Assign ref
+                                    onKeyDown={(e) => handleKeyDown(e, 0)}
                                     icon={<User size={15} />}
                                     required
                                 />
@@ -101,6 +119,10 @@ export default function Page() {
                             country={"in"}
                             value={formData.mobile}
                             onChange={handlePhoneChange}
+                            inputProps={{
+                                ref: (el) => (inputRefs.current[1] = el), // Assign ref
+                                onKeyDown: (e) => handleKeyDown(e, 1),
+                            }}
                             className="w-full rounded-none"
                             required
                         />
@@ -113,6 +135,10 @@ export default function Page() {
                                 name="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
+                                inputProps={{
+                                    ref: (el) => (inputRefs.current[2] = el),
+                                    onKeyDown: (e) => handleKeyDown(e, 2),
+                                }}
                                 icon={<Mail size={15} />}
                                 required
                             />
@@ -126,6 +152,8 @@ export default function Page() {
                                 name="password"
                                 value={formData.password}
                                 onChange={handleInputChange}
+                                ref={(el) => (inputRefs.current[3] = el)} // Assign ref
+                                onKeyDown={(e) => handleKeyDown(e, 3)}
                                 icon={<Lock size={15} />}
                                 required
                             />
@@ -140,6 +168,8 @@ export default function Page() {
                                 id="usertype"
                                 value={formData.usertype}
                                 onChange={handleInputChange}
+                                ref={(el) => (inputRefs.current[4] = el)} // Assign ref
+                                onKeyDown={(e) => handleKeyDown(e, 4)}
                                 className="block w-full px-7 py-3 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                 required
                             >
@@ -161,6 +191,8 @@ export default function Page() {
                                 id="branch"
                                 value={formData.branch}
                                 onChange={handleInputChange}
+                                ref={(el) => (inputRefs.current[5] = el)} // Assign ref
+                                onKeyDown={(e) => handleKeyDown(e, 5)}
                                 className="block w-full px-7 py-3 text-gray-500 bg-white border border-gray-200 rounded-md appearance-none placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                 required
                             >
