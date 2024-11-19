@@ -24,7 +24,12 @@ const querySchema = new Schema({
 
     studentName: {
         type: String,
-        
+    },
+
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other'], 
+        required: true,
     },
     studentContact: {
         phoneNumber: { type: String,  default: "Not_Provided" },
@@ -116,5 +121,5 @@ querySchema.pre('save', function (next) {
 });
 
 const QueryModel =
-    mongoose.models.Queries25 || mongoose.model('Queries25', querySchema);
+    mongoose.models.Queries26 || mongoose.model('Queries26', querySchema);
 export default QueryModel;

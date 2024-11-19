@@ -7,6 +7,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { useSession } from 'next-auth/react';
 import { Citylist } from "@/constants/City";
 import Address from "@/components/Address/Address"
+
 export default function Page() {
     const [branches, setBranches] = useState([]);
     const [allCourses, setAllCourses] = useState([]); // Store all courses
@@ -21,6 +22,7 @@ export default function Page() {
         referenceid: "",
         suboption: "null",
         studentName: "",
+        gender: "",
         studentContact: {
             phoneNumber: "",
             whatsappNumber: "",
@@ -176,6 +178,7 @@ export default function Page() {
             (formData.referenceid === 'Online' && formData.studentContact.phoneNumber) || // Only phone number required if referenceid is 'Online'
             (
                 formData.studentName &&
+                formData.gender &&
                 formData.referenceid &&
                 formData.studentContact.phoneNumber &&
                 formData.studentContact.whatsappNumber &&
@@ -255,6 +258,7 @@ export default function Page() {
                 setFormData({
                     userid: adminData._id,
                     studentName: "",
+                    gender: "",
                     referenceid: "",
                     suboption: "",
                     studentContact: {
@@ -287,7 +291,7 @@ export default function Page() {
         <div className="container lg:w-[90%] mx-auto py-5">
             <Toaster />
             <div
-                className={`${formData.referenceid === 'Online' ? 'bg-blue-100' : 'bg-white'
+                className={`${formData.referenceid === 'Online' ? ' bg-online' : 'bg-white'
                     } shadow-lg overflow-hidden border border-gray-200`}
             >
                 <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
@@ -396,6 +400,48 @@ export default function Page() {
                                 className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
                         </div>
+
+                        <div className="sm:col-span-6 col-span-12">
+                            <label htmlFor="gender" className="block text-[15px] text-gray-700">
+                                Student Gender
+                            </label>
+                            <div className="mt-2 flex items-center gap-4">
+                                <label className="flex items-center text-gray-600">
+                                    <input
+                                        type="radio"
+                                        name="gender"
+                                        value="Male"
+                                        checked={formData.gender === "Male"}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-[#6cb049] border-gray-300 focus:ring-[#6cb049]"
+                                    />
+                                    <span className="ml-2 text-sm">Male</span>
+                                </label>
+                                <label className="flex items-center text-gray-600">
+                                    <input
+                                        type="radio"
+                                        name="gender"
+                                        value="Female"
+                                        checked={formData.gender === "Female"}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-[#6cb049] border-gray-300 focus:ring-[#6cb049]"
+                                    />
+                                    <span className="ml-2 text-sm">Female</span>
+                                </label>
+                                <label className="flex items-center text-gray-600">
+                                    <input
+                                        type="radio"
+                                        name="gender"
+                                        value="Other"
+                                        checked={formData.gender === "Other"}
+                                        onChange={handleChange}
+                                        className="h-4 w-4 text-[#6cb049] border-gray-300 focus:ring-[#6cb049]"
+                                    />
+                                    <span className="ml-2 text-sm">Other</span>
+                                </label>
+                            </div>
+                        </div>
+
 
 
                         <div className="sm:col-span-6 col-span-12">
