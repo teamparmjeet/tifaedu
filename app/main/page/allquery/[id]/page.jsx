@@ -83,14 +83,33 @@ export default function Page({ params }) {
                 <div className="sticky top-5">
                     <div className="flex flex-col">
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={async () => {
+                                if (query.autoclosed === "close") {
+                                    try {
+                                        // Call the update API to change autoclosed to "open"
+                                        const newApiResponse = await axios.patch('/api/queries/update', {
+                                            id: query._id,
+                                            autoclosed: "open"  // Change autoclosed to "open" when recovering query
+                                        });
+
+                                        // Optionally, refresh data after the update
+                                        fetchBranchData();
+                                    } catch (error) {
+                                        console.error("Error updating query:", error);
+                                    }
+                                } else {
+                                    // Open the modal if query.autoclosed is not "close"
+                                    setIsModalOpen(true);
+                                }
+                            }}
                             className="mb-1 bg-[#29234b] w-full py-1 rounded-md text-white transition duration-300 ease-in-out hover:bg-[#3a2b6f] focus:outline-none focus:ring-2 focus:ring-[#ffbe98] focus:ring-opacity-50"
                         >
-                            Update
+                            {query.autoclosed === "close" ? "Recover Query" : "Update"}
                         </button>
 
                         <AssignedQuery refreshData={fetchBranchData} initialData={query} />
                     </div>
+
 
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
                         {query.studentName}

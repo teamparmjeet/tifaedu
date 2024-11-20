@@ -58,12 +58,20 @@
 
 .bg-online {
   position: relative;
-  background-image: url("../../public/image/profile/Your\ paragraph\ text\ \(1\).png");
+  background-image: url("../../public/image/profile/Your paragraph text (1).png");
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: 50%; /* Adjust this percentage as needed */
   width: 100%;
   height: 100%;
-  /* filter: blur(10px); */
-  background-position:top;
+  background-position: top center;
 }
 
+.bg-ofline {
+  position: relative;
+  background-image: url("../../public/image/profile/Your paragraph text (2).png");
+  background-repeat: no-repeat;
+  background-size: 50%; /* Adjust this percentage as needed */
+  width: 100%;
+  height: 100%;
+  background-position: top center;
+}

@@ -23,6 +23,7 @@ export default function Page() {
         suboption: "null",
         studentName: "",
         gender: "",
+        category: "",
         studentContact: {
             phoneNumber: "",
             whatsappNumber: "",
@@ -190,6 +191,7 @@ export default function Page() {
             (
                 formData.studentName &&
                 formData.gender &&
+                formData.category &&
                 formData.referenceid &&
                 formData.studentContact.phoneNumber &&
                 formData.studentContact.whatsappNumber &&
@@ -270,6 +272,7 @@ export default function Page() {
                     userid: adminData._id,
                     studentName: "",
                     gender: "",
+                    category: "",
                     referenceid: "",
                     suboption: "",
                     studentContact: {
@@ -302,9 +305,14 @@ export default function Page() {
         <div className="container lg:w-[90%] mx-auto py-5">
             <Toaster />
             <div
-                className={`${formData.referenceid === 'Online' ? ' bg-online' : 'bg-white'
+                className={`${formData.referenceid === 'Online'
+                    ? 'bg-online'
+                    : formData.referenceid === 'Ofline'
+                        ? 'bg-ofline'
+                        : 'bg-white'
                     } shadow-lg overflow-hidden border border-gray-200`}
             >
+
                 <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
                     <h1 className="text-lg font-bold">Add New Query</h1>
                 </div>
@@ -313,11 +321,11 @@ export default function Page() {
                 {/* {error && <div className="text-red-500">{error}</div>}
                 {success && <div className="text-green-500">{success}</div>} */}
                 {formData.referenceid === 'Online' && (
-                    <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-2 rounded-md shadow-md  inline-block animate-bounce">
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md  inline-block animate-bounce">
                         <div className="flex items-center">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6 mr-2 text-blue-500"
+                                className="h-6 w-6 mr-2 text-red-500"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -330,6 +338,29 @@ export default function Page() {
                                 />
                             </svg>
                             <p className="font-semibold">Online Admission Form</p>
+                        </div>
+
+                    </div>
+                )}
+
+                {formData.referenceid === 'Ofline' && (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md  inline-block animate-bounce">
+                        <div className="flex items-center">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6 mr-2 text-red-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M13 16h-1v-4h-1m-1-4h.01M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7m16-5h-6m-6 5h.01M12 8v4m0 4h.01m-6-8h6m-6 4h6"
+                                />
+                            </svg>
+                            <p className="font-semibold">Ofline Admission Form</p>
                         </div>
 
                     </div>
@@ -411,7 +442,7 @@ export default function Page() {
                                 onChange={handleChange}
                                 ref={(el) => (inputRefs.current[1] = el)} // Assign ref
                                 onKeyDown={(e) => handleKeyDown(e, 1)}
-                                className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
+                                className="block capitalize w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                             />
                         </div>
 
@@ -555,15 +586,30 @@ export default function Page() {
                                 )}
 
 
+                                <div className="sm:col-span-6 col-span-12">
+                                    <label htmlFor="category" className="block text-[15px] text-gray-700">
+                                        Category
+                                    </label>
+                                    <select name="category" ref={(el) => (inputRefs.current[7] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 7)} value={formData.category} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <option value="" disabled selected>Select category</option>
+                                        <option value="General">General</option>
+                                        <option value="ST">ST</option>
+                                        <option value="SC">SC</option>
+                                        <option value="OBC">OBC</option>
+                                        <option value="Other">Other</option>
+                                    </select>
 
+                                </div>
 
                                 <div className="sm:col-span-6 col-span-12">
                                     <label htmlFor="courseInterest" className="block text-[15px] text-gray-700">
                                         Course Interest
                                     </label>
-                                    <select name="courseInterest"  ref={(el) => (inputRefs.current[7] = el)} // Assign ref
-                                    onKeyDown={(e) => handleKeyDown(e, 7)} value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                    <select name="courseInterest" ref={(el) => (inputRefs.current[8] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 8)} value={formData.courseInterest} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                         <option value="" disabled selected>Select Course</option>
+                                        <option value="All Courses">All Course</option>
                                         {allCourses.map((allCourses, index) => (
                                             <option key={index} value={allCourses._id}>{allCourses.course_name}</option>
                                         ))}
@@ -576,8 +622,8 @@ export default function Page() {
                                         <label htmlFor="city" className="block text-[15px] text-gray-700">
                                             City
                                         </label>
-                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[8] = el)} // Assign ref
-                                    onKeyDown={(e) => handleKeyDown(e, 8)} value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[9] = el)} // Assign ref
+                                            onKeyDown={(e) => handleKeyDown(e, 9)} value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                             <option value="" disabled selected>Select City</option>
                                             <option value="Jaipur" >Jaipur</option>
                                             <option value="Out of Jaipur" >Out of Jaipur</option>
@@ -592,8 +638,8 @@ export default function Page() {
                                         <label htmlFor="city" className="block text-[15px] text-gray-700">
                                             City
                                         </label>
-                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[9] = el)} // Assign ref
-                                    onKeyDown={(e) => handleKeyDown(e, 9)}  value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <select name="studentContact.city" ref={(el) => (inputRefs.current[10] = el)} // Assign ref
+                                            onKeyDown={(e) => handleKeyDown(e, 10)} value={formData.studentContact.city} onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                             <option value="" disabled selected>Select City</option>
                                             {Citylist.map((stateItem, index) =>
                                                 stateItem.cities.map((city, cityIndex) => (
@@ -615,8 +661,8 @@ export default function Page() {
                                     <Address
                                         value={formData.studentContact.address}
                                         onChange={handleChange}
-                                        ref={(el) => (inputRefs.current[9] = el)} // Assign ref
-                                        onKeyDown={(e) => handleKeyDown(e, 9)}
+                                        ref={(el) => (inputRefs.current[10] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 10)}
                                     />
                                 </div>
 
@@ -633,8 +679,8 @@ export default function Page() {
                                             onChange={handleChange}
                                             min={formatDate(sessionStart)}
                                             max={formatDate(sessionEnd)}
-                                            ref={(el) => (inputRefs.current[10] = el)} // Assign ref
-                                            onKeyDown={(e) => handleKeyDown(e, 10)}
+                                            ref={(el) => (inputRefs.current[11] = el)} // Assign ref
+                                            onKeyDown={(e) => handleKeyDown(e, 11)}
                                             className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                         />
                                         <span className="absolute top-0 left-0  bottom-0 flex items-center justify-center px-2 py-2 text-gray-500 bg-white border border-r-0  text-sm">
@@ -648,8 +694,8 @@ export default function Page() {
                                     <label htmlFor="branch" className="block text-[15px] text-gray-700">
                                         Branch
                                     </label>
-                                    <select name="branch"  ref={(el) => (inputRefs.current[11] = el)} // Assign ref
-                                    onKeyDown={(e) => handleKeyDown(e, 11)} value={formData.branch} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                    <select name="branch" ref={(el) => (inputRefs.current[12] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 12)} value={formData.branch} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
                                         <option value="" disabled selected>Select Branch</option>
                                         {branches.map((branch, index) => (
                                             <option key={index} value={branch.branch_name}>{branch.branch_name}</option>
@@ -666,8 +712,8 @@ export default function Page() {
                                         id="interestStatus"
                                         value={interestStatus}
                                         onChange={handleInterestChange}
-                                        ref={(el) => (inputRefs.current[12] = el)} // Assign ref
-                                        onKeyDown={(e) => handleKeyDown(e, 12)}
+                                        ref={(el) => (inputRefs.current[13] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 13)}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200 placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     >
                                         <option value="" disabled>Select Interest Status</option>
@@ -690,8 +736,8 @@ export default function Page() {
                                         name="notes"
                                         placeholder="Write Note"
                                         value={formData.notes}
-                                        ref={(el) => (inputRefs.current[13] = el)} // Assign ref
-                                        onKeyDown={(e) => handleKeyDown(e, 13)}
+                                        ref={(el) => (inputRefs.current[14] = el)} // Assign ref
+                                        onKeyDown={(e) => handleKeyDown(e, 14)}
                                         onChange={handleChange}
                                         className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm"
                                     />
