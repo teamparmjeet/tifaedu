@@ -305,12 +305,7 @@ export default function Page() {
         <div className="container lg:w-[90%] mx-auto py-5">
             <Toaster />
             <div
-                className={`${formData.referenceid === 'Online'
-                    ? 'bg-online'
-                    : formData.referenceid === 'Ofline'
-                        ? 'bg-ofline'
-                        : 'bg-white'
-                    } shadow-lg overflow-hidden border border-gray-200`}
+                className=" shadow-lg overflow-hidden border border-gray-200"
             >
 
                 <div className="bg-[#29234b] text-white px-7 py-3 flex justify-between w-full">
@@ -337,13 +332,13 @@ export default function Page() {
                                     d="M13 16h-1v-4h-1m-1-4h.01M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7m16-5h-6m-6 5h.01M12 8v4m0 4h.01m-6-8h6m-6 4h6"
                                 />
                             </svg>
-                            <p className="font-semibold">Online Admission Form</p>
+                            <p className="font-semibold">On-line Admission Form</p>
                         </div>
 
                     </div>
                 )}
 
-                {formData.referenceid === 'Ofline' && (
+                {formData.referenceid === 'offline' && (
                     <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-2 rounded-md shadow-md  inline-block animate-bounce">
                         <div className="flex items-center">
                             <svg
@@ -360,7 +355,7 @@ export default function Page() {
                                     d="M13 16h-1v-4h-1m-1-4h.01M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2v-7m16-5h-6m-6 5h.01M12 8v4m0 4h.01m-6-8h6m-6 4h6"
                                 />
                             </svg>
-                            <p className="font-semibold">Ofline Admission Form</p>
+                            <p className="font-semibold">Off-line Admission Form</p>
                         </div>
 
                     </div>
@@ -408,7 +403,7 @@ export default function Page() {
                             </div>
                         )}
 
-                        {formData.referenceid === 'Ofline' && (
+                        {formData.referenceid === 'offline' && (
                             <div className="sm:col-span-6 col-span-12">
                                 <label htmlFor="reference_name" className="block text-[15px] text-gray-700">
                                     Reference Name

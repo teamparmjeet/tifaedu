@@ -4,7 +4,9 @@ import { useSession } from 'next-auth/react';
 
 export default function AssignedQuery({ initialData, refreshData }) {
     const [assignedTo, setAssignedTo] = useState(initialData.assignedTo);
+    const [orignaluser, setOrignaluser] = useState(initialData.userid);
     const [assignedUserDetails, setAssignedUserDetails] = useState(null);
+    const [matchorignaluser, setMatchorignaluser] = useState(null);
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
@@ -21,15 +23,18 @@ export default function AssignedQuery({ initialData, refreshData }) {
             setLoading(true);
             try {
                 const response = await axios.get('/api/admin/fetchall/admin');
-                setUsers(response.data.fetch);
-                setFilteredUsers(response.data.fetch);
+                const allUsers = response.data.fetch;
 
-                const matchedUser = response.data.fetch.find(user => user._id === initialData.assignedTo);
-                if (matchedUser) {
-                    setAssignedUserDetails(matchedUser);
-                } else {
-                    setAssignedUserDetails(null);
-                }
+                // Set user data and filtered users
+                setUsers(allUsers);
+                setFilteredUsers(allUsers);
+
+                // Find assigned user
+                const matchedUser = allUsers.find(user => user._id === initialData.assignedTo);
+                const matchOriginalUser = allUsers.find(user => user._id === initialData.userid);
+
+                setAssignedUserDetails(matchedUser || null); // Set matched user or null
+                setMatchorignaluser(matchOriginalUser || null); // Set matchOriginalUser or null
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 setError('Failed to fetch user data');
@@ -39,8 +44,8 @@ export default function AssignedQuery({ initialData, refreshData }) {
         };
 
         fetchUserData();
-    }, [initialData.assignedTo]);
-
+    }, [initialData.assignedTo, initialData.userid]);
+    const displayName = matchorignaluser?.name || '...';
     const handleUpdate = async () => {
         setLoading(true);
         setError('');
@@ -131,7 +136,7 @@ export default function AssignedQuery({ initialData, refreshData }) {
                         </p> */}
                     </div>
                 ) : (
-                    <p className="text-sm  text-gray-500">No Staff assigned</p>
+                    <p className="text-sm  text-gray-500">Created by : {displayName}</p>
                 )}
             </div>
 
