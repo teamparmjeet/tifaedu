@@ -22,8 +22,8 @@ export default function Page() {
         referenceid: "",
         suboption: "null",
         studentName: "",
-        gender: "",
-        category: "",
+        gender: "Not_Defined",
+        category: "Not_Defined",
         studentContact: {
             phoneNumber: "",
             whatsappNumber: "",
@@ -271,8 +271,8 @@ export default function Page() {
                 setFormData({
                     userid: adminData._id,
                     studentName: "",
-                    gender: "",
-                    category: "",
+                    gender: "Not_Defined",
+                    category: "Not_Defined",
                     referenceid: "",
                     suboption: "",
                     studentContact: {

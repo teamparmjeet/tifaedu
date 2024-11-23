@@ -28,14 +28,14 @@ const querySchema = new Schema({
 
     gender: {
         type: String,
-        enum: ['Male', 'Female', 'Other'], 
-        required: true,
+        enum: ['Male', 'Female', 'Other','Not_Defined'], 
+      
     },
 
     category: {
         type: String,
-        enum: ['General', 'ST', 'SC', 'OBC', 'Other'],
-        required: true,
+        enum: ['General', 'ST', 'SC', 'OBC', 'Other','Not_Defined'], 
+       
     },
     
     studentContact: {
@@ -128,5 +128,5 @@ querySchema.pre('save', function (next) {
 });
 
 const QueryModel =
-    mongoose.models.Queries27 || mongoose.model('Queries27', querySchema);
+    mongoose.models.Queries31 || mongoose.model('Queries31', querySchema);
 export default QueryModel;
