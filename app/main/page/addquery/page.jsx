@@ -226,11 +226,11 @@ export default function Page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (formData.studentContact?.phoneNumber && formData.studentContact.phoneNumber.length < 10) {
+        if (formData.studentContact?.phoneNumber && formData.studentContact.phoneNumber.length < 12) {
             toast.error("Phone number must be at least 10 digits");
             return;
         }
-        if (formData.studentContact?.whatsappNumber && formData.studentContact.whatsappNumber.length < 10) {
+        if (formData.studentContact?.whatsappNumber && formData.studentContact.whatsappNumber.length < 12) {
             toast.error("WhatsApp number must be at least 10 digits");
             return;
         }
@@ -600,7 +600,7 @@ export default function Page() {
                                     </label>
                                     <select name="category" ref={(el) => (inputRefs.current[7] = el)} // Assign ref
                                         onKeyDown={(e) => handleKeyDown(e, 7)} value={formData.category} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
-                                        <option value="" disabled selected>Select category</option>
+                                        <option value=""  selected>Select category</option>
                                         <option value="General">General</option>
                                         <option value="ST">ST</option>
                                         <option value="SC">SC</option>

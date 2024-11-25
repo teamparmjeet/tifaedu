@@ -140,7 +140,7 @@ export default function Header() {
                     </div>
                     <div className="lg:col-span-3 sm:col-span-1 col-span-1">
                         <div className='flex items-center justify-end gap-1 lg:gap-1'>
-                            <Link href="/staff/page/assigned">
+                         
                                 {showAlert && count > 0 && (
                                     <div className="bg-yellow-400 text-black font-bold rounded-full px-4 py-2 text-sm shadow-lg relative inline-flex items-center animated-border">
                                         <span className="absolute -top-1 -right-1 bg-red-800 text-white rounded-full h-4 w-4 flex items-center justify-center text-xs">
@@ -149,7 +149,7 @@ export default function Header() {
                                         Urgent Attention Required!
                                     </div>
                                 )}
-                            </Link>
+                          
 
                             <div className='sm:block hidden'>
                                 <Smallbtn icon={Settings} href="/staff/page/profile" />

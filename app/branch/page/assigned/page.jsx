@@ -155,7 +155,7 @@ export default function Assigned() {
                                         ) : currentQueries.length > 0 ? (
                                             currentQueries
                                                 .sort((a, b) => new Date(a.deadline) - new Date(b.deadline)) // Sort by deadline
-                                                .map((query) => {
+                                                .map((query,index) => {
 
                                                     const deadline = new Date(query.deadline);
                                                     const isToday = deadline.toDateString() === new Date().toDateString();

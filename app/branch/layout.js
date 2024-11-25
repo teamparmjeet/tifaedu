@@ -12,36 +12,19 @@ const roboto = Roboto({
 });
 
 export default function BranchLayout({ children }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default to closed
   const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    const handleResize = () => {
-      const isLargeScreen = window.innerWidth >= 1024;
-      // setIsLgScreen(isLargeScreen);
-      setIsSidebarOpen(isLargeScreen && pathname !== "/branch/page/allquery"); // Sidebar open by default on large screens, closed on /allquery
-    };
-
-    // Initial check on component mount
-    handleResize();
-
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup listener on component unmount
-    return () => window.removeEventListener("resize", handleResize);
+    // Close the sidebar whenever the route changes
+    setIsSidebarOpen(false);
   }, [pathname]);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  useEffect(() => {
-    // Automatically close sidebar when on "/branch/page/allquery"
-    if (pathname === "/branch/page/allquery") {
-      setIsSidebarOpen(false);
-      // setIsLgScreen(true)
-    }
-  }, [pathname]);
+
   const handleSidebarToggle = (isOpen) => {
     setIsSidebarOpen(isOpen);
   };
@@ -54,14 +37,9 @@ export default function BranchLayout({ children }) {
     <html lang="en">
       <body className={roboto.className}>
         <div className="h-screen flex flex-col">
-         
           <Header />
-
           <div className="flex flex-1 overflow-hidden">
-           
             <Sidebar onToggleSidebar={handleSidebarToggle} />
-
-         
             <div
               className={`flex-1 transition-all duration-300 overflow-auto ${isSidebarOpen ? "lg:ml-64" : "ml-0"}`}
             >
