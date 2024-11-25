@@ -68,7 +68,13 @@ export default function Page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (formData.mobile.length < 10) {
+            toast.error("Mobile number must be at least 10 digits");
+            return;
+        }
+    
         setLoading(true);
+    
 
         try {
             const response = await axios.post('/api/admin/create', formData);

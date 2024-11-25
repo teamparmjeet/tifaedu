@@ -22,6 +22,8 @@ export default function Page() {
         referenceid: "",
         suboption: "null",
         studentName: "",
+        assignedTo: "Not-Assigned",
+
         gender: "Not_Defined",
         category: "Not_Defined",
         studentContact: {
@@ -191,7 +193,7 @@ export default function Page() {
             (
                 formData.studentName &&
                 formData.gender &&
-                formData.category &&
+                formData.assignedTo &&
                 formData.referenceid &&
                 formData.studentContact.phoneNumber &&
                 formData.studentContact.whatsappNumber &&
@@ -224,6 +226,16 @@ export default function Page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (formData.studentContact?.phoneNumber && formData.studentContact.phoneNumber.length < 10) {
+            toast.error("Phone number must be at least 10 digits");
+            return;
+        }
+        if (formData.studentContact?.whatsappNumber && formData.studentContact.whatsappNumber.length < 10) {
+            toast.error("WhatsApp number must be at least 10 digits");
+            return;
+        }
+
+        setLoading(true);
         setLoading(true);
         setError("");
         setSuccess("");
@@ -273,6 +285,7 @@ export default function Page() {
                     studentName: "",
                     gender: "Not_Defined",
                     category: "Not_Defined",
+                    assignedTo: "Not-Assigned",
                     referenceid: "",
                     suboption: "",
                     studentContact: {
@@ -719,6 +732,20 @@ export default function Page() {
                                         <option value="not_lifting">Not Lifting</option>
                                         <option value="wrong_no">Wrong Number</option>
                                     </select>
+                                </div>
+
+                                <div className="sm:col-span-6 col-span-12">
+                                    <label htmlFor="assignedTo" className="block text-[15px] text-gray-700">
+                                        AssignedTo
+                                    </label>
+                                    <select name="assignedTo" value={formData.assignedTo} id="" onChange={handleChange} className="block w-full px-2 py-2 text-gray-500 bg-white border border-gray-200  placeholder:text-gray-400 focus:border-[#6cb049] focus:outline-none focus:ring-[#6cb049] sm:text-sm">
+                                        <option value="" disabled selected>Select name</option>
+                                        <option value="Not-Assigned" disabled selected>Not Assign</option>
+                                        {user.map((user, index) => (
+                                            <option key={index} value={user._id}>{user.name}</option>
+                                        ))}
+                                    </select>
+
                                 </div>
 
 

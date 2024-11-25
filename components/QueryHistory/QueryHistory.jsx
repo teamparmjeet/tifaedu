@@ -91,7 +91,7 @@ export default function QueryHistory({ initialData }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto ">
       <h2 className="text-3xl font-extrabold mb-6 text-[#29234b] tracking-wide flex items-center gap-4">
         <FileText className="text-[#6cb049] animate-bounce" size={32} />
         <span className="bg-gradient-to-r from-[#29234b] to-[#6cb049] text-transparent bg-clip-text">
@@ -122,7 +122,7 @@ export default function QueryHistory({ initialData }) {
                 </div>
 
                 {/* Current Stage */}
-                <div className="bg-gray-50 p-3 rounded-md mb-2">
+                <div className="bg-gray-50 mb-1 rounded-md">
                   <p className="flex gap-2 items-center text-sm text-gray-600">
                     <span className="font-semibold text-[#6cb049]">Current Stage:</span>
                     <span>{getStageName(entry.stage)}</span>
@@ -131,15 +131,15 @@ export default function QueryHistory({ initialData }) {
 
                 {/* Changes Table */}
                 <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white rounded-lg border border-gray-200 shadow-md">
-                    <thead className="bg-[#29234b] text-white uppercase text-xs font-semibold">
+                  <table className="min-w-full bg-white rounded-lg border border-gray-200 shadow-md text-xs">
+                    <thead className="bg-[#29234b] text-white uppercase font-semibold">
                       <tr>
-                        <th className="py-3 px-6 text-left">Field</th>
-                        <th className="py-3 px-6 text-left">Old Value</th>
-                        <th className="py-3 px-6 text-left">New Value</th>
+                        <th className="py-2 px-4 text-left">Field</th>
+                        <th className="py-2 px-4 text-left">Old Value</th>
+                        <th className="py-2 px-4 text-left">New Value</th>
                       </tr>
                     </thead>
-                    <tbody className="text-gray-800 font-normal text-sm">
+                    <tbody className="text-gray-800">
                       {Object.keys(entry.changes)
                         .filter(
                           (field) =>
@@ -150,35 +150,33 @@ export default function QueryHistory({ initialData }) {
                         .map((field, i) => (
                           <tr
                             key={i}
-                            className={`border-b border-gray-200 ${
-                              i % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-                            } `}
+                            className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}
                           >
-                            <td className="py-3 px-6 capitalize font-medium">{field}</td>
-                            <td className="py-3 px-6 text-red-500">
+                            <td className="py-1 px-4 capitalize">{field}</td>
+                            <td className="py-1 px-4 text-red-500">
                               {typeof entry.changes[field].oldValue === 'object'
                                 ? JSON.stringify(entry.changes[field].oldValue)
                                 : formatFieldValue(entry.changes[field].oldValue)}
                             </td>
-                            <td className="py-3 px-6 text-green-500">
+                            <td className="py-1 px-4 text-green-500">
                               {typeof entry.changes[field].newValue === 'object'
                                 ? JSON.stringify(entry.changes[field].newValue)
                                 : formatFieldValue(entry.changes[field].newValue)}
                             </td>
                           </tr>
                         ))}
-
                       {Object.keys(entry.changes)
                         .filter((field) => field !== 'statusCounts')
                         .every((field) => !entry.changes[field].oldValue && !entry.changes[field].newValue) && (
                           <tr>
-                            <td colSpan={3} className="py-3 px-6 text-center text-gray-400">
+                            <td colSpan={3} className="py-2 px-4 text-center text-gray-400">
                               No changes available
                             </td>
                           </tr>
                         )}
                     </tbody>
                   </table>
+
                 </div>
               </div>
             ))}
