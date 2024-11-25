@@ -22,6 +22,21 @@ export default function AllQuery() {
   const [adminData, setAdminData] = useState(null);
   const { data: session } = useSession();
 
+  const [filterByGrade, setFilterByGrade] = useState("");
+
+  const [grades, setGrades] = useState({});
+
+  const fetchGrade = async (id) => {
+    try {
+      const response = await axios.get(`/api/audit/findsingle/${id}`);
+      setGrades((prevGrades) => ({
+        ...prevGrades,
+        [id]: response.data, // Assuming the grade is returned in response.data.grade
+      }));
+    } catch (error) {
+      console.error("Error fetching grade", error);
+    }
+  };
 
 
   useEffect(() => {
@@ -95,21 +110,29 @@ export default function AllQuery() {
   };
 // Sort queries based on selected order
 const sortqueries = (queries) => {
-  // Sort by 'newest' or 'oldest'
-  const sortedByCreatedDate = queries.sort((a, b) => {
-    return sortOrder === "newest"
-      ? new Date(b.createdAt) - new Date(a.createdAt)
-      : new Date(a.createdAt) - new Date(b.createdAt);
+  const today = new Date().setHours(0, 0, 0, 0);
+
+  const sortedQueries = queries.sort((a, b) => {
+    const dateA = new Date(a.deadline).setHours(0, 0, 0, 0);
+    const dateB = new Date(b.deadline).setHours(0, 0, 0, 0);
+
+    // Sort today’s dates first
+    if (dateA === today && dateB === today) return 0;
+    if (dateA === today) return -1;
+    if (dateB === today) return 1;
+
+    // Sort past dates next (in descending order)
+    if (dateA < today && dateB < today) return dateB - dateA;
+
+    // Sort future dates last (in ascending order)
+    if (dateA > today && dateB > today) return dateA - dateB;
+
+    // Place past dates before future dates
+    return dateA < today ? -1 : 1;
   });
 
-  // If 'newest' is selected, sort by deadline
-  if (sortOrder === "newest") {
-    return sortedByCreatedDate.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-  }
-
-  return sortedByCreatedDate;
+  return sortedQueries;
 };
-
 // Filter queries based on course and search term
 const filterByDeadline = (querie) => {
   const currentDate = new Date();
@@ -138,11 +161,14 @@ const filteredqueries = sortqueries(
   queries
     .filter(querie =>
       (querie.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       querie.studentContact.phoneNumber.includes(searchTerm)) &&
+        querie.studentContact.phoneNumber.includes(searchTerm) ||
+        querie.referenceid.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterCourse === "" || querie.branch.includes(filterCourse)) &&
-      filterByDeadline(querie) // Ensure the deadline filter is applied
+      filterByDeadline(querie) && // Ensure the deadline filter is applied
+      (filterByGrade === "" || grades[querie._id]?.grade === filterByGrade) // Add filter by grade
     )
 );
+
 
 
   // Pagination logic
@@ -200,7 +226,7 @@ const filteredqueries = sortqueries(
           </span>
           <input
             type="text"
-            placeholder="Search By Student Name and Phone Number"
+            placeholder="Search By Student Name , Reference and Phone Number"
             className="border px-3 py-2 pl-10 text-sm focus:outline-none  w-full  "
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -275,7 +301,7 @@ const filteredqueries = sortqueries(
         )}
 
         {/* Desktop Filter Section */}
-        <div className="hidden lg:flex space-x-3">
+        <div className="hidden lg:flex flex-wrap space-x-3">
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
             value={filterCourse}
@@ -285,6 +311,17 @@ const filteredqueries = sortqueries(
             {Array.from(new Set(queries.flatMap(querie => querie.branch))).map((branch, index) => (
               <option key={index} value={branch}>{branch}</option>
             ))}
+          </select>
+          <select
+            value={filterByGrade}
+            onChange={(e) => setFilterByGrade(e.target.value)}
+            className="px-2 py-1 border"
+          >
+            <option value="">All Grades</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+         
           </select>
 
           <select
@@ -299,6 +336,8 @@ const filteredqueries = sortqueries(
             <option value="dayAfterTomorrow">Day After Tomorrow</option>
             <option value="past">Past Date</option>
           </select>
+
+
 
           <select
             className="border px-3 py-2 focus:outline-none text-sm"
@@ -372,6 +411,7 @@ const filteredqueries = sortqueries(
 
       {/* querie Table */}
       <div className="relative overflow-x-auto shadow-md  bg-white   border border-gray-200">
+
         <table className="w-full text-sm text-left rtl:text-right text-gray-600 font-sans">
           <thead className="bg-[#29234b] text-white uppercase">
             <tr>
@@ -389,9 +429,10 @@ const filteredqueries = sortqueries(
                 />
               </th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Staff Name</th> {/* Added User Name column */}
-              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name</th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">Student Name <span className=' text-xs'>(Reference)</span></th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Branch</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Phone Number</th>
+              <th scope="col" className="px-4 font-medium capitalize py-2">Grade</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">DeadLine</th>
               <th scope="col" className="px-4 font-medium capitalize py-2">Address</th>
             </tr>
@@ -399,7 +440,7 @@ const filteredqueries = sortqueries(
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="7" className="px-6 py-4"> {/* Updated colspan to 7 */}
+                <td colSpan="7" className="px-6 py-4">
                   <div className="flex justify-center items-center h-[300px]">
                     <Loader />
                   </div>
@@ -407,7 +448,11 @@ const filteredqueries = sortqueries(
               </tr>
             ) : filteredqueries.length > 0 ? (
               filteredqueries.map((querie, index) => {
-                // Find the user that matches the querie.userid
+                // Fetch grade if it's not already fetched
+                if (!grades[querie._id]) {
+                  fetchGrade(querie._id);
+                }
+
                 const matchedUser = user.find((u) => u._id === querie.userid);
 
                 return (
@@ -415,7 +460,7 @@ const filteredqueries = sortqueries(
                     <tr
                       key={querie._id}
                       className={`border-b cursor-pointer transition-colors duration-200 relative
-                    ${querie.addmission ? 'bg-[#6cb049] text-white' :
+          ${querie.addmission ? 'bg-[#6cb049] text-white' :
                           new Date(querie.deadline).toDateString() === new Date().toDateString() ? 'bg-red-500 text-white' :
                             new Date(querie.deadline) < new Date() ? 'text-white animate-blink' :
                               new Date(querie.deadline).toDateString() === new Date(Date.now() + 24 * 60 * 60 * 1000).toDateString() ? 'bg-[#fcccba] text-black' :
@@ -428,7 +473,8 @@ const filteredqueries = sortqueries(
                           type="checkbox"
                           checked={selectedqueries.includes(querie._id)}
                           onChange={() => handleSelectquerie(querie._id)}
-                        /><span className=' ms-2'>{(index + 1)}</span>
+                        />
+                        <span className="ms-2">{index + 1}</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px] font-semibold">
@@ -436,7 +482,7 @@ const filteredqueries = sortqueries(
                       </td>
 
                       <td className="px-4 py-2 font-semibold text-sm whitespace-nowrap" onClick={() => handleRowClick(querie._id)}>
-                        {querie.studentName}
+                        {querie.studentName} <span className="text-xs">({querie.referenceid})</span>
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
@@ -448,6 +494,11 @@ const filteredqueries = sortqueries(
                       </td>
 
                       <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
+                        {grades[querie._id]?.grade === 'Null' ? 'N/A' : grades[querie._id]?.grade || 'Loading...'}
+                      </td>
+
+
+                      <td onClick={() => handleRowClick(querie._id)} className="px-4 py-2 text-[12px]">
                         {`${String(new Date(querie.deadline).getDate()).padStart(2, '0')}-${String(new Date(querie.deadline).getMonth() + 1).padStart(2, '0')}-${String(new Date(querie.deadline).getFullYear()).slice(-2)}`}
                       </td>
 
@@ -456,7 +507,7 @@ const filteredqueries = sortqueries(
                       </td>
 
                       <span className="absolute right-0 top-0 bottom-0 flex items-center">
-                        {!querie.addmission && ( // Show only if addmission is false
+                        {!querie.addmission && (
                           new Date(querie.lastDeadline) < new Date() && new Date(querie.lastDeadline).toDateString() !== new Date().toDateString() ? (
                             <span className="inline-flex items-center px-2 text-[10px] font-semibold text-red-600 bg-red-200 rounded-full shadow-md">
                               ✖️ Today Update
@@ -468,17 +519,33 @@ const filteredqueries = sortqueries(
                           )
                         )}
                       </span>
-
-
-
                     </tr>
 
 
+                    {grades[querie._id]?.history?.length > 0 && (
+                      <tr className="border-b bg-gray-200">
+                        <td colSpan="8" className="px-4">
+                          <div className="flex flex-wrap gap-4">
+                            <p className="font-bold text-xs">Last Action</p>
+
+
+                            <p className=' text-xs'><strong>Action By = </strong> {grades[querie._id]?.history[0]?.actionBy}</p>
+
+                            <ul>
+                              {grades[querie._id]?.history[grades[querie._id].history.length - 1]?.changes?.message?.newValue && (
+                                <li className=' text-xs'>
+                                  <strong>Message = </strong> {grades[querie._id]?.history[grades[querie._id].history.length - 1]?.changes?.message?.newValue}
+                                </li>
+                              )}
+                            </ul>
+
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
 
                   </>
-
-
-
                 );
               })
             ) : (
@@ -489,10 +556,11 @@ const filteredqueries = sortqueries(
               </tr>
             )}
           </tbody>
+
         </table>
 
-        {/* Pagination */}
-        {/* <Pagination
+        {/* Pagination
+        <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           paginate={paginate}

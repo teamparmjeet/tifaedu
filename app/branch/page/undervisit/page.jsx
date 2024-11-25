@@ -54,7 +54,7 @@ export default function UnderVisit() {
         };
 
         fetchQueryData();
-    }, []);
+    }, [adminData]);
 
     const handleRowClick = (id) => {
         router.push(`/main/page/allquery/${id}`);

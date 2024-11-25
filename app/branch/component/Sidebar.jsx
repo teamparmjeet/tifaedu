@@ -7,34 +7,11 @@ import { usePathname } from 'next/navigation';
 
 export default function Sidebar({ onToggleSidebar }) {
   const [openSubmenu, setOpenSubmenu] = useState(null);
-  const [isLgScreen, setIsLgScreen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => {
-    const handleResize = () => {
-      const isLargeScreen = window.innerWidth >= 1024;
-      setIsLgScreen(isLargeScreen);
-      setIsSidebarOpen(isLargeScreen && pathname !== "/branch/page/allquery"); // Sidebar open by default on large screens, closed on /allquery
-    };
+  
 
-    // Initial check on component mount
-    handleResize();
-
-    // Add event listener for window resize
-    window.addEventListener("resize", handleResize);
-
-    // Cleanup listener on component unmount
-    return () => window.removeEventListener("resize", handleResize);
-  }, [pathname]);
-
-  useEffect(() => {
-    // Automatically close sidebar when on "/branch/page/allquery"
-    if (pathname === "/branch/page/allquery") {
-      setIsSidebarOpen(false);
-      setIsLgScreen(true)
-    }
-  }, [pathname]);
 
   const handleClick = (id) => {
     setOpenSubmenu(openSubmenu === id ? null : id);
@@ -48,6 +25,14 @@ export default function Sidebar({ onToggleSidebar }) {
   };
 
   const isActiveLink = (href) => pathname === href;
+
+  const handleLinkClick = () => {
+    setIsSidebarOpen(false); // Close sidebar on menu link click
+    if (onToggleSidebar) {
+      onToggleSidebar(false);
+    }
+  };
+
 
   return (
     <>
@@ -67,7 +52,7 @@ export default function Sidebar({ onToggleSidebar }) {
         >
           <div className="relative h-full flex flex-col px-2">
             <ul className="h-full ">
-              <Link href="/branch">
+              <Link href="/branch" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/branch") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700 "
                     }`}
@@ -77,7 +62,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
               </Link>
 
-              <Link href="/branch/page/allquery">
+              <Link href="/branch/page/allquery" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/branch/page/allquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -88,7 +73,7 @@ export default function Sidebar({ onToggleSidebar }) {
               </Link>
 
 
-              <Link href="/branch/page/importquery">
+              <Link href="/branch/page/importquery" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/branch/page/importquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -99,7 +84,7 @@ export default function Sidebar({ onToggleSidebar }) {
               </Link>
 
 
-              <Link href="/branch/page/addquery">
+              <Link href="/branch/page/addquery" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/branch/page/addquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -109,7 +94,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
               </Link>
 
-              <Link href="/branch/page/undervisit">
+              <Link href="/branch/page/undervisit" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -119,7 +104,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 </li>
                 </Link>
 
-              <Link href="/branch/page/assigned">
+              <Link href="/branch/page/assigned" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
@@ -136,7 +121,7 @@ export default function Sidebar({ onToggleSidebar }) {
                 Important Queries
               </li>
 
-              <Link href="/branch/page/staff">
+              <Link href="/branch/page/staff" onClick={handleLinkClick}>
                 <li
                   className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/branch/page/staff") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}>
@@ -164,7 +149,7 @@ export default function Sidebar({ onToggleSidebar }) {
                   {openSubmenu === item.id && item.submenu && (
                     <ul className="shadow-lg mt-2 transition-all duration-300 ease-in-out">
                       {item.submenu.map((submenuItem, index) => (
-                        <Link key={index} href={submenuItem.href}>
+                        <Link key={index} href={submenuItem.href} onClick={handleLinkClick}>
                           <li
 
                             className={`${isActiveLink(`${submenuItem.href}`) ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"} cursor-pointer text-sm border-b  text-gray-700  px-4 py-2 duration-150 flex items-center gap-x-2`}
@@ -181,7 +166,7 @@ export default function Sidebar({ onToggleSidebar }) {
 
             <div className="mt-auto p-2 border-t">
               <div className="flex flex-col">
-                <Link href="/branch/page/trash">
+                <Link href="/branch/page/trash" onClick={handleLinkClick}>
                   <div className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2  rounded-md ${isActiveLink("/branch/page/trash") ? "bg-red-600 text-white " : "hover:bg-red-600 hover:text-white"
                     }`}>
                     <Trash2 size={18} />

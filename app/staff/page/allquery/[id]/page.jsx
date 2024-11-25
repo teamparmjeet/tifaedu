@@ -7,7 +7,6 @@ import Link from "next/link";
 import UpdateQuere from "@/app/main/component/Updatequere/UpdateQuere";
 import AssignedQuery from "@/components/AssignedQuery/AssignedQuery";
 import QueryHistory from "@/components/QueryHistory/QueryHistory";
-import { useSession } from 'next-auth/react';
 
 export default function Page({ params }) {
     const { id } = params;
@@ -15,8 +14,6 @@ export default function Page({ params }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [adminData, setAdminData] = useState(null);
-    const { data: session } = useSession();
     const [dataLoaded, setDataLoaded] = useState(false);
     const [courses, setCourses] = useState([]); // State to store courses
     const [courseName, setCourseName] = useState(""); // State to store the course name
@@ -50,29 +47,10 @@ export default function Page({ params }) {
     }, [fetchBranchData, fetchCourses]);
 
     useEffect(() => {
-        const fetchAdminData = async () => {
-            try {
-                setLoading(true);
-                const response = await axios.get(
-                    `/api/admin/find-admin-byemail/${session?.user?.email}`
-                );
-                const adminid = response.data._id;
-                setAdminData(adminid);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (session?.user?.email) fetchAdminData();
-    }, [session]);
-
-    useEffect(() => {
-        if (query && adminData) {
+        if (query) {
             setDataLoaded(true);
         }
-    }, [query, adminData]);
+    }, [query,]);
 
     // Find the course name based on the course ID
     useEffect(() => {
@@ -103,19 +81,36 @@ export default function Page({ params }) {
             {/* Left Sidebar */}
             <div className="col-span-1 bg-white shadow-lg rounded-lg p-6">
                 <div className="sticky top-5">
-                    {query && (query.assignedTo === "Not-Assigned" || query.assignedTo === adminData) ? (
+                    <div className="flex flex-col">
                         <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="mb-2 bg-[#29234b] w-full py-2 rounded-md text-white"
+                            onClick={async () => {
+                                if (query.autoclosed === "close") {
+                                    try {
+                                        // Call the update API to change autoclosed to "open"
+                                        const newApiResponse = await axios.patch('/api/queries/update', {
+                                            id: query._id,
+                                            autoclosed: "open"  // Change autoclosed to "open" when recovering query
+                                        });
+
+                                        // Optionally, refresh data after the update
+                                        fetchBranchData();
+                                    } catch (error) {
+                                        console.error("Error updating query:", error);
+                                    }
+                                } else {
+                                    // Open the modal if query.autoclosed is not "close"
+                                    setIsModalOpen(true);
+                                }
+                            }}
+                            className="mb-1 bg-[#29234b] w-full py-1 rounded-md text-white transition duration-300 ease-in-out hover:bg-[#3a2b6f] focus:outline-none focus:ring-2 focus:ring-[#ffbe98] focus:ring-opacity-50"
                         >
-                            Update
+                            {query.autoclosed === "close" ? "Recover Query" : "Update"}
                         </button>
-                    ) : (
-                        <p className="bg-red-300 p-1 rounded-md text-white text-sm mb-2">
-                            You do not have permission to update this query.
-                        </p>
-                    )}
-                    <AssignedQuery refreshData={fetchBranchData} initialData={query} />
+
+                        <AssignedQuery refreshData={fetchBranchData} initialData={query} />
+                    </div>
+
+
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
                         {query.studentName}
                     </h1>
@@ -151,9 +146,10 @@ export default function Page({ params }) {
                             {new Date(query.deadline).toLocaleDateString("en-GB")}
                         </p>
                     </div>
-                    {/* <div className="mt-4">
-                        <AssignedQuery refreshData={fetchBranchData} initialData={query} />
-                    </div> */}
+                    <div className="mt-4">
+                        {/* <AssignedQuery refreshData={fetchBranchData} initialData={query} /> */}
+
+                    </div>
                     <div className="mt-4">
                         <h2 className="text-lg font-semibold text-[#29234b]">Course Interest</h2>
                         <p className="text-sm text-gray-700">{courseName}</p> {/* Show course name here */}
