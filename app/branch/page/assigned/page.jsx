@@ -18,7 +18,27 @@ export default function Assigned() {
     const [selectedDeadline, setSelectedDeadline] = useState('All');
     const [selectedEnrollStatus, setSelectedEnrollStatus] = useState('All');
     const [openBranchDetails, setOpenBranchDetails] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedQuery, setSelectedQuery] = useState(null);
 
+    const handleAcceptQuery = async () => {
+        if (!selectedQuery) return;
+
+        try {
+            const data = { id: selectedQuery._id, assignedTo: adminId, assignedTostatus: false }; // Update status to "Accepted"
+            const response = await axios.patch('/api/queries/update', data);
+
+            if (response.status === 200) {
+                alert('Query status updated successfully');
+                setShowPopup(false);
+                setSelectedQuery(null);
+                // Optionally: Refresh data or update state here
+            }
+        } catch (error) {
+            console.error('Error updating query status:', error);
+            alert('Failed to update query status');
+        }
+    };
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -54,7 +74,7 @@ export default function Assigned() {
             if (adminId) {
                 try {
                     setLoading(true);
-                    const { data } = await axios.get(`/api/queries/assigned/${adminId}?autoclosed=open`);
+                    const { data } = await axios.get(`/api/queries/assignedreq/${adminId}?autoclosed=open`);
                     setQueries(data.fetch);
                 } catch (error) {
                     console.error('Error fetching query data:', error);
@@ -142,20 +162,20 @@ export default function Assigned() {
                                     </thead>
                                     <tbody>
                                         {loading ? (
-                                         <tr>
-                                         <td colSpan="4" className="px-6 py-4  text-center">
-                                           <div className="flex items-center justify-center h-full">
-                                             <Loader />
-                                           </div>
-                                         </td>
-                                       </tr>
-                                       
-                                        
-                                         
+                                            <tr>
+                                                <td colSpan="4" className="px-6 py-4  text-center">
+                                                    <div className="flex items-center justify-center h-full">
+                                                        <Loader />
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+
+
                                         ) : currentQueries.length > 0 ? (
                                             currentQueries
                                                 .sort((a, b) => new Date(a.deadline) - new Date(b.deadline)) // Sort by deadline
-                                                .map((query,index) => {
+                                                .map((query, index) => {
 
                                                     const deadline = new Date(query.deadline);
                                                     const isToday = deadline.toDateString() === new Date().toDateString();
@@ -182,7 +202,18 @@ export default function Assigned() {
                                                             <td className="px-6 py-1 font-semibold">{query.studentName}</td>
                                                             <td className="px-6 py-1">{query.branch}</td>
                                                             <td className="px-6 py-1">{deadline.toLocaleDateString()}</td>
-                                                            <td className="px-6 py-1">{query.addmission ? 'Enroll' : 'Pending'}</td>
+                                                            <td
+                                                                className="px-6 py-1 text-blue-500 cursor-pointer"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (query.assignedTostatus) {
+                                                                        setSelectedQuery(query);
+                                                                        setShowPopup(true);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {query.assignedTostatus ? 'Pending' : 'Accepted'}
+                                                            </td>
                                                         </tr>
                                                     );
                                                 })
@@ -192,6 +223,28 @@ export default function Assigned() {
                                                     No queries available
                                                 </td>
                                             </tr>
+                                        )}
+                                        {showPopup && (
+                                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                                <div className="bg-white rounded-lg p-6 text-center">
+                                                    <h2 className="text-lg font-semibold mb-4">Accept Query</h2>
+                                                    <p>Are you sure you want to accept this query?</p>
+                                                    <div className="mt-4 flex justify-center space-x-4">
+                                                        <button
+                                                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                                            onClick={handleAcceptQuery}
+                                                        >
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                                            onClick={() => setShowPopup(false)}
+                                                        >
+                                                            Ignore
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         )}
                                     </tbody>
 
@@ -263,34 +316,7 @@ export default function Assigned() {
 
 
 
-                    {/* Deadline Filter */}
-                    <div className="shadow-lg rounded-lg bg-white p-4">
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Deadline</h3>
-                        <select
-                            className="w-full py-2 px-3 bg-gray-100 rounded"
-                            value={selectedDeadline}
-                            onChange={(e) => setSelectedDeadline(e.target.value)}
-                        >
-                            <option value="All">All</option>
-                            <option value="Today">Today</option>
-                            <option value="Tomorrow">Tomorrow</option>
-                            <option value="Past">Past Deadline</option>
-                        </select>
-                    </div>
-
-                    {/* Enroll Status Filter */}
-                    <div className="shadow-lg rounded-lg bg-white p-4">
-                        <h3 className="text-lg font-semibold mb-4 text-gray-800">Filter by Status</h3>
-                        <select
-                            className="w-full py-2 px-3 bg-gray-100 rounded"
-                            value={selectedEnrollStatus}
-                            onChange={(e) => setSelectedEnrollStatus(e.target.value)}
-                        >
-                            <option value="All">All</option>
-                            <option value="Enroll">Enroll</option>
-                            <option value="Pending">Pending</option>
-                        </select>
-                    </div>
+                 
                 </div>
             </div>
         </div>

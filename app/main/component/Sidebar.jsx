@@ -97,7 +97,7 @@ export default function Sidebar({ onToggleSidebar }) {
 
               <Link href="/main/page/assigned" onClick={handleLinkClick}>
                 <li
-                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/addquery") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
+                  className={`cursor-pointer text-sm px-4 py-3 duration-150 flex items-center gap-x-2 rounded-md ${isActiveLink("/main/page/assigned") ? "bg-[#6cb049] text-white" : "hover:bg-gray-100 text-gray-700"
                     }`}
                 >
                   <CopyPlus size={18} />

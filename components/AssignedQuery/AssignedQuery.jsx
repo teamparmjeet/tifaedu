@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
 export default function AssignedQuery({ initialData, refreshData }) {
-    const [assignedTo, setAssignedTo] = useState(initialData.assignedTo);
+    const [assignedToreq, setAssignedToreq] = useState(initialData.assignedToreq);
     const [orignaluser, setOrignaluser] = useState(initialData.userid);
     const [assignedUserDetails, setAssignedUserDetails] = useState(null);
     const [matchorignaluser, setMatchorignaluser] = useState(null);
@@ -30,7 +30,7 @@ export default function AssignedQuery({ initialData, refreshData }) {
                 setFilteredUsers(allUsers);
 
                 // Find assigned user
-                const matchedUser = allUsers.find(user => user._id === initialData.assignedTo);
+                const matchedUser = allUsers.find(user => user._id === initialData.assignedToreq);
                 const matchOriginalUser = allUsers.find(user => user._id === initialData.userid);
 
                 setAssignedUserDetails(matchedUser || null); // Set matched user or null
@@ -44,35 +44,39 @@ export default function AssignedQuery({ initialData, refreshData }) {
         };
 
         fetchUserData();
-    }, [initialData.assignedTo, initialData.userid]);
+    }, [initialData.assignedToreq, initialData.userid]);
     const displayName = matchorignaluser?.name || '...';
+
+    
     const handleUpdate = async () => {
         setLoading(true);
         setError('');
         setSuccess('');
-
+    
         try {
-            const userBranch = assignedUserDetails.branch;
-
+            const adminId = matchorignaluser; // Get the ID of the user performing the update
+            const assignedUserId = assignedToreq; // The ID of the assigned user
+    
             // Update query assignment with actionBy (who is performing the update)
             const queryResponse = await axios.patch('/api/queries/update', {
                 id: initialData._id,
-                assignedTo,
-                // branch: userBranch,
-                actionBy: session?.user?.name // The user performing the action
+                assignedToreq,
+                assignedsenthistory: [adminId], 
+                assignedreceivedhistory: [assignedUserId], // Add assigned user ID to received history
+                assignedTostatus: true,
+                actionBy: session?.user?.name
             });
-
+    
             // Update audit log with actionBy, assignedBy, and message
             const auditResponse = await axios.patch('/api/audit/update', {
                 queryId: initialData._id,
                 message,
-                assignedTo,
+                assignedToreq,
                 assignedBy: session?.user?.name,
-
             });
-
+    
             if (queryResponse.status === 200 && auditResponse.status === 200) {
-                const updatedUser = users.find(user => user._id === assignedTo);
+                const updatedUser = users.find(user => user._id === assignedToreq);
                 setAssignedUserDetails(updatedUser || null);
                 setSuccess('Query, message, and assignment details updated successfully');
                 refreshData();
@@ -84,13 +88,14 @@ export default function AssignedQuery({ initialData, refreshData }) {
             setLoading(false);
         }
     };
+    
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
     const selectUser = (user) => {
-        setAssignedTo(user._id);
+        setAssignedToreq(user._id);
         setAssignedUserDetails(user);
         setIsDropdownOpen(false);
     };
