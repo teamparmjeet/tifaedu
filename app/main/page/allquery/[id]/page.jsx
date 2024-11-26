@@ -7,7 +7,7 @@ import Link from "next/link";
 import UpdateQuere from "@/app/main/component/Updatequere/UpdateQuere";
 import AssignedQuery from "@/components/AssignedQuery/AssignedQuery";
 import QueryHistory from "@/components/QueryHistory/QueryHistory";
-
+import Fees from "@/components/fees/Fees";
 export default function Page({ params }) {
     const { id } = params;
     const [query, setQuery] = useState(null);
@@ -109,7 +109,7 @@ export default function Page({ params }) {
 
                         <AssignedQuery refreshData={fetchBranchData} initialData={query} />
                     </div>
-
+                    <Fees id={query._id} />
 
                     <h1 className="text-xl font-bold text-[#29234b] mb-3 hover:underline cursor-pointer">
                         {query.studentName}
