@@ -9,14 +9,52 @@ export default function UpdateQuery6({ query, audit }) {
   const [message, setMessage] = useState('');
   const [deadline, setDeadline] = useState('');
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal visibility state
+  const [feesType, setFeesType] = useState('');
+  const [feesAmount, setFeesAmount] = useState('');
+  const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
 
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
     setMessage(''); // Reset message when the option changes
+    if (event.target.value === 'admission') {
+      setIsModalOpen(true); // Open the modal when "Enroll" is selected
+    }
   };
+
   const handleDeadlineChange = (event) => {
     setDeadline(event.target.value);
   };
+
+
+
+  const handleModalSubmit = async () => {
+    // API call for fees update
+    const feesData = {
+      id: queryid,
+      
+      fees: {
+        feesType,
+        feesAmount: parseFloat(feesAmount),
+        transactionDate,
+      },
+    };
+
+    try {
+      const response = await axios.patch('/api/queries/fees', feesData);
+      if (response.status === 200) {
+        console.log('Fees updated successfully:', response.data);
+        setIsModalOpen(false); // Close the modal after successful submission
+        router.push("./")
+      } else {
+        console.error('Error updating fees:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -26,7 +64,7 @@ export default function UpdateQuery6({ query, audit }) {
       actionby: userid,
       oflinesubStatus: selectedOption,
       message:message, 
-      stage: selectedOption === 'admission' ? 4 : undefined,
+     
       deadline: deadline || undefined, // Include deadline if provided
 
     };
@@ -50,19 +88,7 @@ export default function UpdateQuery6({ query, audit }) {
         console.error('Error updating audit:', auditResponse.statusText);
       }
 
-      // If admission is selected, make a separate API call to update queries
-      if (selectedOption === 'admission') {
-        const queryUpdateData = {
-          id: queryid,
-          addmission: true, // Set admission to true
-        };
-        const queryResponse = await axios.patch('/api/queries/update', queryUpdateData);
-        if (queryResponse.status === 200) {
-          console.log('Query updated with admission successfully:', queryResponse.data);
-        } else {
-          console.error('Error updating query for admission:', queryResponse.statusText);
-        }
-      }else if (selectedOption === 'demo') {
+      if (selectedOption === 'demo') {
           const queryUpdateData = {
             id: queryid,
             demo: true, // Set demo to true
@@ -145,6 +171,57 @@ export default function UpdateQuery6({ query, audit }) {
       >
         Submit
       </button>
+
+
+       {/* Modal for Fees Update */}
+       {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4">Update User Fees</h3>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Fees Type</label>
+              <input
+                type="text"
+                className="w-full p-2 border border-gray-300 rounded"
+                value={feesType}
+                onChange={(e) => setFeesType(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Fees Amount</label>
+              <input
+                type="number"
+                className="w-full p-2 border border-gray-300 rounded"
+                value={feesAmount}
+                onChange={(e) => setFeesAmount(e.target.value)}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Transaction Date</label>
+              <input
+                type="date"
+                className="w-full p-2 border border-gray-300 rounded"
+                value={transactionDate}
+                onChange={(e) => setTransactionDate(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={handleModalSubmit}
+                className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+              >
+                Submit
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="bg-gray-300 px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

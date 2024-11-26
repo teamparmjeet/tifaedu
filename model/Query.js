@@ -108,6 +108,17 @@ const querySchema = new Schema({
         default: "Not-Assigned",
 
     },
+    fees: [
+        {
+            feesType: { type: String, default: "Not_Provided" },
+            feesAmount: { type: Number, default: 0 },
+            transactionDate: { type: Date, default: Date.now },
+        },
+    ],
+    total: {
+        type: Number,
+        default: 0,
+    },
     assignedTostatus: {
         type: Boolean,
         default: false
@@ -146,8 +157,13 @@ querySchema.pre('save', function (next) {
     next();
 });
 
+querySchema.pre('save', function (next) {
+    this.total = this.fees.reduce((sum, fee) => sum + fee.feesAmount, 0);
+    next();
+});
+
 const QueryModel =
 
-    mongoose.models.Queries35 || mongoose.model('Queries35', querySchema);
+    mongoose.models.Queries38 || mongoose.model('Queries38', querySchema);
 
 export default QueryModel;
