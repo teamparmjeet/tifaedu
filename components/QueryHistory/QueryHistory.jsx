@@ -101,85 +101,66 @@ export default function QueryHistory({ initialData }) {
 
       {audit && audit.history.length > 0 ? (
         <div className="space-y-8">
-          {audit.history
-            .slice()
-            .reverse()
-            .map((entry, index) => (
-              <div
-                key={index}
-                className="bg-white shadow-md rounded-lg p-6 border border-gray-200"
-              >
-                {/* Header Section */}
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                    <UserCheck size={22} className="text-[#6cb049]" />
-                    {getUserNameById(entry.actionBy)} {entry.action} Query
-                  </h3>
-                  <p className="text-gray-400 text-xs italic flex items-center gap-1">
-                    <Clock size={14} />
-                    {new Date(entry.actionDate).toLocaleString()}
-                  </p>
-                </div>
+         {
+  audit.history
+    .slice()
+    .reverse()
+    .map((entry, index) => (
+      <div
+        key={index}
+        className="bg-white shadow-md rounded-lg p-4 border border-gray-200 flex justify-between items-center"
+      >
+        {/* User and Action */}
+        <div className="flex items-center gap-4">
+          <UserCheck size={20} className="text-[#6cb049]" />
+          <span className="text-gray-800 font-semibold">
+            {getUserNameById(entry.actionBy)} {entry.action} Query
+          </span>
+        </div>
 
-                {/* Current Stage */}
-                <div className="bg-gray-50 mb-1 rounded-md">
-                  <p className="flex gap-2 items-center text-sm text-gray-600">
-                    <span className="font-semibold text-[#6cb049]">Current Stage:</span>
-                    <span>{getStageName(entry.stage)}</span>
-                  </p>
-                </div>
+        {/* Date */}
+        <p className="text-gray-400 text-sm italic flex items-center gap-2">
+          <Clock size={14} />
+          {new Date(entry.actionDate).toLocaleString()}
+        </p>
 
-                {/* Changes Table */}
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white rounded-lg border border-gray-200 shadow-md text-xs">
-                    <thead className="bg-[#29234b] text-white uppercase font-semibold">
-                      <tr>
-                        <th className="py-2 px-4 text-left">Field</th>
-                        <th className="py-2 px-4 text-left">Old Value</th>
-                        <th className="py-2 px-4 text-left">New Value</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-gray-800">
-                      {Object.keys(entry.changes)
-                        .filter(
-                          (field) =>
-                            field !== 'statusCounts' &&
-                            field !== 'actionby' &&
-                            (entry.changes[field].oldValue || entry.changes[field].newValue)
-                        )
-                        .map((field, i) => (
-                          <tr
-                            key={i}
-                            className={`border-b border-gray-200 ${i % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}
-                          >
-                            <td className="py-1 px-4 capitalize">{field}</td>
-                            <td className="py-1 px-4 text-red-500">
-                              {typeof entry.changes[field].oldValue === 'object'
-                                ? JSON.stringify(entry.changes[field].oldValue)
-                                : formatFieldValue(entry.changes[field].oldValue)}
-                            </td>
-                            <td className="py-1 px-4 text-green-500">
-                              {typeof entry.changes[field].newValue === 'object'
-                                ? JSON.stringify(entry.changes[field].newValue)
-                                : formatFieldValue(entry.changes[field].newValue)}
-                            </td>
-                          </tr>
-                        ))}
-                      {Object.keys(entry.changes)
-                        .filter((field) => field !== 'statusCounts')
-                        .every((field) => !entry.changes[field].oldValue && !entry.changes[field].newValue) && (
-                          <tr>
-                            <td colSpan={3} className="py-2 px-4 text-center text-gray-400">
-                              No changes available
-                            </td>
-                          </tr>
-                        )}
-                    </tbody>
-                  </table>
+        {/* Current Stage */}
+        <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-md">
+          <strong>Stage:</strong> {getStageName(entry.stage)}
+        </span>
 
-                </div>
+        {/* Changes Summary */}
+        <div className="flex flex-col items-start text-sm">
+          {Object.keys(entry.changes)
+            .filter(
+              (field) =>
+                field !== 'statusCounts' &&
+                (entry.changes[field].oldValue || entry.changes[field].newValue)
+            )
+            .map((field, i) => (
+              <div key={i} className="flex gap-2 text-xs">
+                <span className="font-semibold capitalize">{field}:</span>
+                <span className="text-red-500 line-through">
+                  {formatFieldValue(entry.changes[field].oldValue)}
+                </span>
+                <span className="text-green-500">
+                  {formatFieldValue(entry.changes[field].newValue)}
+                </span>
               </div>
             ))}
+          {Object.keys(entry.changes)
+            .filter((field) => field !== 'statusCounts')
+            .every(
+              (field) =>
+                !entry.changes[field].oldValue && !entry.changes[field].newValue
+            ) && (
+            <span className="text-gray-400 italic text-xs">No changes</span>
+          )}
+        </div>
+      </div>
+    ))
+}
+
         </div>
       ) : (
         <p className="text-gray-500 text-center">No history available for this query.</p>
